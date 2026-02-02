@@ -38,3 +38,7 @@ uploads/*
 
 ### Logs ###
 *.log
+
+### .env  ###
+.env.local
+.env
