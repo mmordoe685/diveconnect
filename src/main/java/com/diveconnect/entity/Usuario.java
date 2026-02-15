@@ -1,4 +1,4 @@
-package diveconnect.entity;
+package com.diveconnect.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

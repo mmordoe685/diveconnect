@@ -1,4 +1,4 @@
-package diveconnect.entity;
+package com.diveconnect.entity;
 
 public enum TipoUsuario {
     USUARIO_COMUN,      // Usuario normal de la plataforma

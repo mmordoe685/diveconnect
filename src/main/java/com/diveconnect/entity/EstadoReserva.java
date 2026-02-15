@@ -1,4 +1,4 @@
-package diveconnect.entity;
+package com.diveconnect.entity;
 
 public enum EstadoReserva {
     PENDIENTE,    // Reserva creada, esperando confirmación
