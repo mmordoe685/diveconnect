@@ -1,6 +1,7 @@
 package com.diveconnect.dto.response;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -22,7 +23,9 @@ public class InmersionResponse {
     private String imagenUrl;
     private Boolean activa;
     private LocalDateTime fechaCreacion;
+    
+    // Datos del centro de buceo
     private Long centroBuceoId;
     private String centroBuceoNombre;
-    private String centrobuceoCiudad;
+    private String centroBuceoCiudad;
 }

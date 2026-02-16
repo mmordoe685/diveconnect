@@ -1,6 +1,7 @@
 package com.diveconnect.dto.response;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -17,8 +18,12 @@ public class PublicacionResponse {
     private LocalDateTime fechaPublicacion;
     private Integer numeroLikes;
     private Integer numeroComentarios;
+    
+    // Datos del usuario
     private Long usuarioId;
     private String usuarioUsername;
     private String usuarioFotoPerfil;
+    
+    // Indicadores
     private Boolean likedByCurrentUser;
 }

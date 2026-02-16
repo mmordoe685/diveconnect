@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión - DiveConnect</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <h1 class="auth-title">DiveConnect</h1>
+                <p class="auth-subtitle">Red social de submarinismo</p>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Usuario o Email</label>
+                    <input type="text" class="form-input" id="usernameOrEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" class="form-input" id="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-full">
+                    Iniciar Sesión
+                </button>
+            </form>
+
+            <p class="auth-footer">
+                ¿No tienes cuenta? <a href="/pages/register.html">Regístrate aquí</a>
+            </p>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/auth.js"></script>
+    <script>
+        redirectIfAuthenticated();
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const usernameOrEmail = document.getElementById('usernameOrEmail').value;
+            const password = document.getElementById('password').value;
+            
+            const result = await login(usernameOrEmail, password);
+            
+            if (result.success) {
+                window.location.href = '/pages/feed.html';
+            } else {
+                showAlert(result.message, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
