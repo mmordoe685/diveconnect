@@ -4,146 +4,135 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Feed - DiveConnect</title>
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="/pages/feed.html" class="navbar-logo">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-                <span>DiveConnect</span>
-            </a>
 
-            <ul class="navbar-menu">
-                <li><a href="/pages/feed.html">Feed</a></li>
-                <li><a href="/pages/perfil.html">Mi Perfil</a></li>
-                <li class="navbar-user">
-                    <span id="currentUsername"></span>
-                    <button class="btn btn-sm btn-secondary" onclick="logout()">Salir</button>
-                </li>
-            </ul>
-        </div>
-    </nav>
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="/pages/feed.html" class="navbar-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+            </svg>
+            <span>DiveConnect</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="/pages/feed.html">Feed</a></li>
+            <li><a href="/pages/inmersiones.html">Inmersiones</a></li>
+            <li><a href="/pages/perfil.html">Mi Perfil</a></li>
+            <li class="navbar-user">
+                <span id="currentUsername"></span>
+                <button class="btn btn-sm btn-secondary" onclick="logout()">Salir</button>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-    <!-- Contenido Principal -->
-    <div class="container">
-        <h1 class="text-center mb-4">Mi Feed</h1>
+<div class="container">
 
-        <!-- Formulario Nueva Publicación -->
-        <div class="card">
-            <form id="nuevaPublicacionForm">
-                <div class="form-group">
-                    <textarea class="form-input" id="contenido" placeholder="¿Qué tal tu última inmersión? Comparte tu experiencia..." rows="3" required></textarea>
-                </div>
-
-                <button type="button" class="btn btn-secondary btn-sm mb-2" onclick="toggleDetalles()">
-                    📍 Añadir detalles de inmersión
-                </button>
-
-                <div id="detallesInmersion" class="hidden">
-                    <div class="form-group">
-                        <label class="form-label">Lugar de inmersión</label>
-                        <input type="text" class="form-input" id="lugarInmersion" placeholder="Ej: Islas Medas">
-                    </div>
-
-                    <div class="flex gap-2">
-                        <div class="form-group">
-                            <label class="form-label">Profundidad (m)</label>
-                            <input type="number" step="0.1" class="form-input" id="profundidadMaxima">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Temperatura (°C)</label>
-                            <input type="number" step="0.1" class="form-input" id="temperaturaAgua">
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Visibilidad (m)</label>
-                            <input type="number" step="0.1" class="form-input" id="visibilidad">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Especies vistas</label>
-                        <input type="text" class="form-input" id="especiesVistas" placeholder="Ej: Meros, pulpos, barracudas">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Publicar</button>
-            </form>
-        </div>
-
-        <!-- Lista de Publicaciones -->
-        <div id="publicacionesContainer">
-            <div class="loading">
-                <div class="spinner"></div>
+    <!-- Nueva publicación -->
+    <div class="card">
+        <form id="nuevaPublicacionForm">
+            <div class="form-group">
+                <textarea class="form-input" id="contenido"
+                    placeholder="¿Qué tal tu última inmersión? Comparte tu experiencia..."
+                    rows="3" required></textarea>
             </div>
-        </div>
+
+            <button type="button" class="btn btn-secondary btn-sm mb-2" onclick="toggleDetalles()">
+                📍 Añadir detalles de inmersión
+            </button>
+
+            <div id="detallesInmersion" class="hidden">
+                <div class="form-group">
+                    <label class="form-label">Lugar de inmersión</label>
+                    <input type="text" class="form-input" id="lugarInmersion"
+                           placeholder="Ej: Islas Medas, Costa Brava">
+                </div>
+                <div class="flex gap-2">
+                    <div class="form-group">
+                        <label class="form-label">Profundidad (m)</label>
+                        <input type="number" step="0.1" class="form-input" id="profundidadMaxima">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Temperatura (°C)</label>
+                        <input type="number" step="0.1" class="form-input" id="temperaturaAgua">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Visibilidad (m)</label>
+                        <input type="number" step="0.1" class="form-input" id="visibilidad">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Especies vistas</label>
+                    <input type="text" class="form-input" id="especiesVistas"
+                           placeholder="Ej: Meros, pulpos, barracudas">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">🤿 Publicar</button>
+        </form>
     </div>
 
-    <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
-    <script src="/js/publicaciones.js"></script>
-    <script>
-        requireAuth();
+    <!-- Lista de publicaciones -->
+    <div id="publicacionesContainer">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
 
-        // Mostrar usuario actual
-        const user = getCurrentUser();
-        document.getElementById('currentUsername').textContent = user.username;
+</div>
 
-        // Toggle detalles de inmersión
-        function toggleDetalles() {
-            document.getElementById('detallesInmersion').classList.toggle('hidden');
-        }
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/publicaciones.js"></script>
+<script>
+    requireAuth();
+    const user = getCurrentUser();
+    if (user) document.getElementById('currentUsername').textContent = user.username;
 
-        // Cargar feed
-        async function loadFeed() {
-            try {
-                const publicaciones = await getFeed();
-                const container = document.getElementById('publicacionesContainer');
-                
-                if (publicaciones.length === 0) {
-                    container.innerHTML = '<div class="card text-center">No hay publicaciones aún. ¡Sé el primero en compartir!</div>';
-                } else {
-                    container.innerHTML = publicaciones.map(p => renderPublicacion(p)).join('');
-                }
-            } catch (error) {
-                showAlert('Error al cargar publicaciones', 'error');
+    function toggleDetalles() {
+        document.getElementById('detallesInmersion').classList.toggle('hidden');
+    }
+
+    async function loadFeed() {
+        const container = document.getElementById('publicacionesContainer');
+        container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+        try {
+            const lista = await getFeed();
+            if (!lista || lista.length === 0) {
+                container.innerHTML = '<div class="card text-center">No hay publicaciones aún. ¡Sé el primero!</div>';
+            } else {
+                container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
             }
+        } catch (err) {
+            container.innerHTML = '<div class="card text-center">Error al cargar publicaciones.</div>';
         }
+    }
 
-        // Form submit
-        document.getElementById('nuevaPublicacionForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const data = {
-                contenido: document.getElementById('contenido').value,
-                lugarInmersion: document.getElementById('lugarInmersion').value || null,
-                profundidadMaxima: document.getElementById('profundidadMaxima').value ? parseFloat(document.getElementById('profundidadMaxima').value) : null,
-                temperaturaAgua: document.getElementById('temperaturaAgua').value ? parseFloat(document.getElementById('temperaturaAgua').value) : null,
-                visibilidad: document.getElementById('visibilidad').value ? parseFloat(document.getElementById('visibilidad').value) : null,
-                especiesVistas: document.getElementById('especiesVistas').value || null,
-            };
-            
-            try {
-                await createPublicacion(data);
-                showAlert('¡Publicación creada!', 'success');
-                
-                // Limpiar form
-                document.getElementById('nuevaPublicacionForm').reset();
-                document.getElementById('detallesInmersion').classList.add('hidden');
-                
-                // Recargar feed
-                loadFeed();
-            } catch (error) {
-                showAlert('Error al crear publicación', 'error');
-            }
-        });
+    document.getElementById('nuevaPublicacionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+            contenido:         document.getElementById('contenido').value.trim(),
+            lugarInmersion:    document.getElementById('lugarInmersion').value.trim() || null,
+            profundidadMaxima: parseFloat(document.getElementById('profundidadMaxima').value) || null,
+            temperaturaAgua:   parseFloat(document.getElementById('temperaturaAgua').value) || null,
+            visibilidad:       parseFloat(document.getElementById('visibilidad').value) || null,
+            especiesVistas:    document.getElementById('especiesVistas').value.trim() || null,
+        };
+        if (!data.contenido) { showAlert('El contenido no puede estar vacío', 'error'); return; }
+        try {
+            await createPublicacion(data);
+            showAlert('¡Publicación creada!', 'success');
+            document.getElementById('nuevaPublicacionForm').reset();
+            document.getElementById('detallesInmersion').classList.add('hidden');
+            await loadFeed();
+        } catch (err) {
+            showAlert(err.message || 'Error al publicar', 'error');
+        }
+    });
 
-        // Cargar feed al inicio
-        loadFeed();
-    </script>
+    loadFeed();
+</script>
 </body>
 </html>

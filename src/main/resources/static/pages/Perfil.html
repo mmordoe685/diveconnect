@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - DiveConnect</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="navbar-container">
+        <a href="/pages/feed.html" class="navbar-logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+            </svg>
+            <span>DiveConnect</span>
+        </a>
+        <ul class="navbar-menu">
+            <li><a href="/pages/feed.html">Feed</a></li>
+            <li><a href="/pages/inmersiones.html">Inmersiones</a></li>
+            <li><a href="/pages/perfil.html">Mi Perfil</a></li>
+            <li class="navbar-user">
+                <span id="navUsername"></span>
+                <button class="btn btn-sm btn-secondary" onclick="logout()">Salir</button>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<div class="container">
+
+    <!-- Datos del perfil -->
+    <div class="card" id="perfilCard">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Editar perfil -->
+    <div class="card">
+        <h3 style="color:var(--ocean-800);margin-bottom:1rem;font-weight:600">Editar Perfil</h3>
+        <form id="editForm">
+            <div class="form-group">
+                <label class="form-label">Biografía</label>
+                <textarea id="biografia" class="form-input" rows="3"
+                    placeholder="Cuéntanos sobre tu experiencia..."></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nivel de Certificación</label>
+                <input id="nivel" class="form-input" type="text"
+                    placeholder="Ej: Open Water, Advanced, Rescue Diver...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Número de Inmersiones realizadas</label>
+                <input id="numInmersiones" class="form-input" type="number" min="0" value="0">
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+        </form>
+    </div>
+
+    <!-- Mis publicaciones -->
+    <h3 style="color:var(--ocean-800);margin-bottom:1rem;font-weight:600">Mis Publicaciones</h3>
+    <div id="misPublicaciones">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Mis reservas -->
+    <h3 style="color:var(--ocean-800);margin:2rem 0 1rem;font-weight:600">Mis Reservas</h3>
+    <div id="misReservas">
+        <div class="loading"><div class="spinner"></div></div>
+    </div>
+
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/publicaciones.js"></script>
+<script>
+    requireAuth();
+    const me = getCurrentUser();
+    if (me) document.getElementById('navUsername').textContent = me.username;
+
+    async function cargarPerfil() {
+        try {
+            const u = await fetchAPI('/usuarios/perfil');
+            localStorage.setItem('user', JSON.stringify(u));
+            document.getElementById('perfilCard').innerHTML = `
+                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+                    <div class="publicacion-avatar" style="width:60px;height:60px;font-size:1.4rem;flex-shrink:0">
+                        ${u.username.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                        <div style="font-size:1.2rem;font-weight:700">${escapeHtml(u.username)}</div>
+                        <div style="color:var(--gray-500);font-size:0.85rem">${escapeHtml(u.email)}</div>
+                        <div style="color:var(--ocean-600);font-size:0.85rem">${u.tipoUsuario.replace(/_/g,' ')}</div>
+                    </div>
+                </div>
+                ${u.biografia ? `<p style="margin-bottom:1rem">${escapeHtml(u.biografia)}</p>` : ''}
+                <div style="display:flex;gap:1.5rem;font-size:0.9rem;color:var(--gray-600);flex-wrap:wrap">
+                    <span><strong>${u.numeroPublicaciones || 0}</strong> publicaciones</span>
+                    <span><strong>${u.numeroSeguidores || 0}</strong> seguidores</span>
+                    <span><strong>${u.numeroSiguiendo || 0}</strong> siguiendo</span>
+                    <span><strong>${u.numeroInmersiones || 0}</strong> inmersiones</span>
+                </div>
+                ${u.nivelCertificacion ? `<p style="margin-top:.75rem;font-size:.9rem">🏅 ${escapeHtml(u.nivelCertificacion)}</p>` : ''}
+            `;
+            document.getElementById('biografia').value      = u.biografia || '';
+            document.getElementById('nivel').value          = u.nivelCertificacion || '';
+            document.getElementById('numInmersiones').value = u.numeroInmersiones || 0;
+        } catch (err) { showAlert('Error al cargar perfil', 'error'); }
+    }
+
+    async function cargarMisPublicaciones() {
+        const container = document.getElementById('misPublicaciones');
+        try {
+            const u = getCurrentUser();
+            const lista = await fetchAPI(`/publicaciones/usuario/${u.id}`);
+            if (!lista || lista.length === 0) {
+                container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">Aún no has publicado nada.</p>';
+                return;
+            }
+            container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
+        } catch (err) {
+            container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">Error al cargar publicaciones.</p>';
+        }
+    }
+
+    async function cargarMisReservas() {
+        const container = document.getElementById('misReservas');
+        try {
+            const lista = await fetchAPI('/reservas/mis-reservas');
+            if (!lista || lista.length === 0) {
+                container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">No tienes reservas aún.</p>';
+                return;
+            }
+            const colores = { PENDIENTE:'#ff9800', CONFIRMADA:'#4caf50', CANCELADA:'#f44336', COMPLETADA:'#2196f3' };
+            container.innerHTML = lista.map(r => `
+                <div class="card" style="margin-bottom:1rem">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+                        <strong>${escapeHtml(r.inmersionTitulo || '')}</strong>
+                        <span style="color:${colores[r.estado]||'#666'};font-weight:600">${r.estado}</span>
+                    </div>
+                    <div style="font-size:.85rem;color:var(--gray-600)">
+                        👥 ${r.numeroPersonas} personas · 💶 ${r.precioTotal}€ · 🏢 ${escapeHtml(r.centroBuceoNombre||'N/A')}
+                    </div>
+                    ${r.observaciones ? `<p style="font-size:.85rem;margin-top:.5rem">${escapeHtml(r.observaciones)}</p>` : ''}
+                    ${r.estado === 'PENDIENTE' ? `
+                        <button class="btn btn-danger btn-sm" style="margin-top:.75rem"
+                            onclick="cancelarReserva(${r.id})">Cancelar Reserva</button>` : ''}
+                </div>`
+            ).join('');
+        } catch (err) {
+            container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">Error al cargar reservas.</p>';
+        }
+    }
+
+    async function cancelarReserva(id) {
+        if (!confirm('¿Cancelar esta reserva?')) return;
+        try {
+            await fetchAPI(`/reservas/${id}`, { method: 'DELETE' });
+            showAlert('Reserva cancelada', 'success');
+            cargarMisReservas();
+        } catch (err) { showAlert(err.message || 'Error', 'error'); }
+    }
+
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+            await fetchAPI('/usuarios/perfil', {
+                method: 'PUT',
+                body: JSON.stringify({
+                    biografia:          document.getElementById('biografia').value.trim(),
+                    nivelCertificacion: document.getElementById('nivel').value.trim(),
+                    numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value) || 0
+                })
+            });
+            showAlert('Perfil actualizado correctamente', 'success');
+            cargarPerfil();
+        } catch (err) { showAlert(err.message || 'Error al actualizar', 'error'); }
+    });
+
+    cargarPerfil();
+    cargarMisPublicaciones();
+    cargarMisReservas();
+</script>
+</body>
+</html>
