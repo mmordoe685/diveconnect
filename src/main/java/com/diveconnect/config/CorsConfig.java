@@ -10,15 +10,11 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins(
-                    "http://localhost:3000",      // React
-                    "http://localhost:4200",      // Angular
-                    "http://localhost:5173",      // Vite
-                    "http://localhost:8081"       // Otro puerto común
-                )
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
-                .allowCredentials(true)
+                .exposedHeaders("Authorization")
+                .allowCredentials(false)
                 .maxAge(3600);
     }
 }
