@@ -25,62 +25,64 @@ public class ComentarioService {
     private final PublicacionRepository publicacionRepository;
     private final UsuarioRepository usuarioRepository;
 
+    @Transactional(readOnly = true)
+    public List<ComentarioResponse> obtenerComentariosPorPublicacion(Long publicacionId) {
+        return comentarioRepository
+            .findByPublicacionIdOrderByFechaComentarioAsc(publicacionId)
+            .stream()
+            .map(this::convertirAResponse)
+            .collect(Collectors.toList());
+    }
+
     @Transactional
-    public ComentarioResponse crearComentario(Long publicacionId, Long usuarioId, ComentarioRequest request) {
-        Publicacion publicacion = publicacionRepository.findById(publicacionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada"));
+    public ComentarioResponse crearComentario(
+            Long usuarioId, Long publicacionId, ComentarioRequest request) {
+
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+            .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        Publicacion publicacion = publicacionRepository.findById(publicacionId)
+            .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada"));
 
         Comentario comentario = new Comentario();
         comentario.setContenido(request.getContenido());
-        comentario.setPublicacion(publicacion);
         comentario.setUsuario(usuario);
+        comentario.setPublicacion(publicacion);
 
-        Comentario savedComentario = comentarioRepository.save(comentario);
-        
-        // Actualizar contador de comentarios en la publicación
+        // Incrementar contador de comentarios en la publicación
         publicacion.setNumeroComentarios(publicacion.getNumeroComentarios() + 1);
         publicacionRepository.save(publicacion);
 
-        return convertirAResponse(savedComentario);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ComentarioResponse> obtenerComentariosDePublicacion(Long publicacionId) {
-        Publicacion publicacion = publicacionRepository.findById(publicacionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Publicación no encontrada"));
-        
-        return comentarioRepository.findByPublicacionOrderByFechaComentarioDesc(publicacion).stream()
-                .map(this::convertirAResponse)
-                .collect(Collectors.toList());
+        return convertirAResponse(comentarioRepository.save(comentario));
     }
 
     @Transactional
-    public void eliminarComentario(Long id, Long usuarioId) {
-        Comentario comentario = comentarioRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Comentario no encontrado"));
+    public void eliminarComentario(Long comentarioId, Long usuarioId) {
+        Comentario comentario = comentarioRepository.findById(comentarioId)
+            .orElseThrow(() -> new ResourceNotFoundException("Comentario no encontrado"));
 
         if (!comentario.getUsuario().getId().equals(usuarioId)) {
-            throw new UnauthorizedException("No tienes permiso para eliminar este comentario");
+            throw new UnauthorizedException(
+                "No tienes permiso para eliminar este comentario");
         }
 
-        Publicacion publicacion = comentario.getPublicacion();
-        publicacion.setNumeroComentarios(Math.max(0, publicacion.getNumeroComentarios() - 1));
-        publicacionRepository.save(publicacion);
-
+        Publicacion pub = comentario.getPublicacion();
+        if (pub.getNumeroComentarios() > 0) {
+            pub.setNumeroComentarios(pub.getNumeroComentarios() - 1);
+            publicacionRepository.save(pub);
+        }
         comentarioRepository.delete(comentario);
     }
 
-    private ComentarioResponse convertirAResponse(Comentario comentario) {
-        ComentarioResponse response = new ComentarioResponse();
-        response.setId(comentario.getId());
-        response.setContenido(comentario.getContenido());
-        response.setFechaComentario(comentario.getFechaComentario());
-        response.setUsuarioId(comentario.getUsuario().getId());
-        response.setUsuarioUsername(comentario.getUsuario().getUsername());
-        response.setUsuarioFotoPerfil(comentario.getUsuario().getFotoPerfil());
-        response.setPublicacionId(comentario.getPublicacion().getId());
-        return response;
+    private ComentarioResponse convertirAResponse(Comentario c) {
+        ComentarioResponse r = new ComentarioResponse();
+        r.setId(c.getId());
+        r.setContenido(c.getContenido());
+        r.setFechaComentario(c.getFechaComentario());
+        r.setUsuarioId(c.getUsuario().getId());
+        r.setUsuarioUsername(c.getUsuario().getUsername());
+        r.setUsuarioFotoPerfil(c.getUsuario().getFotoPerfil());
+        r.setPublicacionId(c.getPublicacion().getId());
+        return r;
     }
 }

@@ -1,26 +1,20 @@
 package com.diveconnect.repository;
 
+import com.diveconnect.entity.Comentario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-
-import com.diveconnect.entity.Comentario;
-import com.diveconnect.entity.Publicacion;
-import com.diveconnect.entity.Usuario;
 
 import java.util.List;
 
 @Repository
 public interface ComentarioRepository extends JpaRepository<Comentario, Long> {
-    
-    // Comentarios de una publicación
-    List<Comentario> findByPublicacionOrderByFechaComentarioDesc(Publicacion publicacion);
-    
-    // Comentarios de un usuario
-    List<Comentario> findByUsuarioOrderByFechaComentarioDesc(Usuario usuario);
-    
-    // Contar comentarios de una publicación
-    Long countByPublicacion(Publicacion publicacion);
-    
-    // Contar comentarios de un usuario
-    Long countByUsuario(Usuario usuario);
+
+    // Usado por ComentarioService.obtenerComentariosPorPublicacion()
+    List<Comentario> findByPublicacionIdOrderByFechaComentarioAsc(Long publicacionId);
+
+    // Útil para futuros listados por usuario
+    List<Comentario> findByUsuarioId(Long usuarioId);
+
+    // Contador rápido sin cargar objetos completos
+    long countByPublicacionId(Long publicacionId);
 }

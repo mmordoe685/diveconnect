@@ -36,7 +36,7 @@ public class ComentarioController {
     public ResponseEntity<List<ComentarioResponse>> obtenerComentarios(
             @PathVariable Long publicacionId) {
         return ResponseEntity.ok(
-            comentarioService.obtenerComentariosDePublicacion(publicacionId)
+            comentarioService.obtenerComentariosPorPublicacion(publicacionId)
         );
     }
 

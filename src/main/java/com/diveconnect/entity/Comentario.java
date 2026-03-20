@@ -2,6 +2,7 @@ package com.diveconnect.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,16 +22,13 @@ public class Comentario {
     private Long id;
 
     @NotBlank(message = "El contenido del comentario es obligatorio")
-    @Column(nullable = false, length = 500)
+    @Size(max = 1000, message = "El comentario no puede superar 1000 caracteres")
+    @Column(nullable = false, length = 1000)
     private String contenido;
 
     @CreationTimestamp
     @Column(name = "fecha_comentario", updatable = false)
     private LocalDateTime fechaComentario;
-
-    // ==============================================
-    // RELACIONES
-    // ==============================================
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
