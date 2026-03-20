@@ -109,6 +109,68 @@
     }
 
     cargarInmersiones();
+
+
+async function hacerReserva(inmersionId, precio, plazasDisponibles) {
+        if (!isAuthenticated()) {
+            showAlert('Debes iniciar sesión para hacer una reserva.', 'error');
+            setTimeout(() => window.location.href = '/pages/login.html', 1500);
+            return;
+        }
+
+        if (plazasDisponibles <= 0) {
+            showAlert('Lo sentimos, no quedan plazas disponibles.', 'error');
+            return;
+        }
+
+        const personas = prompt(
+            `¿Para cuántas personas?\n` +
+            `Plazas disponibles: ${plazasDisponibles}\n` +
+            `Precio por persona: ${precio}€`,
+            '1'
+        );
+        if (!personas) return; // El usuario pulsó Cancelar
+
+        const num = parseInt(personas, 10);
+        if (isNaN(num) || num < 1) {
+            showAlert('Introduce un número de personas válido (mínimo 1).', 'error');
+            return;
+        }
+        if (num > plazasDisponibles) {
+            showAlert(`Solo quedan ${plazasDisponibles} plazas disponibles.`, 'error');
+            return;
+        }
+
+        const total = (precio * num).toFixed(2);
+        const ok = confirm(
+            `Resumen de tu reserva:\n` +
+            `• Personas: ${num}\n` +
+            `• Precio por persona: ${precio}€\n` +
+            `• TOTAL: ${total}€\n\n` +
+            `¿Confirmar reserva?`
+        );
+        if (!ok) return;
+
+        try {
+            await fetchAPI('/reservas', {
+                method: 'POST',
+                body: JSON.stringify({
+                    inmersionId:   inmersionId,
+                    numeroPersonas: num
+                })
+            });
+            showAlert(
+                `✅ ¡Reserva realizada correctamente! Total: ${total}€. ` +
+                `Consulta el estado en Mis Reservas.`,
+                'success'
+            );
+            // Recargar para actualizar plazas disponibles
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (err) {
+            showAlert(err.message || 'No se pudo completar la reserva.', 'error');
+        }
+    }
+
 </script>
 </body>
 </html>

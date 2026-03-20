@@ -35,7 +35,7 @@ public class Inmersion {
     private LocalDateTime fechaInmersion;
 
     @Column(nullable = false)
-    private Integer duracion; // en minutos
+    private Integer duracion;
 
     @Column(name = "profundidad_maxima")
     private Double profundidadMaxima;

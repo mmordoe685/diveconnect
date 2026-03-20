@@ -36,7 +36,7 @@ public class InmersionService {
         inmersion.setNivelRequerido(request.getNivelRequerido());
         inmersion.setPrecio(request.getPrecio());
         inmersion.setPlazasTotales(request.getPlazasTotales());
-        inmersion.setPlazasDisponibles(request.getPlazasTotales()); // Inicialmente todas disponibles
+        inmersion.setPlazasDisponibles(request.getPlazasTotales());
         inmersion.setUbicacion(request.getUbicacion());
         inmersion.setLatitud(request.getLatitud());
         inmersion.setLongitud(request.getLongitud());
@@ -44,8 +44,7 @@ public class InmersionService {
         inmersion.setImagenUrl(request.getImagenUrl());
         inmersion.setCentroBuceo(centro);
 
-        Inmersion savedInmersion = inmersionRepository.save(inmersion);
-        return convertirAResponse(savedInmersion);
+        return convertirAResponse(inmersionRepository.save(inmersion));
     }
 
     @Transactional(readOnly = true)
@@ -63,9 +62,15 @@ public class InmersionService {
     }
 
     @Transactional(readOnly = true)
+    public List<InmersionResponse> obtenerTodasLasInmersiones() {
+        return inmersionRepository.findAll().stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<InmersionResponse> obtenerInmersionesProximas() {
-        LocalDateTime ahora = LocalDateTime.now();
-        return inmersionRepository.findInmersionesProximas(ahora).stream()
+        return inmersionRepository.findInmersionesProximas(LocalDateTime.now()).stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
     }
@@ -74,10 +79,14 @@ public class InmersionService {
     public List<InmersionResponse> obtenerInmersionesDeCentro(Long centroBuceoId) {
         CentroBuceo centro = centroBuceoRepository.findById(centroBuceoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Centro de buceo no encontrado"));
-        
         return inmersionRepository.findByCentroBuceoAndActivaTrue(centro).stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<InmersionResponse> obtenerInmersionesPorCentro(Long centroBuceoId) {
+        return obtenerInmersionesDeCentro(centroBuceoId);
     }
 
     @Transactional
@@ -99,15 +108,21 @@ public class InmersionService {
         inmersion.setEquipoIncluido(request.getEquipoIncluido());
         inmersion.setImagenUrl(request.getImagenUrl());
 
-        Inmersion updatedInmersion = inmersionRepository.save(inmersion);
-        return convertirAResponse(updatedInmersion);
+        return convertirAResponse(inmersionRepository.save(inmersion));
     }
 
     @Transactional
     public void cancelarInmersion(Long id) {
         Inmersion inmersion = inmersionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inmersión no encontrada"));
-        
+        inmersion.setActiva(false);
+        inmersionRepository.save(inmersion);
+    }
+
+    @Transactional
+    public void eliminarInmersion(Long id, Long usuarioId) {
+        Inmersion inmersion = inmersionRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Inmersión no encontrada"));
         inmersion.setActiva(false);
         inmersionRepository.save(inmersion);
     }
@@ -131,13 +146,13 @@ public class InmersionService {
         response.setImagenUrl(inmersion.getImagenUrl());
         response.setActiva(inmersion.getActiva());
         response.setFechaCreacion(inmersion.getFechaCreacion());
-        
+
         if (inmersion.getCentroBuceo() != null) {
             response.setCentroBuceoId(inmersion.getCentroBuceo().getId());
             response.setCentroBuceoNombre(inmersion.getCentroBuceo().getNombre());
             response.setCentroBuceoCiudad(inmersion.getCentroBuceo().getCiudad());
         }
-        
+
         return response;
     }
 }

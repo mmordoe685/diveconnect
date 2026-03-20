@@ -2,11 +2,14 @@ package com.diveconnect.controller;
 
 import com.diveconnect.dto.request.InmersionRequest;
 import com.diveconnect.dto.response.InmersionResponse;
+import com.diveconnect.dto.response.UsuarioResponse;
+import com.diveconnect.service.InmersionService;
+import com.diveconnect.service.UsuarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import com.diveconnect.service.InmersionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,50 +21,74 @@ import java.util.List;
 public class InmersionController {
 
     private final InmersionService inmersionService;
+    private final UsuarioService usuarioService;
 
-    @PostMapping("/centro/{centroBuceoId}")
-    public ResponseEntity<InmersionResponse> crearInmersion(
-            @PathVariable Long centroBuceoId,
-            @Valid @RequestBody InmersionRequest request) {
-        InmersionResponse inmersion = inmersionService.crearInmersion(centroBuceoId, request);
-        return new ResponseEntity<>(inmersion, HttpStatus.CREATED);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<InmersionResponse> obtenerInmersion(@PathVariable Long id) {
-        InmersionResponse inmersion = inmersionService.obtenerInmersion(id);
-        return ResponseEntity.ok(inmersion);
-    }
-
+    /**
+     * GET /api/inmersiones/disponibles
+     * Endpoint PÚBLICO — sin autenticación. Devuelve inmersiones activas con plazas.
+     * Usado por Inmersiones.html al cargar la página.
+     */
     @GetMapping("/disponibles")
     public ResponseEntity<List<InmersionResponse>> obtenerDisponibles() {
-        List<InmersionResponse> inmersiones = inmersionService.obtenerInmersionesDisponibles();
-        return ResponseEntity.ok(inmersiones);
+        return ResponseEntity.ok(inmersionService.obtenerInmersionesDisponibles());
     }
 
-    @GetMapping("/proximas")
-    public ResponseEntity<List<InmersionResponse>> obtenerProximas() {
-        List<InmersionResponse> inmersiones = inmersionService.obtenerInmersionesProximas();
-        return ResponseEntity.ok(inmersiones);
+    /**
+     * GET /api/inmersiones
+     * Lista todas las inmersiones (para administración).
+     */
+    @GetMapping
+    public ResponseEntity<List<InmersionResponse>> obtenerTodas() {
+        return ResponseEntity.ok(inmersionService.obtenerTodasLasInmersiones());
     }
 
-    @GetMapping("/centro/{centroBuceoId}")
-    public ResponseEntity<List<InmersionResponse>> obtenerInmersionesDeCentro(@PathVariable Long centroBuceoId) {
-        List<InmersionResponse> inmersiones = inmersionService.obtenerInmersionesDeCentro(centroBuceoId);
-        return ResponseEntity.ok(inmersiones);
+    /**
+     * GET /api/inmersiones/{id}
+     * Detalle de una inmersión específica.
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<InmersionResponse> obtener(@PathVariable Long id) {
+        return ResponseEntity.ok(inmersionService.obtenerInmersion(id));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<InmersionResponse> actualizarInmersion(
-            @PathVariable Long id,
-            @Valid @RequestBody InmersionRequest request) {
-        InmersionResponse inmersion = inmersionService.actualizarInmersion(id, request);
-        return ResponseEntity.ok(inmersion);
+    /**
+     * GET /api/inmersiones/centro/{centroId}
+     * Inmersiones de un centro de buceo específico.
+     */
+    @GetMapping("/centro/{centroId}")
+    public ResponseEntity<List<InmersionResponse>> obtenerPorCentro(
+            @PathVariable Long centroId) {
+        return ResponseEntity.ok(
+            inmersionService.obtenerInmersionesPorCentro(centroId));
     }
 
+    /**
+     * POST /api/inmersiones
+     * Crea una nueva inmersión. Solo empresas/admins.
+     */
+    @PostMapping
+    public ResponseEntity<InmersionResponse> crear(
+            @Valid @RequestBody InmersionRequest request,
+            Authentication authentication) {
+        String username = authentication.getName();
+        UsuarioResponse usuario =
+            usuarioService.obtenerPerfilPorUsername(username);
+        return new ResponseEntity<>(
+            inmersionService.crearInmersion(usuario.getId(), request),
+            HttpStatus.CREATED);
+    }
+
+    /**
+     * DELETE /api/inmersiones/{id}
+     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> cancelarInmersion(@PathVariable Long id) {
-        inmersionService.cancelarInmersion(id);
+    public ResponseEntity<Void> eliminar(
+            @PathVariable Long id,
+            Authentication authentication) {
+        String username = authentication.getName();
+        UsuarioResponse usuario =
+            usuarioService.obtenerPerfilPorUsername(username);
+        inmersionService.eliminarInmersion(id, usuario.getId());
         return ResponseEntity.noContent().build();
     }
 }

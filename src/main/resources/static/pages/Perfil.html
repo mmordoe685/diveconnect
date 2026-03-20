@@ -81,105 +81,180 @@
     const me = getCurrentUser();
     if (me) document.getElementById('navUsername').textContent = me.username;
 
+    // ── Cargar datos del perfil ──────────────────────────────────────────
     async function cargarPerfil() {
+        const card = document.getElementById('perfilCard');
         try {
-            const u = await fetchAPI('/usuarios/perfil');
-            localStorage.setItem('user', JSON.stringify(u));
-            document.getElementById('perfilCard').innerHTML = `
-                <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
-                    <div class="publicacion-avatar" style="width:60px;height:60px;font-size:1.4rem;flex-shrink:0">
-                        ${u.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                        <div style="font-size:1.2rem;font-weight:700">${escapeHtml(u.username)}</div>
-                        <div style="color:var(--gray-500);font-size:0.85rem">${escapeHtml(u.email)}</div>
-                        <div style="color:var(--ocean-600);font-size:0.85rem">${u.tipoUsuario.replace(/_/g,' ')}</div>
-                    </div>
-                </div>
-                ${u.biografia ? `<p style="margin-bottom:1rem">${escapeHtml(u.biografia)}</p>` : ''}
-                <div style="display:flex;gap:1.5rem;font-size:0.9rem;color:var(--gray-600);flex-wrap:wrap">
-                    <span><strong>${u.numeroPublicaciones || 0}</strong> publicaciones</span>
-                    <span><strong>${u.numeroSeguidores || 0}</strong> seguidores</span>
-                    <span><strong>${u.numeroSiguiendo || 0}</strong> siguiendo</span>
-                    <span><strong>${u.numeroInmersiones || 0}</strong> inmersiones</span>
-                </div>
-                ${u.nivelCertificacion ? `<p style="margin-top:.75rem;font-size:.9rem">🏅 ${escapeHtml(u.nivelCertificacion)}</p>` : ''}
-            `;
-            document.getElementById('biografia').value      = u.biografia || '';
-            document.getElementById('nivel').value          = u.nivelCertificacion || '';
-            document.getElementById('numInmersiones').value = u.numeroInmersiones || 0;
-        } catch (err) { showAlert('Error al cargar perfil', 'error'); }
-    }
+            const user = await fetchAPI('/usuarios/perfil');
+            // Actualizar localStorage con datos frescos
+            localStorage.setItem('user', JSON.stringify(user));
 
-    async function cargarMisPublicaciones() {
-        const container = document.getElementById('misPublicaciones');
-        try {
-            const u = getCurrentUser();
-            const lista = await fetchAPI(`/publicaciones/usuario/${u.id}`);
-            if (!lista || lista.length === 0) {
-                container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">Aún no has publicado nada.</p>';
-                return;
-            }
-            container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
+            card.innerHTML = `
+                <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+                    <div style="width:80px;height:80px;border-radius:50%;flex-shrink:0;
+                        background:linear-gradient(135deg,var(--ocean-500),var(--ocean-700));
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:2rem;color:white;font-weight:800;
+                        box-shadow:0 4px 15px rgba(9,109,217,0.35)">
+                        ${(user.username || '?').charAt(0).toUpperCase()}
+                    </div>
+                    <div style="flex:1;min-width:200px">
+                        <h2 style="color:var(--ocean-800);font-weight:800;font-size:1.4rem;
+                                   margin-bottom:.2rem">@${escapeHtml(user.username)}</h2>
+                        ${user.email ? `
+                        <p style="color:var(--gray-500);font-size:.9rem;margin-bottom:.3rem">
+                            ✉️ ${escapeHtml(user.email)}</p>` : ''}
+                        ${user.nivelCertificacion ? `
+                        <p style="color:var(--ocean-600);font-weight:600;font-size:.9rem">
+                            🏅 ${escapeHtml(user.nivelCertificacion)}</p>` : ''}
+                        ${user.biografia ? `
+                        <p style="color:var(--gray-700);margin-top:.5rem;font-size:.95rem;
+                                  line-height:1.6">
+                            ${escapeHtml(user.biografia)}</p>` : ''}
+                    </div>
+                </div>
+                <div style="display:flex;gap:0;margin-top:1.5rem;
+                            border-top:1px solid var(--gray-200);padding-top:1rem">
+                    <div style="flex:1;text-align:center;
+                                border-right:1px solid var(--gray-200)">
+                        <div style="font-size:1.8rem;font-weight:800;color:var(--ocean-700)">
+                            ${user.numeroPublicaciones || 0}</div>
+                        <div style="color:var(--gray-500);font-size:.8rem;margin-top:.2rem">
+                            Publicaciones</div>
+                    </div>
+                    <div style="flex:1;text-align:center;
+                                border-right:1px solid var(--gray-200)">
+                        <div style="font-size:1.8rem;font-weight:800;color:var(--ocean-700)">
+                            ${user.numeroSeguidores || 0}</div>
+                        <div style="color:var(--gray-500);font-size:.8rem;margin-top:.2rem">
+                            Seguidores</div>
+                    </div>
+                    <div style="flex:1;text-align:center">
+                        <div style="font-size:1.8rem;font-weight:800;color:var(--ocean-700)">
+                            ${user.numeroInmersiones || 0}</div>
+                        <div style="color:var(--gray-500);font-size:.8rem;margin-top:.2rem">
+                            Inmersiones</div>
+                    </div>
+                </div>`;
+
+            // Rellenar formulario de edición con datos actuales
+            document.getElementById('biografia').value         = user.biografia         || '';
+            document.getElementById('nivel').value             = user.nivelCertificacion || '';
+            document.getElementById('numInmersiones').value    = user.numeroInmersiones  || 0;
+
         } catch (err) {
-            container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">Error al cargar publicaciones.</p>';
+            card.innerHTML = `
+                <div style="color:#c62828;padding:1rem">
+                    ❌ Error al cargar el perfil: ${escapeHtml(err.message)}
+                </div>`;
         }
     }
 
+    // ── Cargar publicaciones del usuario ─────────────────────────────────
+    async function cargarMisPublicaciones() {
+        const container = document.getElementById('misPublicaciones');
+        try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id) { container.innerHTML = ''; return; }
+
+            const lista = await fetchAPI(`/publicaciones/usuario/${user.id}`);
+            if (!lista || lista.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align:center;color:var(--gray-500);
+                                            padding:2rem">
+                        Todavía no has publicado ninguna inmersión. 
+                        <a href="/pages/feed.html" style="color:var(--ocean-600)">
+                            Ir al feed</a>
+                    </div>`;
+            } else {
+                container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
+            }
+        } catch (err) {
+            container.innerHTML = `
+                <div style="color:#c62828">Error: ${escapeHtml(err.message)}</div>`;
+        }
+    }
+
+    // ── Cargar reservas del usuario ──────────────────────────────────────
     async function cargarMisReservas() {
         const container = document.getElementById('misReservas');
         try {
             const lista = await fetchAPI('/reservas/mis-reservas');
             if (!lista || lista.length === 0) {
-                container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">No tienes reservas aún.</p>';
+                container.innerHTML = `
+                    <div class="card" style="text-align:center;color:var(--gray-500);
+                                            padding:1.5rem">
+                        No tienes reservas activas.
+                        <a href="/pages/Inmersiones.html" style="color:var(--ocean-600)">
+                            Ver inmersiones disponibles
+                        </a>
+                    </div>`;
                 return;
             }
-            const colores = { PENDIENTE:'#ff9800', CONFIRMADA:'#4caf50', CANCELADA:'#f44336', COMPLETADA:'#2196f3' };
-            container.innerHTML = lista.map(r => `
-                <div class="card" style="margin-bottom:1rem">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
-                        <strong>${escapeHtml(r.inmersionTitulo || '')}</strong>
-                        <span style="color:${colores[r.estado]||'#666'};font-weight:600">${r.estado}</span>
+            const estados = {
+                PENDIENTE:  { bg:'#fff8e1', text:'#e65100', label:'⏳ Pendiente'   },
+                CONFIRMADA: { bg:'#e8f5e9', text:'#1b5e20', label:'✅ Confirmada'  },
+                CANCELADA:  { bg:'#fce4ec', text:'#b71c1c', label:'❌ Cancelada'   },
+                COMPLETADA: { bg:'#e3f2fd', text:'#0d47a1', label:'🏆 Completada'  }
+            };
+            container.innerHTML = lista.map(r => {
+                const e = estados[r.estado] || estados.PENDIENTE;
+                const fecha = r.fechaReserva
+                    ? new Date(r.fechaReserva).toLocaleDateString('es-ES')
+                    : '';
+                return `
+                <div class="card" style="margin-bottom:.75rem;
+                    display:flex;justify-content:space-between;align-items:center;
+                    flex-wrap:wrap;gap:.5rem">
+                    <div>
+                        <strong style="color:var(--ocean-800)">
+                            🤿 ${escapeHtml(r.inmersionTitulo || 'Inmersión')}</strong>
+                        <p style="color:var(--gray-500);font-size:.82rem;margin-top:.15rem">
+                            ${fecha}
+                            ${r.precioTotal != null
+                                ? ` · <strong>${r.precioTotal.toFixed(2)}€</strong>`
+                                : ''}
+                        </p>
                     </div>
-                    <div style="font-size:.85rem;color:var(--gray-600)">
-                        👥 ${r.numeroPersonas} personas · 💶 ${r.precioTotal}€ · 🏢 ${escapeHtml(r.centroBuceoNombre||'N/A')}
-                    </div>
-                    ${r.observaciones ? `<p style="font-size:.85rem;margin-top:.5rem">${escapeHtml(r.observaciones)}</p>` : ''}
-                    ${r.estado === 'PENDIENTE' ? `
-                        <button class="btn btn-danger btn-sm" style="margin-top:.75rem"
-                            onclick="cancelarReserva(${r.id})">Cancelar Reserva</button>` : ''}
-                </div>`
-            ).join('');
+                    <span style="background:${e.bg};color:${e.text};padding:.3rem .75rem;
+                        border-radius:20px;font-size:.8rem;font-weight:700;white-space:nowrap">
+                        ${e.label}
+                    </span>
+                </div>`;
+            }).join('');
         } catch (err) {
-            container.innerHTML = '<p style="color:var(--gray-500);padding:1rem">Error al cargar reservas.</p>';
+            container.innerHTML = `
+                <div style="color:#c62828">Error: ${escapeHtml(err.message)}</div>`;
         }
     }
 
-    async function cancelarReserva(id) {
-        if (!confirm('¿Cancelar esta reserva?')) return;
-        try {
-            await fetchAPI(`/reservas/${id}`, { method: 'DELETE' });
-            showAlert('Reserva cancelada', 'success');
-            cargarMisReservas();
-        } catch (err) { showAlert(err.message || 'Error', 'error'); }
-    }
-
+    // ── Guardar cambios de perfil ────────────────────────────────────────
     document.getElementById('editForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const btn = e.submitter || document.querySelector('#editForm button[type="submit"]');
+        const textoOriginal = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
         try {
             await fetchAPI('/usuarios/perfil', {
                 method: 'PUT',
                 body: JSON.stringify({
-                    biografia:          document.getElementById('biografia').value.trim(),
-                    nivelCertificacion: document.getElementById('nivel').value.trim(),
-                    numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value) || 0
+                    biografia:          document.getElementById('biografia').value.trim()      || null,
+                    nivelCertificacion: document.getElementById('nivel').value.trim()          || null,
+                    numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value, 10) || 0
                 })
             });
-            showAlert('Perfil actualizado correctamente', 'success');
-            cargarPerfil();
-        } catch (err) { showAlert(err.message || 'Error al actualizar', 'error'); }
+            showAlert('✅ Perfil actualizado correctamente.', 'success');
+            await cargarPerfil(); // Recargar para mostrar datos actualizados
+        } catch (err) {
+            showAlert('❌ ' + (err.message || 'Error al guardar los cambios.'), 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = textoOriginal;
+        }
     });
 
+    // ── Inicialización ───────────────────────────────────────────────────
     cargarPerfil();
     cargarMisPublicaciones();
     cargarMisReservas();
