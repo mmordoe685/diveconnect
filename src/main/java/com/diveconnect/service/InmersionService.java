@@ -76,17 +76,13 @@ public class InmersionService {
     }
 
     @Transactional(readOnly = true)
-    public List<InmersionResponse> obtenerInmersionesDeCentro(Long centroBuceoId) {
+    public List<InmersionResponse> obtenerInmersionesPorCentro(Long centroBuceoId) {
         CentroBuceo centro = centroBuceoRepository.findById(centroBuceoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Centro de buceo no encontrado"));
+
         return inmersionRepository.findByCentroBuceoAndActivaTrue(centro).stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    public List<InmersionResponse> obtenerInmersionesPorCentro(Long centroBuceoId) {
-        return obtenerInmersionesDeCentro(centroBuceoId);
     }
 
     @Transactional
@@ -115,7 +111,7 @@ public class InmersionService {
     public void cancelarInmersion(Long id) {
         Inmersion inmersion = inmersionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inmersión no encontrada"));
-        inmersion.setActiva(false);
+        inmersion.setActivo(false);
         inmersionRepository.save(inmersion);
     }
 
@@ -123,7 +119,7 @@ public class InmersionService {
     public void eliminarInmersion(Long id, Long usuarioId) {
         Inmersion inmersion = inmersionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Inmersión no encontrada"));
-        inmersion.setActiva(false);
+        inmersion.setActivo(false);
         inmersionRepository.save(inmersion);
     }
 
@@ -144,7 +140,7 @@ public class InmersionService {
         response.setLongitud(inmersion.getLongitud());
         response.setEquipoIncluido(inmersion.getEquipoIncluido());
         response.setImagenUrl(inmersion.getImagenUrl());
-        response.setActiva(inmersion.getActiva());
+        response.setActiva(inmersion.getActivo()); // 🔥 importante
         response.setFechaCreacion(inmersion.getFechaCreacion());
 
         if (inmersion.getCentroBuceo() != null) {

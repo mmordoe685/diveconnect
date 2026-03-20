@@ -34,20 +34,20 @@ public class Inmersion {
     @Column(name = "fecha_inmersion", nullable = false)
     private LocalDateTime fechaInmersion;
 
-    @Column(nullable = false)
+    @Column(name = "duracion")
     private Integer duracion;
 
     @Column(name = "profundidad_maxima")
     private Double profundidadMaxima;
 
-    @Column(name = "nivel_requerido", length = 50)
+    @Column(name = "nivel_requerido", length = 100)
     private String nivelRequerido;
 
-    @Column(nullable = false)
+    @Column(name = "precio")
     private Double precio;
 
     @Column(name = "plazas_disponibles")
-    private Integer plazasDisponibles;
+    private Integer plazasDisponibles = 10;
 
     @Column(name = "plazas_totales")
     private Integer plazasTotales;
@@ -68,7 +68,7 @@ public class Inmersion {
     private String imagenUrl;
 
     @Column(nullable = false)
-    private Boolean activa = true;
+    private Boolean activo = true;
 
     @CreationTimestamp
     @Column(name = "fecha_creacion", updatable = false)
