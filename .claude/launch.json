@@ -5,7 +5,8 @@
       "name": "DiveConnect Spring Boot API",
       "runtimeExecutable": "./mvnw",
       "runtimeArgs": ["spring-boot:run"],
-      "port": 8080
+      "port": 8080,
+      "autoPort": false
     }
   ]
 }

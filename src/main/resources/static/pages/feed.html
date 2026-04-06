@@ -91,7 +91,7 @@
 <script>
     requireAuth();
     const user = getCurrentUser();
-    if (user) document.getElementById('currentUsername').textContent = user.username;
+    if (user) document.getElementById('navUsername').textContent = user.username;
 
     function toggleDetalles() {
         document.getElementById('detallesInmersion').classList.toggle('hidden');

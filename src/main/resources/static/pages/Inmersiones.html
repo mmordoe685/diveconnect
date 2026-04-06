@@ -89,29 +89,7 @@
         }
     }
 
-    async function hacerReserva(inmersionId, precio, plazas) {
-        const personas = prompt(`¿Cuántas personas? (${plazas} plazas disponibles · ${precio}€/persona)`);
-        if (!personas) return;
-        const num = parseInt(personas);
-        if (isNaN(num) || num < 1) { showAlert('Número de personas no válido', 'error'); return; }
-        if (num > plazas)          { showAlert('No hay suficientes plazas', 'error'); return; }
-
-        const obs = prompt('Observaciones (opcional, pulsa Cancelar para omitir):') || '';
-
-        try {
-            await fetchAPI('/reservas', {
-                method: 'POST',
-                body: JSON.stringify({ inmersionId, numeroPersonas: num, observaciones: obs })
-            });
-            showAlert(`✅ Reserva realizada. Total: ${(precio * num).toFixed(2)}€`, 'success');
-            cargarInmersiones();
-        } catch (err) {
-            showAlert(err.message || 'Error al reservar', 'error');
-        }
-    }
-
     cargarInmersiones();
-
 
 async function hacerReserva(inmersionId, precio, plazasDisponibles) {
         if (!isAuthenticated()) {
