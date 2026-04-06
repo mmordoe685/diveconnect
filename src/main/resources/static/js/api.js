@@ -4,43 +4,89 @@
 
 const API_BASE_URL = '/api';
 
+/**
+ * Realiza una petición autenticada a la API.
+ * Gestiona:
+ *   - Token JWT en cabecera Authorization
+ *   - 401 → limpia sesión y redirige a login
+ *   - 403 → limpia sesión y redirige a login (token expirado / sin permisos)
+ *   - 204 → devuelve null (sin cuerpo)
+ *   - Cuerpos vacíos o no-JSON → no explota, lanza Error descriptivo
+ */
 async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('token');
 
-    const defaultHeaders = { 'Content-Type': 'application/json' };
-    if (token) defaultHeaders['Authorization'] = 'Bearer ' + token;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
 
     const config = {
         ...options,
-        headers: { ...defaultHeaders, ...(options.headers || {}) }
+        headers: { ...headers, ...(options.headers || {}) }
     };
 
-    const response = await fetch(API_BASE_URL + endpoint, config);
+    let response;
+    try {
+        response = await fetch(API_BASE_URL + endpoint, config);
+    } catch (networkError) {
+        throw new Error('No se pudo conectar con el servidor. Comprueba tu conexión.');
+    }
 
-    // Token inválido o expirado → login
+    // Token inválido / expirado
     if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/pages/login.html';
+        _limpiarSesionYRedirigir();
+        return null;
+    }
+
+    // Acceso denegado (también puede indicar token expirado cuando el
+    // servidor devuelve 403 en lugar de 401 para rutas sin entrypoint)
+    if (response.status === 403) {
+        _limpiarSesionYRedirigir();
         return null;
     }
 
     // Sin contenido
     if (response.status === 204) return null;
 
-    const data = await response.json();
+    // Intentar parsear JSON de forma segura
+    const contentType = response.headers.get('content-type') || '';
+    let data = null;
+
+    if (contentType.includes('application/json')) {
+        try {
+            data = await response.json();
+        } catch {
+            // Cuerpo marcado como JSON pero vacío o malformado
+            if (!response.ok) {
+                throw new Error('Error ' + response.status + ' del servidor.');
+            }
+            return null;
+        }
+    } else if (!response.ok) {
+        // Respuesta de error sin cuerpo JSON (p.ej. 500 de proxy)
+        throw new Error('Error ' + response.status + ' del servidor.');
+    }
 
     if (!response.ok) {
-        throw new Error(data.message || 'Error ' + response.status);
+        throw new Error((data && data.message) || 'Error ' + response.status);
     }
 
     return data;
 }
 
-// ── Autenticación ─────────────────────────────────────────
+// ── Sesión ────────────────────────────────────────────────────
+function _limpiarSesionYRedirigir() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    // Solo redirigir si no estamos ya en la página de login
+    if (!window.location.pathname.includes('/pages/login')) {
+        window.location.href = '/pages/login.html';
+    }
+}
+
 function getCurrentUser() {
     const raw = localStorage.getItem('user');
-    return raw ? JSON.parse(raw) : null;
+    try { return raw ? JSON.parse(raw) : null; }
+    catch { return null; }
 }
 
 function isAuthenticated() {
@@ -55,7 +101,7 @@ function redirectIfAuthenticated() {
     if (isAuthenticated()) window.location.href = '/pages/feed.html';
 }
 
-// ── Alertas (funciona en CUALQUIER página, sin .container) ─
+// ── Alertas flotantes ─────────────────────────────────────────
 function showAlert(message, type) {
     type = type || 'info';
 
@@ -65,28 +111,38 @@ function showAlert(message, type) {
     const div = document.createElement('div');
     div.id = '__dc_alert__';
 
-    const colors = {
-        success: { bg: '#e8f5e9', color: '#2e7d32', border: '#a5d6a7' },
-        error:   { bg: '#ffebee', color: '#c62828', border: '#ef9a9a' },
-        info:    { bg: '#e3f2fd', color: '#1565c0', border: '#90caf9' }
+    const palette = {
+        success: { bg: '#DCFCE7', color: '#166534', border: '#86EFAC' },
+        error:   { bg: '#FEE2E2', color: '#991B1B', border: '#FCA5A5' },
+        info:    { bg: '#DBEAFE', color: '#1E40AF', border: '#93C5FD' }
     };
-    const c = colors[type] || colors.info;
+    const c = palette[type] || palette.info;
 
     div.style.cssText =
         'position:fixed;top:72px;right:16px;z-index:99999;' +
-        'padding:12px 18px;border-radius:8px;font-size:14px;font-weight:500;' +
-        'max-width:360px;box-shadow:0 4px 16px rgba(0,0,0,0.15);' +
-        'background:' + c.bg + ';color:' + c.color + ';border:1px solid ' + c.border;
+        'padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;' +
+        'max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,0.15);' +
+        'background:' + c.bg + ';color:' + c.color + ';border:1px solid ' + c.border + ';' +
+        'animation:slideIn .25s ease';
+
+    // Animación de entrada
+    if (!document.getElementById('__dc_alert_style__')) {
+        const style = document.createElement('style');
+        style.id = '__dc_alert_style__';
+        style.textContent = '@keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}';
+        document.head.appendChild(style);
+    }
 
     div.textContent = message;
     document.body.appendChild(div);
     setTimeout(() => { if (div.parentNode) div.remove(); }, 4500);
 }
 
-// ── Formato de fechas ─────────────────────────────────────
+// ── Formato de fechas ─────────────────────────────────────────
 function formatFecha(fechaStr) {
     if (!fechaStr) return '';
     const d    = new Date(fechaStr);
+    if (isNaN(d.getTime())) return '';
     const diff = Date.now() - d.getTime();
     const min  = Math.floor(diff / 60000);
     const h    = Math.floor(min / 60);
@@ -98,9 +154,9 @@ function formatFecha(fechaStr) {
     return 'Ahora mismo';
 }
 
-// ── Escapar HTML (anti-XSS) ───────────────────────────────
+// ── Escape HTML (anti-XSS) ────────────────────────────────────
 function escapeHtml(text) {
-    if (!text) return '';
+    if (text === null || text === undefined) return '';
     return String(text)
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
