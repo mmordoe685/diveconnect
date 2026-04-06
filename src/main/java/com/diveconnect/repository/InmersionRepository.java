@@ -14,18 +14,18 @@ import java.util.List;
 @Repository
 public interface InmersionRepository extends JpaRepository<Inmersion, Long> {
     
-    // Inmersiones activas de un centro
-    List<Inmersion> findByCentroBuceoAndActivaTrue(CentroBuceo centroBuceo);
+    // Inmersiones activos de un centro
+    List<Inmersion> findByCentroBuceoAndActivoTrue(CentroBuceo centroBuceo);
     
-    // Todas las inmersiones activas ordenadas por fecha
-    List<Inmersion> findByActivaTrueOrderByFechaInmersionAsc();
+    // Todas las inmersiones activos ordenadas por fecha
+    List<Inmersion> findByActivoTrueOrderByFechaInmersionAsc();
     
     // Inmersiones próximas desde una fecha
-    @Query("SELECT i FROM Inmersion i WHERE i.activa = true AND i.fechaInmersion >= :fechaInicio")
+    @Query("SELECT i FROM Inmersion i WHERE i.activo = true AND i.fechaInmersion >= :fechaInicio")
     List<Inmersion> findInmersionesProximas(@Param("fechaInicio") LocalDateTime fechaInicio);
     
     // Inmersiones con plazas disponibles
-    @Query("SELECT i FROM Inmersion i WHERE i.activa = true AND i.plazasDisponibles > 0 ORDER BY i.fechaInmersion ASC")
+    @Query("SELECT i FROM Inmersion i WHERE i.activo = true AND i.plazasDisponibles > 0 ORDER BY i.fechaInmersion ASC")
     List<Inmersion> findInmersionesDisponibles();
     
     // Buscar por título o ubicación

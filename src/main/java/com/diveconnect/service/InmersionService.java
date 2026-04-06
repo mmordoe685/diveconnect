@@ -80,7 +80,7 @@ public class InmersionService {
         CentroBuceo centro = centroBuceoRepository.findById(centroBuceoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Centro de buceo no encontrado"));
 
-        return inmersionRepository.findByCentroBuceoAndActivaTrue(centro).stream()
+        return inmersionRepository.findByCentroBuceoAndActivoTrue(centro).stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
     }
