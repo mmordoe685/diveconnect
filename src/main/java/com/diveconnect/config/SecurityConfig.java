@@ -1,6 +1,7 @@
 package com.diveconnect.config;
 
 import com.diveconnect.security.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,12 +29,29 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
-            // CORS delegado a CorsConfig (WebMvcConfigurer) — no poner nada aquí
-            .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            .sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            // ── Manejadores de error con cuerpo JSON ────────────────────
+            .exceptionHandling(ex -> ex
+                // 401 — sin autenticación (token ausente o inválido)
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(
+                        "{\"status\":401,\"message\":\"No autorizado. Por favor inicia sesión.\"}");
+                })
+                // 403 — autenticado pero sin permiso
+                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write(
+                        "{\"status\":403,\"message\":\"Acceso denegado.\"}");
+                })
             )
             .authorizeHttpRequests(auth -> auth
-                // Archivos estáticos del frontend
+
+                // ── Recursos estáticos (frontend) ────────────────────────
                 .requestMatchers(
                     "/", "/index.html",
                     "/css/**", "/js/**",
@@ -41,14 +59,27 @@ public class SecurityConfig {
                     "/favicon.ico"
                 ).permitAll()
 
-                // API pública
+                // ── Auth pública ─────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/centros-buceo/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/inmersiones/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/usuarios/{id}").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/usuarios/username/{username}").permitAll()
 
-                // Todo lo demás requiere JWT
+                // ── Endpoints públicos de catálogo ───────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/centros-buceo/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/inmersiones/disponibles").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/inmersiones/**").permitAll()
+
+                // ── Endpoints de usuario ─────────────────────────────────
+                // IMPORTANTE: las rutas LITERALES deben declararse ANTES que
+                // el patrón genérico /{id}, de lo contrario Spring Security
+                // empareja /perfil como si fuera un {id} y aplica permitAll,
+                // dejando Authentication = null en el controlador.
+                .requestMatchers(HttpMethod.GET,  "/api/usuarios/perfil").authenticated()
+                .requestMatchers(HttpMethod.PUT,  "/api/usuarios/perfil").authenticated()
+                .requestMatchers(HttpMethod.GET,  "/api/usuarios/buscar").authenticated()
+                .requestMatchers(HttpMethod.GET,  "/api/usuarios/empresas").authenticated()
+                .requestMatchers(HttpMethod.GET,  "/api/usuarios/username/**").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/usuarios/{id}").permitAll()
+
+                // ── Todo lo demás requiere JWT válido ────────────────────
                 .anyRequest().authenticated()
             );
 
