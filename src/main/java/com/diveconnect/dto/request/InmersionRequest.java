@@ -20,7 +20,7 @@ public class InmersionRequest {
     
     @NotNull(message = "La duración es obligatoria")
     @Min(value = 1, message = "La duración debe ser al menos 1 minuto")
-    private Integer duracion; // en minutos
+    private Integer duracion; 
     
     private Double profundidadMaxima;
     private String nivelRequerido;
