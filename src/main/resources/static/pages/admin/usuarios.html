@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Gestión de Usuarios — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>👥 Gestión de Usuarios</h2>
+    <a href="/pages/admin/dashboard.html" class="btn btn-outline">← Dashboard</a>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search" id="filtro" placeholder="Buscar por username o email…" oninput="filtrar()"/>
+    <select id="filtroRol" onchange="filtrar()" style="padding:.55rem .9rem;border:1px solid var(--gray-300);border-radius:var(--radius-md);font-size:.9rem">
+      <option value="">Todos los roles</option>
+      <option value="USUARIO_COMUN">Usuario Común</option>
+      <option value="USUARIO_EMPRESA">Empresa</option>
+      <option value="ADMINISTRADOR">Administrador</option>
+    </select>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>ID</th><th>Username</th><th>Email</th><th>Rol</th><th>Estado</th><th>Registro</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr><td colspan="7" style="text-align:center;padding:2rem"><div class="spinner"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal cambiar rol -->
+<div class="modal-overlay" id="modalRol">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Cambiar Rol</h3>
+      <button class="modal-close" onclick="cerrarModal('modalRol')">✕</button>
+    </div>
+    <p>Usuario: <strong id="modalRolUsername"></strong></p>
+    <div class="form-group">
+      <label class="form-label">Nuevo rol</label>
+      <select class="form-input" id="nuevoRol">
+        <option value="USUARIO_COMUN">Usuario Común</option>
+        <option value="USUARIO_EMPRESA">Empresa</option>
+        <option value="ADMINISTRADOR">Administrador</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="cerrarModal('modalRol')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarRol()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let todos = [];
+let editandoId = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('ADMINISTRADOR')) return;
+  initNav();
+  const data = await fetchAPI('/api/admin/usuarios');
+  todos = data || [];
+  filtrar();
+});
+
+function filtrar() {
+  const q    = document.getElementById('filtro').value.toLowerCase();
+  const rol  = document.getElementById('filtroRol').value;
+  const lista = todos.filter(u =>
+    (!q   || u.username.toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q)) &&
+    (!rol || u.tipoUsuario === rol)
+  );
+  renderTabla(lista);
+}
+
+function renderTabla(lista) {
+  const tbody = document.getElementById('tablaCuerpo');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">👥</div><p>Sin resultados</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(u => `
+    <tr>
+      <td>${u.id}</td>
+      <td><strong>${u.username}</strong></td>
+      <td>${u.email || '—'}</td>
+      <td><span class="badge ${rolBadge(u.tipoUsuario)}">${rolLabel(u.tipoUsuario)}</span></td>
+      <td><span class="badge ${u.activo ? 'badge-success' : 'badge-danger'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td>${u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString('es-ES') : '—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-icon" onclick="abrirModalRol(${u.id}, '${u.username}', '${u.tipoUsuario}')" title="Cambiar rol">🔑</button>
+        <button class="btn-icon ${u.activo ? 'danger' : 'success'}" onclick="toggleEstado(${u.id}, ${!u.activo})" title="${u.activo ? 'Desactivar' : 'Activar'}">${u.activo ? '🔒' : '🔓'}</button>
+        <button class="btn-icon danger" onclick="eliminar(${u.id}, '${u.username}')" title="Eliminar">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function rolBadge(r) {
+  return r === 'ADMINISTRADOR' ? 'badge-admin'
+       : r === 'USUARIO_EMPRESA' ? 'badge-empresa'
+       : 'badge-comun';
+}
+function rolLabel(r) {
+  return r === 'ADMINISTRADOR' ? 'Admin'
+       : r === 'USUARIO_EMPRESA' ? 'Empresa'
+       : 'Común';
+}
+
+function abrirModalRol(id, username, rolActual) {
+  editandoId = id;
+  document.getElementById('modalRolUsername').textContent = username;
+  document.getElementById('nuevoRol').value = rolActual;
+  document.getElementById('modalRol').classList.add('active');
+}
+function cerrarModal(id) { document.getElementById(id).classList.remove('active'); }
+
+async function confirmarRol() {
+  const rol = document.getElementById('nuevoRol').value;
+  const u   = await fetchAPI('/api/admin/usuarios/' + editandoId + '/rol?rol=' + rol, { method: 'PUT' });
+  if (u) { const idx = todos.findIndex(x => x.id === editandoId); if (idx >= 0) todos[idx] = u; }
+  cerrarModal('modalRol');
+  filtrar();
+}
+
+async function toggleEstado(id, activo) {
+  const u = await fetchAPI('/api/admin/usuarios/' + id + '/estado?activo=' + activo, { method: 'PUT' });
+  if (u) { const idx = todos.findIndex(x => x.id === id); if (idx >= 0) todos[idx] = u; }
+  filtrar();
+}
+
+async function eliminar(id, username) {
+  if (!confirm('¿Eliminar al usuario "' + username + '"? Esta acción no se puede deshacer.')) return;
+  await fetchAPI('/api/admin/usuarios/' + id, { method: 'DELETE' });
+  todos = todos.filter(u => u.id !== id);
+  filtrar();
+}
+</script>
+</body>
+</html>

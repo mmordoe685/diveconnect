@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Centros de Buceo — DiveConnect Admin</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>🏫 Gestión de Centros</h2>
+    <a href="/pages/admin/dashboard.html" class="btn btn-outline">← Dashboard</a>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search" id="filtro" placeholder="Buscar centro…" oninput="filtrar()"/>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>ID</th><th>Nombre</th><th>Ciudad / País</th><th>Propietario</th><th>Valoración</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr><td colspan="7" style="text-align:center;padding:2rem"><div class="spinner"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let todos = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('ADMINISTRADOR')) return;
+  initNav();
+  const data = await fetchAPI('/api/admin/centros');
+  todos = data || [];
+  filtrar();
+});
+
+function filtrar() {
+  const q = document.getElementById('filtro').value.toLowerCase();
+  renderTabla(q ? todos.filter(c =>
+    (c.nombre || '').toLowerCase().includes(q) ||
+    (c.ciudad || '').toLowerCase().includes(q) ||
+    (c.pais   || '').toLowerCase().includes(q)
+  ) : todos);
+}
+
+function renderTabla(lista) {
+  const tbody = document.getElementById('tablaCuerpo');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">🏫</div><p>Sin centros</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(c => `
+    <tr>
+      <td>${c.id}</td>
+      <td><strong>${c.nombre}</strong></td>
+      <td>${c.ciudad || '—'}, ${c.pais || '—'}</td>
+      <td>${c.usuarioUsername || '—'}</td>
+      <td>${c.valoracionPromedio ? c.valoracionPromedio.toFixed(1) + ' ⭐' : '—'}</td>
+      <td><span class="badge ${c.activo ? 'badge-success' : 'badge-neutral'}">${c.activo ? 'Activo' : 'Inactivo'}</span></td>
+      <td>
+        <button class="btn-icon danger" onclick="eliminar(${c.id}, '${c.nombre.replace(/'/g,'')}')" title="Desactivar">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function eliminar(id, nombre) {
+  if (!confirm('¿Desactivar el centro "' + nombre + '"?')) return;
+  await fetchAPI('/api/admin/centros/' + id, { method: 'DELETE' });
+  const c = todos.find(x => x.id === id);
+  if (c) c.activo = false;
+  filtrar();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Panel Empresa — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>📊 Panel de Empresa</h2>
+    <a href="/pages/empresa/mis-inmersiones.html" class="btn btn-primary">+ Nueva Inmersión</a>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-icon">🤿</div><div class="stat-value" id="statInmersiones">—</div><div class="stat-label">Inmersiones activas</div></div>
+    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="statReservas">—</div><div class="stat-label">Reservas totales</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="statPendientes">—</div><div class="stat-label">Reservas pendientes</div></div>
+    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="statValoracion">—</div><div class="stat-label">Valoración media</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
+    <!-- Últimas reservas -->
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--ocean-800)">Últimas reservas</h3>
+      <div id="ultimasReservas"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+    <!-- Acciones rápidas -->
+    <div class="card">
+      <h3 style="margin-top:0;color:var(--ocean-800)">Acciones rápidas</h3>
+      <div style="display:flex;flex-direction:column;gap:.75rem">
+        <a href="/pages/empresa/mi-centro.html"          class="btn btn-outline">🏫 Gestionar mi Centro</a>
+        <a href="/pages/empresa/mis-inmersiones.html"    class="btn btn-outline">🤿 Gestionar Inmersiones</a>
+        <a href="/pages/empresa/gestionar-reservas.html" class="btn btn-outline">📋 Ver todas las Reservas</a>
+        <a href="/pages/Perfil.html"                     class="btn btn-outline">👤 Editar Perfil</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (!requireRole('USUARIO_EMPRESA', 'ADMINISTRADOR')) return;
+  initNav();
+  loadDashboard();
+});
+
+async function loadDashboard() {
+  const [inmersiones, reservas] = await Promise.all([
+    fetchAPI('/api/inmersiones/mis-inmersiones'),
+    fetchAPI('/api/reservas/mi-centro'),
+  ]);
+
+  const activas    = (inmersiones || []).filter(i => i.activa).length;
+  const pendientes = (reservas   || []).filter(r => r.estado === 'PENDIENTE').length;
+
+  let valoracion = '—';
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const centro = await fetchAPI('/api/centros-buceo/mi-centro');
+    if (centro && centro.valoracionPromedio) valoracion = centro.valoracionPromedio.toFixed(1);
+  } catch {}
+
+  document.getElementById('statInmersiones').textContent = activas;
+  document.getElementById('statReservas').textContent    = (reservas || []).length;
+  document.getElementById('statPendientes').textContent  = pendientes;
+  document.getElementById('statValoracion').textContent  = valoracion;
+
+  const cont = document.getElementById('ultimasReservas');
+  const urs  = (reservas || []).slice(0, 5);
+  if (!urs.length) {
+    cont.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Sin reservas aún</p></div>';
+    return;
+  }
+  cont.innerHTML = urs.map(r => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--gray-200)">
+      <div>
+        <strong>${r.inmersionTitulo || '—'}</strong><br>
+        <small style="color:var(--gray-600)">${r.usuarioUsername} · ${r.numeroPersonas} persona(s)</small>
+      </div>
+      <span class="badge ${estadoBadge(r.estado)}">${r.estado}</span>
+    </div>
+  `).join('');
+}
+
+function estadoBadge(e) {
+  return e === 'CONFIRMADA' ? 'badge-success'
+       : e === 'PENDIENTE'  ? 'badge-warning'
+       : e === 'COMPLETADA' ? 'badge-info'
+       : 'badge-danger';
+}
+</script>
+</body>
+</html>

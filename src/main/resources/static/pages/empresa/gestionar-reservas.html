@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Reservas del Centro — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>📋 Reservas de mi Centro</h2>
+  </div>
+
+  <div class="page-tabs">
+    <button class="tab active" onclick="filtrarEstado('TODOS', this)">Todas</button>
+    <button class="tab" onclick="filtrarEstado('PENDIENTE', this)">Pendientes</button>
+    <button class="tab" onclick="filtrarEstado('CONFIRMADA', this)">Confirmadas</button>
+    <button class="tab" onclick="filtrarEstado('COMPLETADA', this)">Completadas</button>
+    <button class="tab" onclick="filtrarEstado('CANCELADA', this)">Canceladas</button>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th><th>Inmersión</th><th>Cliente</th><th>Fecha reserva</th>
+          <th>Personas</th><th>Total</th><th>Estado</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr><td colspan="8" style="text-align:center;padding:2rem"><div class="spinner"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let todasReservas = [];
+let estadoActivo  = 'TODOS';
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('USUARIO_EMPRESA', 'ADMINISTRADOR')) return;
+  initNav();
+  const data = await fetchAPI('/api/reservas/mi-centro');
+  todasReservas = data || [];
+  renderTabla();
+});
+
+function filtrarEstado(estado, btn) {
+  estadoActivo = estado;
+  document.querySelectorAll('.page-tabs .tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderTabla();
+}
+
+function renderTabla() {
+  const lista = estadoActivo === 'TODOS'
+    ? todasReservas
+    : todasReservas.filter(r => r.estado === estadoActivo);
+
+  const tbody = document.getElementById('tablaCuerpo');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">📋</div><p>Sin reservas</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(r => `
+    <tr>
+      <td>#${r.id}</td>
+      <td>${r.inmersionTitulo || '—'}<br><small>${r.inmersionFecha ? new Date(r.inmersionFecha).toLocaleDateString('es-ES') : ''}</small></td>
+      <td>${r.usuarioUsername || '—'}</td>
+      <td>${r.fechaReserva ? new Date(r.fechaReserva).toLocaleDateString('es-ES') : '—'}</td>
+      <td>${r.numeroPersonas}</td>
+      <td>${r.precioTotal != null ? r.precioTotal.toFixed(2) + ' €' : '—'}</td>
+      <td><span class="badge ${estadoBadge(r.estado)}">${r.estado}</span></td>
+      <td style="white-space:nowrap">
+        ${r.estado === 'PENDIENTE'  ? `<button class="btn-icon success" onclick="confirmar(${r.id})" title="Confirmar">✅</button>` : ''}
+        ${r.estado === 'CONFIRMADA' ? `<button class="btn-icon success" onclick="completar(${r.id})" title="Completar">🏁</button>` : ''}
+        ${r.estado !== 'CANCELADA' && r.estado !== 'COMPLETADA' ? `<button class="btn-icon danger" onclick="cancelar(${r.id})" title="Cancelar">✕</button>` : ''}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function estadoBadge(e) {
+  return e === 'CONFIRMADA' ? 'badge-success'
+       : e === 'PENDIENTE'  ? 'badge-warning'
+       : e === 'COMPLETADA' ? 'badge-info'
+       : 'badge-danger';
+}
+
+async function confirmar(id) {
+  await fetchAPI('/api/reservas/' + id + '/confirmar', { method: 'PUT' });
+  actualizar(id, 'CONFIRMADA');
+}
+
+async function completar(id) {
+  await fetchAPI('/api/reservas/' + id + '/completar', { method: 'PUT' });
+  actualizar(id, 'COMPLETADA');
+}
+
+async function cancelar(id) {
+  if (!confirm('¿Cancelar esta reserva?')) return;
+  await fetchAPI('/api/reservas/' + id, { method: 'DELETE' });
+  actualizar(id, 'CANCELADA');
+}
+
+function actualizar(id, nuevoEstado) {
+  const r = todasReservas.find(x => x.id === id);
+  if (r) r.estado = nuevoEstado;
+  renderTabla();
+}
+</script>
+</body>
+</html>

@@ -187,6 +187,30 @@ public class UsuarioService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public UsuarioResponse cambiarRol(Long id, TipoUsuario nuevoRol) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario con ID " + id + " no encontrado"));
+        usuario.setTipoUsuario(nuevoRol);
+        return convertirAResponse(usuarioRepository.save(usuario));
+    }
+
+    @Transactional
+    public UsuarioResponse cambiarEstado(Long id, Boolean activo) {
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario con ID " + id + " no encontrado"));
+        usuario.setActivo(activo);
+        return convertirAResponse(usuarioRepository.save(usuario));
+    }
+
+    @Transactional
+    public void eliminarUsuario(Long id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Usuario con ID " + id + " no encontrado");
+        }
+        usuarioRepository.deleteById(id);
+    }
+
     private UsuarioResponse convertirAResponse(Usuario usuario) {
         UsuarioResponse response = new UsuarioResponse();
         response.setId(usuario.getId());

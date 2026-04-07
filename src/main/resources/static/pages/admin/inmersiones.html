@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Inmersiones — DiveConnect Admin</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>🤿 Gestión de Inmersiones</h2>
+    <a href="/pages/admin/dashboard.html" class="btn btn-outline">← Dashboard</a>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search" id="filtro" placeholder="Buscar inmersión…" oninput="filtrar()"/>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr><th>ID</th><th>Título</th><th>Centro</th><th>Fecha</th><th>Precio</th><th>Plazas</th><th>Estado</th><th>Acciones</th></tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr><td colspan="8" style="text-align:center;padding:2rem"><div class="spinner"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let todos = [];
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('ADMINISTRADOR')) return;
+  initNav();
+  const data = await fetchAPI('/api/admin/inmersiones');
+  todos = data || [];
+  filtrar();
+});
+
+function filtrar() {
+  const q = document.getElementById('filtro').value.toLowerCase();
+  renderTabla(q ? todos.filter(i =>
+    (i.titulo || '').toLowerCase().includes(q) ||
+    (i.centroBuceoNombre || '').toLowerCase().includes(q)
+  ) : todos);
+}
+
+function renderTabla(lista) {
+  const tbody = document.getElementById('tablaCuerpo');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">🤿</div><p>Sin inmersiones</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(i => `
+    <tr>
+      <td>${i.id}</td>
+      <td><strong>${i.titulo}</strong></td>
+      <td>${i.centroBuceoNombre || '—'}</td>
+      <td>${i.fechaInmersion ? new Date(i.fechaInmersion).toLocaleDateString('es-ES') : '—'}</td>
+      <td>${i.precio != null ? i.precio.toFixed(2) + ' €' : '—'}</td>
+      <td>${i.plazasDisponibles ?? '—'} / ${i.plazasTotales ?? '—'}</td>
+      <td><span class="badge ${i.activa ? 'badge-success' : 'badge-neutral'}">${i.activa ? 'Activa' : 'Inactiva'}</span></td>
+      <td>
+        <button class="btn-icon danger" onclick="eliminar(${i.id})" title="Desactivar">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function eliminar(id) {
+  if (!confirm('¿Desactivar esta inmersión?')) return;
+  await fetchAPI('/api/admin/inmersiones/' + id, { method: 'DELETE' });
+  const i = todos.find(x => x.id === id);
+  if (i) i.activa = false;
+  filtrar();
+}
+</script>
+</body>
+</html>
