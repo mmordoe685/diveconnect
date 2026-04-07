@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,6 +60,13 @@ public class CentroBuceoService {
     }
 
     @Transactional(readOnly = true)
+    public Optional<CentroBuceoResponse> obtenerCentroPorUsuario(Long usuarioId) {
+        return usuarioRepository.findById(usuarioId)
+                .flatMap(centroBuceoRepository::findByUsuario)
+                .map(this::convertirAResponse);
+    }
+
+    @Transactional(readOnly = true)
     public CentroBuceoResponse obtenerCentroDeUsuario(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
@@ -74,6 +82,21 @@ public class CentroBuceoService {
         return centroBuceoRepository.findByActivoTrue().stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CentroBuceoResponse> obtenerTodosAdmin() {
+        return centroBuceoRepository.findAll().stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void eliminarCentro(Long id) {
+        CentroBuceo centro = centroBuceoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Centro de buceo no encontrado"));
+        centro.setActivo(false);
+        centroBuceoRepository.save(centro);
     }
 
     @Transactional(readOnly = true)

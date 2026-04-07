@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Mi Centro — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem;max-width:720px">
+  <div class="section-header">
+    <h2>🏫 Mi Centro de Buceo</h2>
+  </div>
+
+  <div id="sinCentro" style="display:none" class="card" style="text-align:center">
+    <div class="empty-state">
+      <div class="icon">🏫</div>
+      <p>Aún no tienes un centro registrado.</p>
+      <button class="btn btn-primary" onclick="mostrarFormulario(null)">Crear mi centro</button>
+    </div>
+  </div>
+
+  <div id="cardCentro" style="display:none" class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
+      <div>
+        <h3 style="margin:0" id="centroNombre">—</h3>
+        <p style="margin:.3rem 0 0;color:var(--gray-600)" id="centroCiudad">—</p>
+      </div>
+      <button class="btn btn-outline" onclick="mostrarFormulario('editar')">✏️ Editar</button>
+    </div>
+    <div id="centroInfo"></div>
+  </div>
+</div>
+
+<!-- Modal crear/editar centro -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" style="width:min(600px,92vw)">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Registrar Centro</h3>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <form id="formCentro" onsubmit="guardarCentro(event)">
+      <input type="hidden" id="centroId"/>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Nombre *</label>
+          <input class="form-input" id="fNombre" required/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-input" id="fDescripcion" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ciudad *</label>
+          <input class="form-input" id="fCiudad" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">País *</label>
+          <input class="form-input" id="fPais" required/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Dirección</label>
+          <input class="form-input" id="fDireccion"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Teléfono</label>
+          <input class="form-input" id="fTelefono"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="fEmail"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Sitio web</label>
+          <input class="form-input" id="fSitioWeb"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">Certificaciones</label>
+          <input class="form-input" id="fCertificaciones" placeholder="PADI, SSI, CMAS…"/>
+        </div>
+        <div class="form-group" style="grid-column:1/-1">
+          <label class="form-label">URL imagen</label>
+          <input class="form-input" id="fImagen"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let centroActual = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('USUARIO_EMPRESA', 'ADMINISTRADOR')) return;
+  initNav();
+  await cargarCentro();
+});
+
+async function cargarCentro() {
+  try {
+    centroActual = await fetchAPI('/api/centros-buceo/mi-centro');
+    if (centroActual) renderCentro(centroActual);
+    else mostrarSinCentro();
+  } catch {
+    mostrarSinCentro();
+  }
+}
+
+function mostrarSinCentro() {
+  document.getElementById('sinCentro').style.display = 'block';
+  document.getElementById('cardCentro').style.display = 'none';
+}
+
+function renderCentro(c) {
+  document.getElementById('sinCentro').style.display  = 'none';
+  document.getElementById('cardCentro').style.display = 'block';
+  document.getElementById('centroNombre').textContent = c.nombre;
+  document.getElementById('centroCiudad').textContent = `${c.ciudad}, ${c.pais}`;
+  document.getElementById('centroInfo').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.5rem;font-size:.9rem">
+      ${c.descripcion ? `<p style="grid-column:1/-1;color:var(--gray-700)">${c.descripcion}</p>` : ''}
+      ${c.direccion   ? `<span><strong>📍</strong> ${c.direccion}</span>` : ''}
+      ${c.telefono    ? `<span><strong>📞</strong> ${c.telefono}</span>` : ''}
+      ${c.email       ? `<span><strong>✉️</strong> ${c.email}</span>` : ''}
+      ${c.sitioWeb    ? `<span><strong>🌐</strong> <a href="${c.sitioWeb}" target="_blank">${c.sitioWeb}</a></span>` : ''}
+      ${c.certificaciones ? `<span><strong>🏅</strong> ${c.certificaciones}</span>` : ''}
+      ${c.valoracionPromedio ? `<span><strong>⭐</strong> ${c.valoracionPromedio.toFixed(1)} / 5</span>` : ''}
+    </div>
+  `;
+}
+
+function mostrarFormulario(modo) {
+  document.getElementById('modalTitulo').textContent = modo === 'editar' ? 'Editar Centro' : 'Registrar Centro';
+  if (modo === 'editar' && centroActual) {
+    const c = centroActual;
+    document.getElementById('centroId').value    = c.id;
+    document.getElementById('fNombre').value     = c.nombre || '';
+    document.getElementById('fDescripcion').value= c.descripcion || '';
+    document.getElementById('fCiudad').value     = c.ciudad || '';
+    document.getElementById('fPais').value       = c.pais || '';
+    document.getElementById('fDireccion').value  = c.direccion || '';
+    document.getElementById('fTelefono').value   = c.telefono || '';
+    document.getElementById('fEmail').value      = c.email || '';
+    document.getElementById('fSitioWeb').value   = c.sitioWeb || '';
+    document.getElementById('fCertificaciones').value = c.certificaciones || '';
+    document.getElementById('fImagen').value     = c.imagenUrl || '';
+  } else {
+    document.getElementById('formCentro').reset();
+    document.getElementById('centroId').value = '';
+  }
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function cerrarModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+async function guardarCentro(e) {
+  e.preventDefault();
+  const id   = document.getElementById('centroId').value;
+  const body = {
+    nombre:         document.getElementById('fNombre').value,
+    descripcion:    document.getElementById('fDescripcion').value,
+    ciudad:         document.getElementById('fCiudad').value,
+    pais:           document.getElementById('fPais').value,
+    direccion:      document.getElementById('fDireccion').value,
+    telefono:       document.getElementById('fTelefono').value,
+    email:          document.getElementById('fEmail').value,
+    sitioWeb:       document.getElementById('fSitioWeb').value,
+    certificaciones:document.getElementById('fCertificaciones').value,
+    imagenUrl:      document.getElementById('fImagen').value,
+  };
+  try {
+    if (id) {
+      centroActual = await fetchAPI('/api/centros-buceo/' + id, { method: 'PUT', body: JSON.stringify(body) });
+    } else {
+      centroActual = await fetchAPI('/api/centros-buceo', { method: 'POST', body: JSON.stringify(body) });
+    }
+    cerrarModal();
+    renderCentro(centroActual);
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+</script>
+</body>
+</html>

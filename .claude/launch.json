@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "DiveConnect Spring Boot API",
-      "runtimeExecutable": "./mvnw",
-      "runtimeArgs": ["spring-boot:run"],
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "mvnw.cmd", "spring-boot:run"],
       "port": 8080,
       "autoPort": false
     }

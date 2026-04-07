@@ -8,29 +8,7 @@
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="navbar-container">
-        <a href="/pages/feed.html" class="navbar-logo">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
-                <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
-                <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
-            </svg>
-            <span>DiveConnect</span>
-        </a>
-        <ul class="navbar-menu">
-    <li><a href="/pages/feed.html"class="active">Feed</a></li>
-    <li><a href="/pages/Inmersiones.html">Inmersiones</a></li>
-    <li><a href="/pages/centros.html">Centros</a></li>
-    <li><a href="/pages/reservas.html">Mis Reservas</a></li>
-    <li><a href="/pages/Perfil.html">Mi Perfil</a></li>
-    <li class="navbar-user">
-        <span id="navUsername"></span>
-        <button class="btn btn-sm btn-secondary" onclick="logout()">Salir</button>
-    </li>
-</ul>
-    </div>
-</nav>
+<header class="navbar" id="mainNavbar"></header>
 
 <div class="container">
 
@@ -87,11 +65,11 @@
 
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
 <script src="/js/publicaciones.js"></script>
 <script>
     requireAuth();
-    const user = getCurrentUser();
-    if (user) document.getElementById('navUsername').textContent = user.username;
+    initNav();
 
     function toggleDetalles() {
         document.getElementById('detallesInmersion').classList.toggle('hidden');
