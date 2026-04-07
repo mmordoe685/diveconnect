@@ -48,7 +48,7 @@ let estadoActivo = 'TODOS';
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('ADMINISTRADOR')) return;
   initNav();
-  const data = await fetchAPI('/api/admin/reservas');
+  const data = await fetchAPI('/admin/reservas');
   todos = data || [];
   renderFiltrado();
 });
@@ -104,7 +104,7 @@ function estadoBadge(e) {
 
 async function cancelar(id) {
   if (!confirm('¿Cancelar esta reserva?')) return;
-  await fetchAPI('/api/admin/reservas/' + id, { method: 'DELETE' });
+  await fetchAPI('/admin/reservas/' + id, { method: 'DELETE' });
   const r = todos.find(x => x.id === id);
   if (r) r.estado = 'CANCELADA';
   renderFiltrado();

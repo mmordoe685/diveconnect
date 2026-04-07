@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function loadDashboard() {
   const [inmersiones, reservas] = await Promise.all([
-    fetchAPI('/api/inmersiones/mis-inmersiones'),
-    fetchAPI('/api/reservas/mi-centro'),
+    fetchAPI('/inmersiones/mis-inmersiones'),
+    fetchAPI('/reservas/mi-centro'),
   ]);
 
   const activas    = (inmersiones || []).filter(i => i.activa).length;
@@ -62,7 +62,7 @@ async function loadDashboard() {
   let valoracion = '—';
   try {
     const user = JSON.parse(localStorage.getItem('user'));
-    const centro = await fetchAPI('/api/centros-buceo/mi-centro');
+    const centro = await fetchAPI('/centros-buceo/mi-centro');
     if (centro && centro.valoracionPromedio) valoracion = centro.valoracionPromedio.toFixed(1);
   } catch {}
 

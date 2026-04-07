@@ -54,7 +54,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('ADMINISTRADOR')) return;
   initNav();
-  const stats = await fetchAPI('/api/admin/stats');
+  const stats = await fetchAPI('/admin/stats');
   if (!stats) return;
   document.getElementById('sUsuarios').textContent    = stats.totalUsuarios   ?? '—';
   document.getElementById('sEmpresas').textContent    = stats.totalEmpresas   ?? '—';

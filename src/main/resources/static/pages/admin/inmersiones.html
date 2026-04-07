@@ -39,7 +39,7 @@ let todos = [];
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('ADMINISTRADOR')) return;
   initNav();
-  const data = await fetchAPI('/api/admin/inmersiones');
+  const data = await fetchAPI('/admin/inmersiones');
   todos = data || [];
   filtrar();
 });
@@ -76,7 +76,7 @@ function renderTabla(lista) {
 
 async function eliminar(id) {
   if (!confirm('¿Desactivar esta inmersión?')) return;
-  await fetchAPI('/api/admin/inmersiones/' + id, { method: 'DELETE' });
+  await fetchAPI('/admin/inmersiones/' + id, { method: 'DELETE' });
   const i = todos.find(x => x.id === id);
   if (i) i.activa = false;
   filtrar();
