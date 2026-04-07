@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Panel Admin — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>📊 Panel de Administración</h2>
+    <span class="badge badge-admin">ADMINISTRADOR</span>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="sUsuarios">—</div><div class="stat-label">Usuarios totales</div></div>
+    <div class="stat-card"><div class="stat-icon">🏢</div><div class="stat-value" id="sEmpresas">—</div><div class="stat-label">Empresas</div></div>
+    <div class="stat-card"><div class="stat-icon">🏫</div><div class="stat-value" id="sCentros">—</div><div class="stat-label">Centros de buceo</div></div>
+    <div class="stat-card"><div class="stat-icon">🤿</div><div class="stat-value" id="sInmersiones">—</div><div class="stat-label">Inmersiones</div></div>
+    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="sReservas">—</div><div class="stat-label">Reservas totales</div></div>
+    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="sPendientes">—</div><div class="stat-label">Reservas pendientes</div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1rem">
+    <a href="/pages/admin/usuarios.html"    class="card" style="text-decoration:none;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:2.5rem">👥</div>
+      <h3 style="margin:.5rem 0 .25rem;color:var(--ocean-800)">Usuarios</h3>
+      <p style="margin:0;color:var(--gray-600);font-size:.88rem">Gestionar roles y estado</p>
+    </a>
+    <a href="/pages/admin/centros.html"     class="card" style="text-decoration:none;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:2.5rem">🏫</div>
+      <h3 style="margin:.5rem 0 .25rem;color:var(--ocean-800)">Centros</h3>
+      <p style="margin:0;color:var(--gray-600);font-size:.88rem">Ver y gestionar centros</p>
+    </a>
+    <a href="/pages/admin/inmersiones.html" class="card" style="text-decoration:none;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:2.5rem">🤿</div>
+      <h3 style="margin:.5rem 0 .25rem;color:var(--ocean-800)">Inmersiones</h3>
+      <p style="margin:0;color:var(--gray-600);font-size:.88rem">Ver y moderar inmersiones</p>
+    </a>
+    <a href="/pages/admin/reservas.html"    class="card" style="text-decoration:none;text-align:center;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:2.5rem">📋</div>
+      <h3 style="margin:.5rem 0 .25rem;color:var(--ocean-800)">Reservas</h3>
+      <p style="margin:0;color:var(--gray-600);font-size:.88rem">Control de reservas</p>
+    </a>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('ADMINISTRADOR')) return;
+  initNav();
+  const stats = await fetchAPI('/api/admin/stats');
+  if (!stats) return;
+  document.getElementById('sUsuarios').textContent    = stats.totalUsuarios   ?? '—';
+  document.getElementById('sEmpresas').textContent    = stats.totalEmpresas   ?? '—';
+  document.getElementById('sCentros').textContent     = stats.totalCentros    ?? '—';
+  document.getElementById('sInmersiones').textContent = stats.totalInmersiones ?? '—';
+  document.getElementById('sReservas').textContent    = stats.totalReservas   ?? '—';
+  document.getElementById('sPendientes').textContent  = stats.reservasPendientes ?? '—';
+});
+</script>
+</body>
+</html>

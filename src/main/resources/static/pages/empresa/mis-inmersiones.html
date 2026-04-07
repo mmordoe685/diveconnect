@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Mis Inmersiones — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="container" style="padding-top:2rem">
+  <div class="section-header">
+    <h2>🤿 Mis Inmersiones</h2>
+    <button class="btn btn-primary" onclick="abrirModalCrear()">+ Nueva Inmersión</button>
+  </div>
+
+  <div class="table-toolbar">
+    <input type="search" id="filtro" placeholder="Buscar inmersión…" oninput="filtrar()"/>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Título</th><th>Fecha</th><th>Precio</th><th>Plazas</th><th>Estado</th><th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tablaCuerpo">
+        <tr><td colspan="6" style="text-align:center;padding:2rem"><div class="spinner"></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal crear/editar -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitulo">Nueva Inmersión</h3>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <form id="formInmersion" onsubmit="guardarInmersion(event)">
+      <input type="hidden" id="inmersionId"/>
+      <div class="form-group">
+        <label class="form-label">Título *</label>
+        <input class="form-input" id="fTitulo" required/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-input" id="fDescripcion" rows="3"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+        <div class="form-group">
+          <label class="form-label">Fecha y hora *</label>
+          <input class="form-input" type="datetime-local" id="fFecha" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Duración (min)</label>
+          <input class="form-input" type="number" id="fDuracion" min="1"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Profundidad máx. (m)</label>
+          <input class="form-input" type="number" id="fProfundidad" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nivel requerido</label>
+          <input class="form-input" id="fNivel" placeholder="Open Water, Advanced…"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Precio (€) *</label>
+          <input class="form-input" type="number" id="fPrecio" step="0.01" min="0" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plazas totales *</label>
+          <input class="form-input" type="number" id="fPlazas" min="1" required/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ubicación</label>
+        <input class="form-input" id="fUbicacion"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="display:flex;gap:.5rem;align-items:center">
+          <input type="checkbox" id="fEquipo"/> Equipo incluido
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="cerrarModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+let todasInmersiones = [];
+let centroId = null;
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!requireRole('USUARIO_EMPRESA', 'ADMINISTRADOR')) return;
+  initNav();
+  await cargarCentro();
+  await cargarInmersiones();
+});
+
+async function cargarCentro() {
+  try {
+    const centro = await fetchAPI('/api/centros-buceo/mi-centro');
+    if (centro) centroId = centro.id;
+  } catch {}
+}
+
+async function cargarInmersiones() {
+  const data = await fetchAPI('/api/inmersiones/mis-inmersiones');
+  todasInmersiones = data || [];
+  renderTabla(todasInmersiones);
+}
+
+function renderTabla(lista) {
+  const tbody = document.getElementById('tablaCuerpo');
+  if (!lista.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">🤿</div><p>No hay inmersiones aún. ¡Crea la primera!</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = lista.map(i => `
+    <tr>
+      <td><strong>${i.titulo}</strong><br><small style="color:var(--gray-600)">${i.ubicacion || ''}</small></td>
+      <td>${i.fechaInmersion ? new Date(i.fechaInmersion).toLocaleDateString('es-ES') : '—'}</td>
+      <td>${i.precio != null ? i.precio.toFixed(2) + ' €' : '—'}</td>
+      <td>${i.plazasDisponibles ?? '—'} / ${i.plazasTotales ?? '—'}</td>
+      <td><span class="badge ${i.activa ? 'badge-success' : 'badge-neutral'}">${i.activa ? 'Activa' : 'Inactiva'}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn-icon" onclick="editarInmersion(${i.id})" title="Editar">✏️</button>
+        <button class="btn-icon danger" onclick="desactivar(${i.id})" title="Desactivar">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filtrar() {
+  const q = document.getElementById('filtro').value.toLowerCase();
+  renderTabla(todasInmersiones.filter(i =>
+    (i.titulo || '').toLowerCase().includes(q) ||
+    (i.ubicacion || '').toLowerCase().includes(q)
+  ));
+}
+
+function abrirModalCrear() {
+  document.getElementById('modalTitulo').textContent = 'Nueva Inmersión';
+  document.getElementById('formInmersion').reset();
+  document.getElementById('inmersionId').value = '';
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function editarInmersion(id) {
+  const i = todasInmersiones.find(x => x.id === id);
+  if (!i) return;
+  document.getElementById('modalTitulo').textContent = 'Editar Inmersión';
+  document.getElementById('inmersionId').value = id;
+  document.getElementById('fTitulo').value      = i.titulo || '';
+  document.getElementById('fDescripcion').value = i.descripcion || '';
+  document.getElementById('fFecha').value       = i.fechaInmersion ? i.fechaInmersion.substring(0,16) : '';
+  document.getElementById('fDuracion').value    = i.duracion || '';
+  document.getElementById('fProfundidad').value = i.profundidadMaxima || '';
+  document.getElementById('fNivel').value       = i.nivelRequerido || '';
+  document.getElementById('fPrecio').value      = i.precio || '';
+  document.getElementById('fPlazas').value      = i.plazasTotales || '';
+  document.getElementById('fUbicacion').value   = i.ubicacion || '';
+  document.getElementById('fEquipo').checked    = !!i.equipoIncluido;
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function cerrarModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+}
+
+async function guardarInmersion(e) {
+  e.preventDefault();
+  const id = document.getElementById('inmersionId').value;
+  const body = {
+    titulo:           document.getElementById('fTitulo').value,
+    descripcion:      document.getElementById('fDescripcion').value,
+    fechaInmersion:   document.getElementById('fFecha').value,
+    duracion:         parseInt(document.getElementById('fDuracion').value) || null,
+    profundidadMaxima:parseFloat(document.getElementById('fProfundidad').value) || null,
+    nivelRequerido:   document.getElementById('fNivel').value,
+    precio:           parseFloat(document.getElementById('fPrecio').value),
+    plazasTotales:    parseInt(document.getElementById('fPlazas').value),
+    ubicacion:        document.getElementById('fUbicacion').value,
+    equipoIncluido:   document.getElementById('fEquipo').checked,
+    centroBuceoId:    centroId,
+  };
+  try {
+    if (id) {
+      await fetchAPI('/api/inmersiones/' + id, { method: 'PUT', body: JSON.stringify(body) });
+    } else {
+      await fetchAPI('/api/inmersiones', { method: 'POST', body: JSON.stringify(body) });
+    }
+    cerrarModal();
+    cargarInmersiones();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+
+async function desactivar(id) {
+  if (!confirm('¿Desactivar esta inmersión?')) return;
+  try {
+    await fetchAPI('/api/inmersiones/' + id, { method: 'DELETE' });
+    cargarInmersiones();
+  } catch (err) {
+    alert('Error: ' + err.message);
+  }
+}
+</script>
+</body>
+</html>

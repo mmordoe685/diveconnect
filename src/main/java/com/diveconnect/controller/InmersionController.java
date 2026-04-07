@@ -1,8 +1,10 @@
 package com.diveconnect.controller;
 
 import com.diveconnect.dto.request.InmersionRequest;
+import com.diveconnect.dto.response.CentroBuceoResponse;
 import com.diveconnect.dto.response.InmersionResponse;
 import com.diveconnect.dto.response.UsuarioResponse;
+import com.diveconnect.service.CentroBuceoService;
 import com.diveconnect.service.InmersionService;
 import com.diveconnect.service.UsuarioService;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/inmersiones")
@@ -22,6 +25,7 @@ public class InmersionController {
 
     private final InmersionService inmersionService;
     private final UsuarioService usuarioService;
+    private final CentroBuceoService centroBuceoService;
 
     /**
      * GET /api/inmersiones/disponibles
@@ -76,6 +80,33 @@ public class InmersionController {
         return new ResponseEntity<>(
             inmersionService.crearInmersion(usuario.getId(), request),
             HttpStatus.CREATED);
+    }
+
+    /**
+     * PUT /api/inmersiones/{id}
+     * Actualiza una inmersión. Solo el propietario del centro o admins.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<InmersionResponse> actualizar(
+            @PathVariable Long id,
+            @Valid @RequestBody InmersionRequest request,
+            Authentication authentication) {
+        return ResponseEntity.ok(inmersionService.actualizarInmersion(id, request));
+    }
+
+    /**
+     * GET /api/inmersiones/mis-inmersiones
+     * Devuelve las inmersiones del centro del usuario empresa autenticado.
+     */
+    @GetMapping("/mis-inmersiones")
+    public ResponseEntity<List<InmersionResponse>> misCentroInmersiones(Authentication authentication) {
+        String username = authentication.getName();
+        UsuarioResponse usuario = usuarioService.obtenerPerfilPorUsername(username);
+        Optional<CentroBuceoResponse> centro = centroBuceoService.obtenerCentroPorUsuario(usuario.getId());
+        if (centro.isEmpty()) {
+            return ResponseEntity.ok(List.of());
+        }
+        return ResponseEntity.ok(inmersionService.obtenerInmersionesPorCentro(centro.get().getId()));
     }
 
     /**

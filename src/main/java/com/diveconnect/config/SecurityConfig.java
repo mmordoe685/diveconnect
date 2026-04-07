@@ -62,9 +62,14 @@ public class SecurityConfig {
                 // ── Auth pública ─────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
 
+                // ── Admin (sólo ADMINISTRADOR) ───────────────────────────
+                .requestMatchers("/api/admin/**").hasRole("ADMINISTRADOR")
+
                 // ── Endpoints públicos de catálogo ───────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/centros-buceo/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/inmersiones/disponibles").permitAll()
+                // literal antes del patrón genérico /{id}
+                .requestMatchers(HttpMethod.GET,  "/api/inmersiones/mis-inmersiones").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/inmersiones/**").permitAll()
 
                 // ── Endpoints de usuario ─────────────────────────────────

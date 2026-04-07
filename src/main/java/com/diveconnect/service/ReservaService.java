@@ -105,6 +105,33 @@ public class ReservaService {
         reservaRepository.save(reserva);
     }
 
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> obtenerReservasDeCentro(Long centroBuceoId) {
+        com.diveconnect.entity.CentroBuceo centro = new com.diveconnect.entity.CentroBuceo();
+        centro.setId(centroBuceoId);
+        return reservaRepository.findByCentroBuceoOrderByFechaReservaDesc(centro).stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservaResponse> obtenerTodasLasReservas() {
+        return reservaRepository.findAll().stream()
+                .map(this::convertirAResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ReservaResponse completarReserva(Long id) {
+        Reserva reserva = reservaRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+        if (reserva.getEstado() == EstadoReserva.CANCELADA) {
+            throw new BadRequestException("No se puede completar una reserva cancelada");
+        }
+        reserva.setEstado(EstadoReserva.COMPLETADA);
+        return convertirAResponse(reservaRepository.save(reserva));
+    }
+
     private ReservaResponse convertirAResponse(Reserva reserva) {
         ReservaResponse response = new ReservaResponse();
         response.setId(reserva.getId());

@@ -1,7 +1,9 @@
 package com.diveconnect.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
@@ -28,4 +30,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("SELECT u FROM Usuario u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
            "OR LOWER(u.nombreEmpresa) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Usuario> buscarPorNombre(@Param("keyword") String keyword);
+
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM seguidores", nativeQuery = true)
+    void clearSeguidores();
 }
