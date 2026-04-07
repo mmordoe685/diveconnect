@@ -11,7 +11,11 @@
     });
   </script>
 </head>
-<body>
+<body style="background:var(--white)">
+
+  <!-- ═══════════════════════════════════════════════
+       HERO
+  ════════════════════════════════════════════════ -->
   <div class="landing-container">
 
     <div class="landing-badge">
@@ -23,72 +27,328 @@
 
     <h1>Dive<span>Connect</span></h1>
 
-    <p>
-      Conecta con la comunidad de submarinistas. Comparte tus inmersiones,
-      descubre nuevos lugares y reserva con los mejores centros de buceo.
+    <p class="landing-subtitle">
+      Conecta con la comunidad global de submarinistas. Comparte tus inmersiones,
+      descubre spots únicos y reserva con los mejores centros de buceo.
     </p>
 
     <div class="landing-buttons">
-      <a href="/pages/login.html" class="btn btn-primary btn-lg">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <a href="/pages/login.html" class="btn btn-primary btn-xl">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
           <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
         </svg>
         Iniciar Sesión
       </a>
-      <a href="/pages/register.html" class="btn btn-outline btn-lg"
-         style="border-color:rgba(255,255,255,.5);color:var(--white);">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <a href="/pages/register.html" class="btn btn-ghost btn-xl">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
           <circle cx="9" cy="7" r="4"/>
           <line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
         </svg>
-        Crear Cuenta
+        Crear Cuenta Gratis
       </a>
     </div>
 
     <div class="landing-features">
       <div class="landing-feature">
-        <span>🤿</span>
+        <div class="feat-icon">🤿</div>
         <span>Comparte inmersiones</span>
       </div>
       <div class="landing-feature">
-        <span>🗺️</span>
+        <div class="feat-icon">🗺️</div>
         <span>Descubre spots</span>
       </div>
       <div class="landing-feature">
-        <span>🏫</span>
+        <div class="feat-icon">🏫</div>
         <span>Reserva centros</span>
       </div>
       <div class="landing-feature">
-        <span>🐠</span>
-        <span>Comunidad buceadora</span>
+        <div class="feat-icon">🐠</div>
+        <span>Comunidad global</span>
       </div>
     </div>
 
-    <!-- Ola SVG animada -->
+    <!-- Ola SVG -->
     <div class="landing-wave">
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none"
-           style="width:100%;height:80px;display:block;">
-        <path fill="rgba(144,224,239,0.15)"
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" style="width:100%;height:80px;display:block;">
+        <path fill="var(--white)"
           d="M0,40 C360,80 720,0 1080,50 C1260,75 1380,30 1440,40 L1440,100 L0,100 Z">
-          <animate attributeName="d" dur="8s" repeatCount="indefinite"
-            values="
-              M0,40 C360,80 720,0 1080,50 C1260,75 1380,30 1440,40 L1440,100 L0,100 Z;
-              M0,55 C300,20 720,70 1080,35 C1260,18 1380,60 1440,50 L1440,100 L0,100 Z;
-              M0,40 C360,80 720,0 1080,50 C1260,75 1380,30 1440,40 L1440,100 L0,100 Z"/>
-        </path>
-        <path fill="rgba(72,202,228,0.10)"
-          d="M0,60 C400,30 800,80 1200,50 C1320,38 1400,55 1440,60 L1440,100 L0,100 Z">
-          <animate attributeName="d" dur="11s" repeatCount="indefinite"
-            values="
-              M0,60 C400,30 800,80 1200,50 C1320,38 1400,55 1440,60 L1440,100 L0,100 Z;
-              M0,45 C350,75 750,25 1150,65 C1300,80 1400,40 1440,45 L1440,100 L0,100 Z;
-              M0,60 C400,30 800,80 1200,50 C1320,38 1400,55 1440,60 L1440,100 L0,100 Z"/>
         </path>
       </svg>
     </div>
-
   </div>
+
+  <!-- ═══════════════════════════════════════════════
+       FEATURES — ¿Por qué DiveConnect?
+  ════════════════════════════════════════════════ -->
+  <section style="padding:6rem 1.5rem; background:var(--white)">
+    <div style="max-width:1140px;margin:0 auto;text-align:center">
+      <span class="section-label">Funcionalidades</span>
+      <h2 class="section-title" style="margin:0 auto 0.85rem">
+        Todo lo que necesitas para bucear mejor
+      </h2>
+      <p class="section-desc" style="margin:0 auto 3.5rem">
+        DiveConnect reúne a la comunidad submarina en una plataforma diseñada
+        por y para buceadores.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📖</div>
+          <h3>Diario de Inmersiones</h3>
+          <p>Registra cada inmersión con profundidad, temperatura, visibilidad y las especies que encontraste.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🌊</div>
+          <h3>Feed Social</h3>
+          <p>Sigue a otros buceadores, comenta sus experiencias y comparte las tuyas con la comunidad.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏫</div>
+          <h3>Centros de Buceo</h3>
+          <p>Descubre y reseña los mejores centros de buceo de España. Busca por ubicación y certificaciones.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📋</div>
+          <h3>Reservas Online</h3>
+          <p>Reserva inmersiones directamente desde la plataforma. Gestión en tiempo real para empresas.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Panel de Empresa</h3>
+          <p>Herramientas profesionales para centros de buceo: gestión de inmersiones, reservas y clientes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Seguro y Confiable</h3>
+          <p>Autenticación JWT, roles diferenciados y datos protegidos. Tu información siempre segura.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       CÓMO FUNCIONA — Steps
+  ════════════════════════════════════════════════ -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="width:100%;display:block;">
+      <path fill="var(--ocean-950)" d="M0,0 C480,60 960,0 1440,40 L1440,60 L0,60 Z"/>
+    </svg>
+  </div>
+
+  <section class="steps-section">
+    <div style="max-width:1140px;margin:0 auto;text-align:center">
+      <span class="section-label" style="background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.2);color:var(--ocean-300)">
+        Cómo funciona
+      </span>
+      <h2 class="section-title" style="color:var(--white);margin:0 auto 0.85rem">
+        Empieza en 3 pasos
+      </h2>
+      <p class="section-desc" style="color:rgba(255,255,255,0.68);margin:0 auto">
+        Únete a la comunidad más grande de submarinistas de España en minutos.
+      </p>
+    </div>
+
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-number">1</div>
+        <h3>Crea tu cuenta</h3>
+        <p>Regístrate gratis como buceador individual o como centro de buceo. Configura tu perfil con tu nivel y experiencia.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">2</div>
+        <h3>Conecta con la comunidad</h3>
+        <p>Sigue a otros buceadores, descubre inmersiones increíbles y comparte tus experiencias en el feed.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-number">3</div>
+        <h3>Reserva y bucea</h3>
+        <p>Encuentra el centro de buceo perfecto, reserva tu próxima inmersión y vive la aventura submarina.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="width:100%;display:block;">
+      <path fill="var(--gray-100)" d="M0,40 C480,0 960,60 1440,20 L1440,60 L0,60 Z"/>
+    </svg>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       ESTADÍSTICAS
+  ════════════════════════════════════════════════ -->
+  <section class="stats-landing">
+    <div style="max-width:1140px;margin:0 auto;text-align:center">
+      <span class="section-label">La plataforma en números</span>
+      <h2 class="section-title" style="margin:0 auto 0.85rem">Una comunidad en crecimiento</h2>
+      <p class="section-desc" style="margin:0 auto">
+        Miles de buceadores ya confían en DiveConnect para compartir su pasión por el mar.
+      </p>
+
+      <div class="stats-landing-grid" style="margin-top:3.5rem">
+        <div class="stat-landing-card">
+          <div class="stat-landing-number">2.400+</div>
+          <div class="stat-landing-label">Buceadores activos</div>
+          <div class="stat-landing-desc">Comunidad en constante crecimiento</div>
+        </div>
+        <div class="stat-landing-card">
+          <div class="stat-landing-number">320+</div>
+          <div class="stat-landing-label">Centros de buceo</div>
+          <div class="stat-landing-desc">Verificados en toda España</div>
+        </div>
+        <div class="stat-landing-card">
+          <div class="stat-landing-number">18.000+</div>
+          <div class="stat-landing-label">Inmersiones registradas</div>
+          <div class="stat-landing-desc">Y subiendo cada día</div>
+        </div>
+        <div class="stat-landing-card">
+          <div class="stat-landing-number">4.9⭐</div>
+          <div class="stat-landing-label">Valoración media</div>
+          <div class="stat-landing-desc">Satisfacción de usuarios</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       TESTIMONIOS
+  ════════════════════════════════════════════════ -->
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 60" preserveAspectRatio="none" style="width:100%;display:block;">
+      <path fill="var(--white)" d="M0,20 C360,60 1080,0 1440,40 L1440,60 L0,60 Z"/>
+    </svg>
+  </div>
+
+  <section class="testimonials-section">
+    <div style="text-align:center">
+      <span class="section-label">Testimonios</span>
+      <h2 class="section-title" style="margin:0 auto 0.85rem">Lo que dicen nuestros usuarios</h2>
+      <p class="section-desc" style="margin:0 auto">
+        Buceadores y centros de todo el país ya forman parte de DiveConnect.
+      </p>
+    </div>
+
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">
+          "DiveConnect ha cambiado la forma en que vivo el buceo. Puedo registrar mis inmersiones,
+          conectar con otros buceadores y descubrir nuevos spots increíbles. ¡Es exactamente lo que necesitaba!"
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">J</div>
+          <div>
+            <div class="testimonial-name">Javier Torres</div>
+            <div class="testimonial-role">Divemaster · 234 inmersiones</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">
+          "Como centro de buceo, la plataforma nos ha permitido digitalizar completamente la gestión de reservas.
+          Nuestros clientes pueden reservar online en segundos. Imprescindible."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">O</div>
+          <div>
+            <div class="testimonial-name">Ocean Dive Center</div>
+            <div class="testimonial-role">Centro PADI 5 Estrellas · Palamós</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">
+          "Me encanta poder compartir mis fotos submarinas y recibir feedback de la comunidad. La sección
+          de inmersiones con todos los datos técnicos es perfecta para mi diario de buceo."
+        </p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar">M</div>
+          <div>
+            <div class="testimonial-name">Marina López</div>
+            <div class="testimonial-role">Bióloga marina · Open Water</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       CTA FINAL
+  ════════════════════════════════════════════════ -->
+  <section style="background:linear-gradient(135deg,var(--ocean-950),var(--ocean-800));
+                  padding:5rem 1.5rem;text-align:center;color:var(--white)">
+    <h2 style="font-family:'Poppins',sans-serif;font-size:clamp(1.8rem,4vw,2.6rem);
+               font-weight:700;margin-bottom:1rem;letter-spacing:-0.02em">
+      ¿Listo para tu próxima aventura submarina?
+    </h2>
+    <p style="color:rgba(255,255,255,0.72);font-size:1.08rem;max-width:480px;margin:0 auto 2.5rem;line-height:1.75">
+      Únete gratis hoy y conecta con miles de buceadores apasionados como tú.
+    </p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+      <a href="/pages/register.html" class="btn btn-coral btn-xl">
+        Crear cuenta gratis
+      </a>
+      <a href="/pages/login.html" class="btn btn-ghost btn-xl">
+        Ya tengo cuenta
+      </a>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════════════════ -->
+  <footer class="landing-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div style="font-family:'Poppins',sans-serif;font-size:1.4rem;font-weight:800;
+                    color:var(--white);display:flex;align-items:center;gap:.5rem">
+          🌊 <span style="color:var(--ocean-400)">DiveConnect</span>
+        </div>
+        <p>La plataforma de referencia para la comunidad de submarinistas de España.
+           Comparte, descubre y reserva.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Plataforma</h4>
+        <ul>
+          <li><a href="/pages/login.html">Iniciar sesión</a></li>
+          <li><a href="/pages/register.html">Registrarse</a></li>
+          <li><a href="/pages/Inmersiones.html">Inmersiones</a></li>
+          <li><a href="/pages/centros.html">Centros de buceo</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Para empresas</h4>
+        <ul>
+          <li><a href="/pages/register.html">Registrar centro</a></li>
+          <li><a href="/pages/empresa/dashboard.html">Panel de empresa</a></li>
+          <li><a href="/pages/empresa/mis-inmersiones.html">Gestionar inmersiones</a></li>
+          <li><a href="/pages/empresa/gestionar-reservas.html">Gestionar reservas</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contacto</h4>
+        <ul>
+          <li><a href="#">info@diveconnect.es</a></li>
+          <li><a href="#">Soporte técnico</a></li>
+          <li><a href="#">Política de privacidad</a></li>
+          <li><a href="#">Términos de uso</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 DiveConnect. Todos los derechos reservados.</span>
+      <span>Hecho con 🤿 para la comunidad buceadora</span>
+    </div>
+  </footer>
+
 </body>
 </html>

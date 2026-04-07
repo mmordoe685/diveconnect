@@ -39,7 +39,7 @@ let todos = [];
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('ADMINISTRADOR')) return;
   initNav();
-  const data = await fetchAPI('/api/admin/centros');
+  const data = await fetchAPI('/admin/centros');
   todos = data || [];
   filtrar();
 });
@@ -76,7 +76,7 @@ function renderTabla(lista) {
 
 async function eliminar(id, nombre) {
   if (!confirm('¿Desactivar el centro "' + nombre + '"?')) return;
-  await fetchAPI('/api/admin/centros/' + id, { method: 'DELETE' });
+  await fetchAPI('/admin/centros/' + id, { method: 'DELETE' });
   const c = todos.find(x => x.id === id);
   if (c) c.activo = false;
   filtrar();

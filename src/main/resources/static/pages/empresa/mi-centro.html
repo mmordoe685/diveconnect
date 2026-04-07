@@ -106,7 +106,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function cargarCentro() {
   try {
-    centroActual = await fetchAPI('/api/centros-buceo/mi-centro');
+    centroActual = await fetchAPI('/centros-buceo/mi-centro');
     if (centroActual) renderCentro(centroActual);
     else mostrarSinCentro();
   } catch {
@@ -178,9 +178,9 @@ async function guardarCentro(e) {
   };
   try {
     if (id) {
-      centroActual = await fetchAPI('/api/centros-buceo/' + id, { method: 'PUT', body: JSON.stringify(body) });
+      centroActual = await fetchAPI('/centros-buceo/' + id, { method: 'PUT', body: JSON.stringify(body) });
     } else {
-      centroActual = await fetchAPI('/api/centros-buceo', { method: 'POST', body: JSON.stringify(body) });
+      centroActual = await fetchAPI('/centros-buceo', { method: 'POST', body: JSON.stringify(body) });
     }
     cerrarModal();
     renderCentro(centroActual);

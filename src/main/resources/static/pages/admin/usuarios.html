@@ -69,7 +69,7 @@ let editandoId = null;
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('ADMINISTRADOR')) return;
   initNav();
-  const data = await fetchAPI('/api/admin/usuarios');
+  const data = await fetchAPI('/admin/usuarios');
   todos = data || [];
   filtrar();
 });
@@ -128,21 +128,21 @@ function cerrarModal(id) { document.getElementById(id).classList.remove('active'
 
 async function confirmarRol() {
   const rol = document.getElementById('nuevoRol').value;
-  const u   = await fetchAPI('/api/admin/usuarios/' + editandoId + '/rol?rol=' + rol, { method: 'PUT' });
+  const u   = await fetchAPI('/admin/usuarios/' + editandoId + '/rol?rol=' + rol, { method: 'PUT' });
   if (u) { const idx = todos.findIndex(x => x.id === editandoId); if (idx >= 0) todos[idx] = u; }
   cerrarModal('modalRol');
   filtrar();
 }
 
 async function toggleEstado(id, activo) {
-  const u = await fetchAPI('/api/admin/usuarios/' + id + '/estado?activo=' + activo, { method: 'PUT' });
+  const u = await fetchAPI('/admin/usuarios/' + id + '/estado?activo=' + activo, { method: 'PUT' });
   if (u) { const idx = todos.findIndex(x => x.id === id); if (idx >= 0) todos[idx] = u; }
   filtrar();
 }
 
 async function eliminar(id, username) {
   if (!confirm('¿Eliminar al usuario "' + username + '"? Esta acción no se puede deshacer.')) return;
-  await fetchAPI('/api/admin/usuarios/' + id, { method: 'DELETE' });
+  await fetchAPI('/admin/usuarios/' + id, { method: 'DELETE' });
   todos = todos.filter(u => u.id !== id);
   filtrar();
 }

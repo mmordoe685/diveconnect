@@ -1,133 +1,394 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inmersiones - DiveConnect</title>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inmersiones — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .inmersiones-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+    }
+    .inmersion-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(226,232,240,0.8);
+      transition: transform var(--transition), box-shadow var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .inmersion-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow-xl);
+    }
+    .inmersion-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      background: linear-gradient(135deg,var(--ocean-800),var(--ocean-950));
+    }
+    .inmersion-img-placeholder {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg,var(--ocean-800),var(--ocean-950));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+    }
+    .inmersion-body {
+      padding: 1.25rem 1.35rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .inmersion-nivel {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      background: var(--ocean-100);
+      color: var(--ocean-800);
+      border-radius: var(--radius-full);
+      padding: 0.2rem 0.7rem;
+      margin-bottom: 0.6rem;
+    }
+    .inmersion-titulo {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 0.5rem;
+      line-height: 1.35;
+    }
+    .inmersion-desc {
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      line-height: 1.6;
+      margin-bottom: 0.9rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .inmersion-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      margin-bottom: 1rem;
+    }
+    .inmersion-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--gray-200);
+    }
+    .inmersion-precio {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--ocean-800);
+    }
+    .inmersion-precio small {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--gray-500);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* Modal de reserva */
+    .modal-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(3,4,94,0.55); backdrop-filter:blur(6px);
+      z-index:2000; align-items:center; justify-content:center; padding:1rem;
+    }
+    .modal-overlay.open { display:flex; }
+    .modal {
+      background:var(--white); border-radius:var(--radius-xl);
+      padding:2.25rem 2.5rem; width:100%; max-width:440px;
+      box-shadow:var(--shadow-2xl);
+      animation:modalIn .25s ease both;
+    }
+    .modal h3 { font-family:'Poppins',sans-serif; font-size:1.35rem; font-weight:700;
+                color:var(--ocean-950); margin-bottom:0.35rem; }
+    .modal .subtitle { color:var(--gray-500); font-size:0.88rem; margin-bottom:1.5rem; }
+    .modal-total {
+      background:var(--ocean-50); border:1px solid var(--ocean-200);
+      border-radius:var(--radius-md); padding:1rem 1.25rem; margin:1rem 0;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .modal-total span { font-size:0.9rem; color:var(--gray-600); }
+    .modal-total strong { font-size:1.3rem; color:var(--ocean-800);
+                          font-family:'Poppins',sans-serif; font-weight:700; }
+    .modal-actions { display:flex; gap:.75rem; margin-top:1.25rem; }
+
+    /* Filtros */
+    .filtros-bar {
+      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
+      margin-bottom:1.5rem;
+    }
+    .filtros-bar input, .filtros-bar select {
+      flex:1; min-width:160px;
+    }
+  </style>
 </head>
 <body>
 
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container">
-    <h2 style="color:var(--ocean-800);margin-bottom:1.5rem;font-weight:700">🤿 Inmersiones Disponibles</h2>
-    <div id="inmersionesContainer">
-        <div class="loading"><div class="spinner"></div></div>
+<div class="container-wide">
+
+  <!-- Cabecera -->
+  <div class="section-header" style="margin-bottom:1.5rem">
+    <div>
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.75rem;font-weight:700;
+                 color:var(--ocean-950);letter-spacing:-0.02em">
+        Inmersiones Disponibles
+      </h2>
+      <p style="color:var(--gray-500);font-size:.9rem;margin-top:.2rem">
+        Encuentra y reserva tu próxima aventura submarina
+      </p>
     </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-bar">
+    <input type="text" id="buscarInput" class="form-input"
+           placeholder="🔍 Buscar por nombre o lugar..."
+           oninput="filtrar()">
+    <select id="nivelFilter" class="form-input" onchange="filtrar()">
+      <option value="">Todos los niveles</option>
+      <option value="Open Water">Open Water</option>
+      <option value="Advanced Open Water">Advanced Open Water</option>
+      <option value="Rescue Diver">Rescue Diver</option>
+      <option value="Divemaster">Divemaster</option>
+    </select>
+    <select id="ordenFilter" class="form-input" onchange="filtrar()">
+      <option value="precio-asc">Precio: menor a mayor</option>
+      <option value="precio-desc">Precio: mayor a menor</option>
+      <option value="profundidad">Mayor profundidad</option>
+    </select>
+  </div>
+
+  <!-- Grid de inmersiones -->
+  <div id="inmersionesContainer">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+</div>
+
+<!-- Modal de reserva -->
+<div class="modal-overlay" id="reservaModal">
+  <div class="modal">
+    <h3 id="modalTitulo">Reservar inmersión</h3>
+    <p class="subtitle" id="modalSubtitulo"></p>
+
+    <div id="alertModal"></div>
+
+    <div class="form-group">
+      <label class="form-label">Número de personas</label>
+      <input type="number" id="numPersonas" class="form-input" value="1" min="1"
+             oninput="actualizarTotal()">
+    </div>
+
+    <div class="modal-total">
+      <span>Total estimado</span>
+      <strong id="totalPrecio">—</strong>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" style="flex:1" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" id="confirmarBtn" onclick="confirmarReserva()">
+        ✅ Confirmar Reserva
+      </button>
+    </div>
+  </div>
 </div>
 
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/nav.js"></script>
 <script>
-    requireAuth(); initNav();
+  requireAuth(); initNav();
 
-    async function cargarInmersiones() {
-        const container = document.getElementById('inmersionesContainer');
-        try {
-            const lista = await fetchAPI('/inmersiones/disponibles');
-            if (!lista || lista.length === 0) {
-                container.innerHTML = '<p style="text-align:center;color:var(--gray-500);padding:3rem">No hay inmersiones disponibles en este momento.</p>';
-                return;
-            }
-            container.innerHTML = lista.map(i => {
-                const fecha = i.fechaInmersion
-                    ? new Date(i.fechaInmersion).toLocaleDateString('es-ES', { day:'numeric', month:'long', year:'numeric' })
-                    : null;
-                return `
-                <div class="card" style="margin-bottom:1.5rem">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.75rem">
-                        <h3 style="color:var(--ocean-800);font-weight:600">${escapeHtml(i.titulo)}</h3>
-                        <span style="background:var(--ocean-100);color:var(--ocean-800);padding:.3rem .8rem;border-radius:20px;font-weight:600;white-space:nowrap;margin-left:1rem">
-                            ${i.precio}€/persona
-                        </span>
-                    </div>
-                    ${i.descripcion ? `<p style="color:var(--gray-600);font-size:.9rem;margin-bottom:.75rem">${escapeHtml(i.descripcion)}</p>` : ''}
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem;font-size:.85rem;color:var(--gray-600);margin-bottom:1rem">
-                        ${i.ubicacion || i.centroBuceoCiudad ? `<span>📍 ${escapeHtml(i.ubicacion || i.centroBuceoCiudad)}</span>` : ''}
-                        <span>⏱️ ${i.duracion} min</span>
-                        <span>🤿 ${escapeHtml(i.nivelRequerido || 'Todos los niveles')}</span>
-                        <span>👥 ${i.plazasDisponibles} plazas</span>
-                        ${i.profundidadMaxima ? `<span>📊 Máx. ${i.profundidadMaxima}m</span>` : ''}
-                        ${fecha ? `<span>📅 ${fecha}</span>` : ''}
-                    </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center">
-                        <span style="font-size:.85rem;color:var(--gray-500)">${escapeHtml(i.centroBuceoNombre || '')}</span>
-                        <button class="btn btn-primary btn-sm"
-                            onclick="hacerReserva(${i.id}, ${i.precio}, ${i.plazasDisponibles})">
-                            Reservar plaza
-                        </button>
-                    </div>
-                </div>`;
-            }).join('');
-        } catch (err) {
-            container.innerHTML = `<p style="text-align:center;color:var(--gray-500);padding:2rem">Error: ${err.message}</p>`;
-        }
+  let todasInmersiones = [];
+  let inmersionActual = null;
+
+  async function cargarInmersiones() {
+    const container = document.getElementById('inmersionesContainer');
+    try {
+      const lista = await fetchAPI('/inmersiones/disponibles');
+      todasInmersiones = lista || [];
+      if (todasInmersiones.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:4rem;color:var(--gray-500)">
+            <div style="font-size:3rem;margin-bottom:1rem">🤿</div>
+            <p>No hay inmersiones disponibles en este momento.</p>
+          </div>`;
+        return;
+      }
+      renderInmersiones(todasInmersiones);
+    } catch (err) {
+      container.innerHTML = `<div class="card" style="text-align:center;padding:2rem;color:#c62828">
+        Error al cargar: ${escapeHtml(err.message)}</div>`;
+    }
+  }
+
+  function filtrar() {
+    const q       = document.getElementById('buscarInput').value.toLowerCase();
+    const nivel   = document.getElementById('nivelFilter').value;
+    const orden   = document.getElementById('ordenFilter').value;
+
+    let lista = todasInmersiones.filter(i => {
+      const matchQ = !q ||
+        (i.titulo || '').toLowerCase().includes(q) ||
+        (i.ubicacion || '').toLowerCase().includes(q) ||
+        (i.centroBuceoNombre || '').toLowerCase().includes(q);
+      const matchNivel = !nivel || (i.nivelRequerido || '') === nivel;
+      return matchQ && matchNivel;
+    });
+
+    lista = [...lista].sort((a, b) => {
+      if (orden === 'precio-asc')  return (a.precio || 0) - (b.precio || 0);
+      if (orden === 'precio-desc') return (b.precio || 0) - (a.precio || 0);
+      if (orden === 'profundidad') return (b.profundidadMaxima || 0) - (a.profundidadMaxima || 0);
+      return 0;
+    });
+
+    renderInmersiones(lista);
+  }
+
+  function renderInmersiones(lista) {
+    const container = document.getElementById('inmersionesContainer');
+    if (!lista || lista.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:3rem;color:var(--gray-500)">
+          <p>No se encontraron inmersiones con ese filtro.</p>
+        </div>`;
+      return;
     }
 
-    cargarInmersiones();
+    const nivelColor = {
+      'Open Water':         '#dcfce7:#166534',
+      'Advanced Open Water':'#dbeafe:#1e40af',
+      'Rescue Diver':       '#fef3c7:#92400e',
+      'Divemaster':         '#ede9fe:#5b21b6',
+    };
 
-async function hacerReserva(inmersionId, precio, plazasDisponibles) {
-        if (!isAuthenticated()) {
-            showAlert('Debes iniciar sesión para hacer una reserva.', 'error');
-            setTimeout(() => window.location.href = '/pages/login.html', 1500);
-            return;
-        }
+    container.innerHTML = `<div class="inmersiones-grid">${lista.map(i => {
+      const nc = (nivelColor[i.nivelRequerido] || 'var(--ocean-100):var(--ocean-800)').split(':');
+      const fecha = i.fechaInmersion
+        ? new Date(i.fechaInmersion).toLocaleDateString('es-ES', { day:'numeric', month:'short' })
+        : null;
+      const img = i.imagenUrl
+        ? `<img src="${escapeHtml(i.imagenUrl)}" class="inmersion-img" alt="${escapeHtml(i.titulo)}"
+               onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+        : '';
+      return `
+        <div class="inmersion-card">
+          ${img}
+          <div class="inmersion-img-placeholder" ${i.imagenUrl ? 'style="display:none"' : ''}>🤿</div>
+          <div class="inmersion-body">
+            <span class="inmersion-nivel" style="background:${nc[0]};color:${nc[1]}">
+              ${escapeHtml(i.nivelRequerido || 'Todos los niveles')}
+            </span>
+            <div class="inmersion-titulo">${escapeHtml(i.titulo)}</div>
+            ${i.descripcion ? `<p class="inmersion-desc">${escapeHtml(i.descripcion)}</p>` : ''}
+            <div class="inmersion-stats">
+              ${i.ubicacion ? `<span>📍 ${escapeHtml(i.ubicacion)}</span>` : ''}
+              <span>⏱️ ${i.duracion || '—'} min</span>
+              <span>📊 Máx. ${i.profundidadMaxima || '—'}m</span>
+              <span>👥 ${i.plazasDisponibles} plazas</span>
+              ${fecha ? `<span>📅 ${fecha}</span>` : ''}
+              ${i.centroBuceoNombre ? `<span>🏫 ${escapeHtml(i.centroBuceoNombre)}</span>` : ''}
+            </div>
+            <div class="inmersion-footer">
+              <div class="inmersion-precio">
+                ${i.precio}€ <small>/ persona</small>
+              </div>
+              <button class="btn btn-primary btn-sm"
+                onclick='abrirModal(${JSON.stringify(i)})'>
+                Reservar
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('')}</div>`;
+  }
 
-        if (plazasDisponibles <= 0) {
-            showAlert('Lo sentimos, no quedan plazas disponibles.', 'error');
-            return;
-        }
+  // ── Modal ────────────────────────────────────────────────────────
+  function abrirModal(inmersion) {
+    inmersionActual = inmersion;
+    document.getElementById('modalTitulo').textContent = inmersion.titulo;
+    document.getElementById('modalSubtitulo').textContent =
+      `${inmersion.precio}€/persona · ${inmersion.plazasDisponibles} plazas disponibles`;
+    document.getElementById('numPersonas').max = inmersion.plazasDisponibles;
+    document.getElementById('numPersonas').value = 1;
+    document.getElementById('alertModal').innerHTML = '';
+    actualizarTotal();
+    document.getElementById('reservaModal').classList.add('open');
+  }
 
-        const personas = prompt(
-            `¿Para cuántas personas?\n` +
-            `Plazas disponibles: ${plazasDisponibles}\n` +
-            `Precio por persona: ${precio}€`,
-            '1'
-        );
-        if (!personas) return; // El usuario pulsó Cancelar
+  function cerrarModal() {
+    document.getElementById('reservaModal').classList.remove('open');
+    inmersionActual = null;
+  }
 
-        const num = parseInt(personas, 10);
-        if (isNaN(num) || num < 1) {
-            showAlert('Introduce un número de personas válido (mínimo 1).', 'error');
-            return;
-        }
-        if (num > plazasDisponibles) {
-            showAlert(`Solo quedan ${plazasDisponibles} plazas disponibles.`, 'error');
-            return;
-        }
+  function actualizarTotal() {
+    if (!inmersionActual) return;
+    const num   = parseInt(document.getElementById('numPersonas').value) || 1;
+    const total = (inmersionActual.precio * num).toFixed(2);
+    document.getElementById('totalPrecio').textContent = `${total}€`;
+  }
 
-        const total = (precio * num).toFixed(2);
-        const ok = confirm(
-            `Resumen de tu reserva:\n` +
-            `• Personas: ${num}\n` +
-            `• Precio por persona: ${precio}€\n` +
-            `• TOTAL: ${total}€\n\n` +
-            `¿Confirmar reserva?`
-        );
-        if (!ok) return;
-
-        try {
-            await fetchAPI('/reservas', {
-                method: 'POST',
-                body: JSON.stringify({
-                    inmersionId:   inmersionId,
-                    numeroPersonas: num
-                })
-            });
-            showAlert(
-                `✅ ¡Reserva realizada correctamente! Total: ${total}€. ` +
-                `Consulta el estado en Mis Reservas.`,
-                'success'
-            );
-            // Recargar para actualizar plazas disponibles
-            setTimeout(() => window.location.reload(), 2000);
-        } catch (err) {
-            showAlert(err.message || 'No se pudo completar la reserva.', 'error');
-        }
+  async function confirmarReserva() {
+    if (!inmersionActual) return;
+    const num = parseInt(document.getElementById('numPersonas').value);
+    if (!num || num < 1) {
+      document.getElementById('alertModal').innerHTML =
+        '<div class="alert alert-error">Introduce un número de personas válido.</div>';
+      return;
+    }
+    if (num > inmersionActual.plazasDisponibles) {
+      document.getElementById('alertModal').innerHTML =
+        `<div class="alert alert-error">Solo quedan ${inmersionActual.plazasDisponibles} plazas.</div>`;
+      return;
     }
 
+    const btn = document.getElementById('confirmarBtn');
+    btn.disabled = true;
+    btn.textContent = 'Procesando...';
+
+    try {
+      await fetchAPI('/reservas', {
+        method: 'POST',
+        body: JSON.stringify({ inmersionId: inmersionActual.id, numeroPersonas: num })
+      });
+      cerrarModal();
+      showAlert(`✅ ¡Reserva confirmada! Total: ${(inmersionActual.precio * num).toFixed(2)}€. Revísala en Mis Reservas.`, 'success');
+      setTimeout(() => cargarInmersiones(), 1500);
+    } catch (err) {
+      document.getElementById('alertModal').innerHTML =
+        `<div class="alert alert-error">${escapeHtml(err.message || 'Error al reservar')}</div>`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✅ Confirmar Reserva';
+    }
+  }
+
+  // Cerrar modal al hacer clic fuera
+  document.getElementById('reservaModal').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+  });
+
+  cargarInmersiones();
 </script>
 </body>
 </html>
