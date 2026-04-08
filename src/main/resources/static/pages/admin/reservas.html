@@ -11,7 +11,7 @@
 
 <div class="container" style="padding-top:2rem">
   <div class="section-header">
-    <h2>📋 Gestión de Reservas</h2>
+    <h2>Gestión de Reservas</h2>
     <a href="/pages/admin/dashboard.html" class="btn btn-outline">← Dashboard</a>
   </div>
 
@@ -73,7 +73,7 @@ function renderFiltrado() {
 function renderTabla(lista) {
   const tbody = document.getElementById('tablaCuerpo');
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="icon">📋</div><p>Sin reservas</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="icon"></div><p>Sin reservas</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(r => `

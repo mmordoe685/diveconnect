@@ -42,11 +42,11 @@ function renderPublicacion(p) {
 
     const detallesHtml = p.lugarInmersion ? `
         <div class="publicacion-detalles">
-            <div class="detalle-item">📍 <strong>${escapeHtml(p.lugarInmersion)}</strong></div>
-            ${p.profundidadMaxima ? `<div class="detalle-item">🤿 Profundidad: ${p.profundidadMaxima}m</div>` : ''}
-            ${p.temperaturaAgua   ? `<div class="detalle-item">🌡️ Temperatura: ${p.temperaturaAgua}°C</div>` : ''}
-            ${p.visibilidad       ? `<div class="detalle-item">👁️ Visibilidad: ${p.visibilidad}m</div>` : ''}
-            ${p.especiesVistas    ? `<div class="detalle-item">🐠 ${escapeHtml(p.especiesVistas)}</div>` : ''}
+            <div class="detalle-item"><strong>${escapeHtml(p.lugarInmersion)}</strong></div>
+            ${p.profundidadMaxima ? `<div class="detalle-item">Profundidad: ${p.profundidadMaxima}m</div>` : ''}
+            ${p.temperaturaAgua   ? `<div class="detalle-item">Temperatura: ${p.temperaturaAgua}°C</div>` : ''}
+            ${p.visibilidad       ? `<div class="detalle-item">Visibilidad: ${p.visibilidad}m</div>` : ''}
+            ${p.especiesVistas    ? `<div class="detalle-item">Especies: ${escapeHtml(p.especiesVistas)}</div>` : ''}
         </div>` : '';
 
     return `

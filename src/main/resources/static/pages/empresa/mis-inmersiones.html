@@ -11,7 +11,7 @@
 
 <div class="container" style="padding-top:2rem">
   <div class="section-header">
-    <h2>🤿 Mis Inmersiones</h2>
+    <h2>Mis Inmersiones</h2>
     <button class="btn btn-primary" onclick="abrirModalCrear()">+ Nueva Inmersión</button>
   </div>
 
@@ -122,7 +122,7 @@ async function cargarInmersiones() {
 function renderTabla(lista) {
   const tbody = document.getElementById('tablaCuerpo');
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">🤿</div><p>No hay inmersiones aún. ¡Crea la primera!</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon"></div><p>No hay inmersiones aún. ¡Crea la primera!</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(i => `

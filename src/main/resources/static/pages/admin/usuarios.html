@@ -11,7 +11,7 @@
 
 <div class="container" style="padding-top:2rem">
   <div class="section-header">
-    <h2>👥 Gestión de Usuarios</h2>
+    <h2>Gestión de Usuarios</h2>
     <a href="/pages/admin/dashboard.html" class="btn btn-outline">← Dashboard</a>
   </div>
 
@@ -87,7 +87,7 @@ function filtrar() {
 function renderTabla(lista) {
   const tbody = document.getElementById('tablaCuerpo');
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon">👥</div><p>Sin resultados</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="icon"></div><p>Sin resultados</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(u => `

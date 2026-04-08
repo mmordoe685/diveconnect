@@ -1477,6 +1477,20 @@ select.form-input {
 .badge-completada { background: #E3F2FD; color: #0D47A1; border-color: #1E88E5; }
 .badge-admin      { background: #EDE9FE; color: #5B21B6; }
 .badge-empresa    { background: #FEF3C7; color: #92400E; }
+
+/* Role indicator in navbar */
+.role-indicator {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.role-admin   { background: rgba(139,92,246,0.2); color: #C4B5FD; }
+.role-empresa { background: rgba(251,191,36,0.2); color: #FCD34D; }
+.role-comun   { background: rgba(52,211,153,0.2); color: #6EE7B7; }
 .badge-comun      { background: #DCFCE7; color: #166534; }
 .badge-success    { background: var(--success-bg);  color: var(--success-text); }
 .badge-warning    { background: #FEF3C7; color: #92400E; }

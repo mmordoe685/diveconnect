@@ -24,93 +24,62 @@
       background: rgba(144,224,239,0.08);
       pointer-events: none;
     }
-    .perfil-hero::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: -60px;
-      width: 220px; height: 220px;
-      border-radius: 50%;
-      background: rgba(72,202,228,0.06);
-      pointer-events: none;
-    }
     .perfil-top {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-      position: relative;
-      z-index: 1;
+      display: flex; align-items: center; gap: 1.5rem;
+      flex-wrap: wrap; position: relative; z-index: 1;
     }
     .perfil-avatar {
-      width: 90px; height: 90px;
-      border-radius: 50%;
+      width: 88px; height: 88px; border-radius: 50%;
       background: linear-gradient(135deg, var(--ocean-400), var(--ocean-600));
       display: flex; align-items: center; justify-content: center;
-      font-size: 2.2rem; font-weight: 800; color: var(--white);
+      font-size: 2rem; font-weight: 800; color: var(--white);
       flex-shrink: 0;
-      border: 3px solid rgba(255,255,255,0.25);
-      box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+      border: 3px solid rgba(255,255,255,0.2);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.25);
     }
-    .perfil-avatar img {
-      width: 100%; height: 100%;
-      border-radius: 50%; object-fit: cover;
-    }
+    .perfil-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
     .perfil-info { flex: 1; min-width: 200px; }
     .perfil-username {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.6rem; font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: .2rem;
+      font-size: 1.5rem; font-weight: 700;
+      letter-spacing: -0.02em; margin-bottom: .15rem;
     }
-    .perfil-nivel {
-      display: inline-flex; align-items: center; gap: .4rem;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.2);
+    .perfil-tag {
+      display: inline-flex; align-items: center; gap: .35rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.18);
       border-radius: var(--radius-full);
-      padding: .25rem .85rem;
-      font-size: .8rem; font-weight: 600;
+      padding: .2rem .75rem;
+      font-size: .76rem; font-weight: 600;
       color: var(--ocean-200);
-      margin-bottom: .6rem;
+      margin-right: .35rem; margin-bottom: .5rem;
     }
     .perfil-bio {
-      font-size: .9rem;
-      color: rgba(255,255,255,.72);
-      line-height: 1.65;
-      max-width: 500px;
+      font-size: .88rem; color: rgba(255,255,255,.7);
+      line-height: 1.65; max-width: 500px;
     }
     .perfil-stats {
-      display: flex;
-      gap: 0;
-      margin-top: 2rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid rgba(255,255,255,0.12);
-      position: relative;
-      z-index: 1;
+      display: flex; gap: 0; margin-top: 2rem;
+      padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,.1);
+      position: relative; z-index: 1;
     }
     .perfil-stat {
-      flex: 1;
-      text-align: center;
-      border-right: 1px solid rgba(255,255,255,0.12);
+      flex: 1; text-align: center;
+      border-right: 1px solid rgba(255,255,255,.1);
     }
     .perfil-stat:last-child { border-right: none; }
     .perfil-stat-num {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.8rem; font-weight: 800;
-      color: var(--ocean-300);
-      line-height: 1;
-      margin-bottom: .2rem;
+      font-size: 1.7rem; font-weight: 800;
+      color: var(--ocean-300); line-height: 1; margin-bottom: .15rem;
     }
-    .perfil-stat-label {
-      font-size: .75rem;
-      color: rgba(255,255,255,.55);
-    }
+    .perfil-stat-label { font-size: .73rem; color: rgba(255,255,255,.5); }
 
     .section-title-sm {
       font-family: 'Poppins', sans-serif;
-      font-size: 1.05rem; font-weight: 700;
+      font-size: 1.02rem; font-weight: 700;
       color: var(--ocean-950);
       margin-bottom: 1rem;
-      display: flex; align-items: center; gap: .5rem;
     }
   </style>
 </head>
@@ -120,46 +89,37 @@
 
 <div class="container">
 
-  <!-- Hero del perfil -->
   <div class="perfil-hero" id="perfilHero">
     <div class="loading" style="color:rgba(255,255,255,.7)"><div class="spinner"></div></div>
   </div>
 
-  <!-- Editar perfil -->
   <div class="card">
-    <div class="section-title-sm">✏️ Editar Perfil</div>
+    <div class="section-title-sm">Editar perfil</div>
     <form id="editForm">
       <div class="form-group">
         <label class="form-label">Biografía</label>
         <textarea id="biografia" class="form-input" rows="3"
-          placeholder="Cuéntanos sobre tu experiencia..."></textarea>
+          placeholder="Cuéntanos sobre tu experiencia como buceador..."></textarea>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;flex-wrap:wrap">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div class="form-group">
           <label class="form-label">Nivel de Certificación</label>
-          <input id="nivel" class="form-input" type="text"
-            placeholder="Ej: Open Water, Advanced...">
+          <input id="nivel" class="form-input" type="text" placeholder="Ej: Open Water, Advanced...">
         </div>
         <div class="form-group">
           <label class="form-label">Número de Inmersiones</label>
           <input id="numInmersiones" class="form-input" type="number" min="0" value="0">
         </div>
       </div>
-      <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+      <button type="submit" class="btn btn-primary">Guardar cambios</button>
     </form>
   </div>
 
-  <!-- Mis publicaciones -->
-  <div class="section-title-sm" style="margin-top:.5rem">🤿 Mis Publicaciones</div>
-  <div id="misPublicaciones">
-    <div class="loading"><div class="spinner"></div></div>
-  </div>
+  <div class="section-title-sm" style="margin-top:.5rem">Mis publicaciones</div>
+  <div id="misPublicaciones"><div class="loading"><div class="spinner"></div></div></div>
 
-  <!-- Mis reservas -->
-  <div class="section-title-sm" style="margin-top:1.5rem">📋 Mis Reservas Recientes</div>
-  <div id="misReservas">
-    <div class="loading"><div class="spinner"></div></div>
-  </div>
+  <div class="section-title-sm" style="margin-top:1.5rem">Reservas recientes</div>
+  <div id="misReservas"><div class="loading"><div class="spinner"></div></div></div>
 
 </div>
 
@@ -183,27 +143,22 @@
         : `<div class="perfil-avatar">${inicial}</div>`;
 
       const tipoLabel = {
-        USUARIO_COMUN:   '🤿 Buceador',
-        USUARIO_EMPRESA: '🏫 Empresa',
-        ADMINISTRADOR:   '🛡️ Administrador'
-      }[user.tipoUsuario] || '🤿 Buceador';
+        USUARIO_COMUN: 'Buceador',
+        USUARIO_EMPRESA: 'Empresa',
+        ADMINISTRADOR: 'Administrador'
+      }[user.tipoUsuario] || 'Buceador';
 
       hero.innerHTML = `
         <div class="perfil-top">
           ${avatarHtml}
           <div class="perfil-info">
             <div class="perfil-username">@${escapeHtml(user.username)}</div>
-            <div class="perfil-nivel">${tipoLabel}</div>
-            ${user.nivelCertificacion
-              ? `<div class="perfil-nivel" style="margin-left:.35rem">🏅 ${escapeHtml(user.nivelCertificacion)}</div>`
-              : ''}
-            ${user.email
-              ? `<div style="font-size:.82rem;color:rgba(255,255,255,.55);margin-top:.4rem">
-                   ✉️ ${escapeHtml(user.email)}</div>`
-              : ''}
-            ${user.biografia
-              ? `<p class="perfil-bio" style="margin-top:.6rem">${escapeHtml(user.biografia)}</p>`
-              : ''}
+            <div>
+              <span class="perfil-tag">${tipoLabel}</span>
+              ${user.nivelCertificacion ? `<span class="perfil-tag">${escapeHtml(user.nivelCertificacion)}</span>` : ''}
+            </div>
+            ${user.email ? `<div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.3rem">${escapeHtml(user.email)}</div>` : ''}
+            ${user.biografia ? `<p class="perfil-bio" style="margin-top:.5rem">${escapeHtml(user.biografia)}</p>` : ''}
           </div>
         </div>
         <div class="perfil-stats">
@@ -228,10 +183,9 @@
       document.getElementById('biografia').value      = user.biografia          || '';
       document.getElementById('nivel').value          = user.nivelCertificacion || '';
       document.getElementById('numInmersiones').value = user.numeroInmersiones  || 0;
-
     } catch (err) {
-      hero.innerHTML = `<p style="color:rgba(255,255,255,.7)">
-        ❌ Error al cargar el perfil: ${escapeHtml(err.message)}</p>`;
+      hero.innerHTML = `<p style="color:rgba(255,255,255,.7);padding:1rem">
+        Error al cargar el perfil: ${escapeHtml(err.message)}</p>`;
     }
   }
 
@@ -242,11 +196,8 @@
       if (!user.id) { container.innerHTML = ''; return; }
       const lista = await fetchAPI(`/publicaciones/usuario/${user.id}`);
       if (!lista || lista.length === 0) {
-        container.innerHTML = `
-          <div class="card" style="text-align:center;color:var(--gray-500);padding:2rem">
-            Todavía no has publicado ninguna inmersión.
-            <a href="/pages/feed.html" style="color:var(--ocean-600);margin-left:.3rem">Ir al feed</a>
-          </div>`;
+        container.innerHTML = `<div class="card" style="text-align:center;color:var(--gray-500);padding:2rem">
+          No has publicado nada todavía. <a href="/pages/feed.html" style="color:var(--ocean-600)">Ir al feed</a></div>`;
       } else {
         container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
       }
@@ -260,12 +211,8 @@
     try {
       const lista = await fetchAPI('/reservas/mis-reservas');
       if (!lista || lista.length === 0) {
-        container.innerHTML = `
-          <div class="card" style="text-align:center;color:var(--gray-500);padding:1.5rem">
-            No tienes reservas activas.
-            <a href="/pages/Inmersiones.html" style="color:var(--ocean-600);margin-left:.3rem">
-              Ver inmersiones disponibles</a>
-          </div>`;
+        container.innerHTML = `<div class="card" style="text-align:center;color:var(--gray-500);padding:1.5rem">
+          No tienes reservas. <a href="/pages/Inmersiones.html" style="color:var(--ocean-600)">Ver inmersiones</a></div>`;
         return;
       }
       const estadoStyle = {
@@ -274,38 +221,25 @@
         CANCELADA:  'background:#FEE2E2;color:#991B1B',
         COMPLETADA: 'background:#DBEAFE;color:#1E40AF'
       };
-      const estadoIcon = { PENDIENTE:'⏳', CONFIRMADA:'✅', CANCELADA:'❌', COMPLETADA:'🏆' };
-      // Mostrar solo las 5 más recientes
       const recientes = lista.slice(0, 5);
       container.innerHTML = recientes.map(r => {
         const estilo = estadoStyle[r.estado] || estadoStyle.PENDIENTE;
-        const icono  = estadoIcon[r.estado]  || '⏳';
-        const fecha  = r.fechaReserva
-          ? new Date(r.fechaReserva).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' })
-          : '';
+        const fecha  = r.fechaReserva ? new Date(r.fechaReserva).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}) : '';
         return `
-          <div class="card" style="display:flex;justify-content:space-between;
-              align-items:center;flex-wrap:wrap;gap:.75rem;margin-bottom:.75rem;padding:1.1rem 1.35rem">
+          <div class="card" style="display:flex;justify-content:space-between;align-items:center;
+              flex-wrap:wrap;gap:.75rem;margin-bottom:.65rem;padding:1rem 1.35rem">
             <div>
-              <div style="font-weight:700;color:var(--gray-900);margin-bottom:.15rem">
-                🤿 ${escapeHtml(r.inmersionTitulo || 'Inmersión')}
-              </div>
-              <div style="font-size:.8rem;color:var(--gray-500)">
-                ${fecha}
-                ${r.precioTotal != null ? ` · <strong style="color:var(--ocean-700)">${r.precioTotal.toFixed(2)}€</strong>` : ''}
-              </div>
+              <div style="font-weight:700;color:var(--gray-900);margin-bottom:.1rem">
+                ${escapeHtml(r.inmersionTitulo || 'Inmersión')}</div>
+              <div style="font-size:.78rem;color:var(--gray-500)">
+                ${fecha}${r.precioTotal != null ? ` &middot; <strong style="color:var(--ocean-700)">${r.precioTotal.toFixed(2)}&euro;</strong>` : ''}</div>
             </div>
-            <span style="${estilo};padding:.3rem .8rem;border-radius:var(--radius-full);
-                         font-size:.76rem;font-weight:700;white-space:nowrap">
-              ${icono} ${r.estado}
-            </span>
+            <span style="${estilo};padding:.25rem .7rem;border-radius:var(--radius-full);
+                         font-size:.73rem;font-weight:700;white-space:nowrap">${r.estado}</span>
           </div>`;
       }).join('') + (lista.length > 5
         ? `<div style="text-align:center;margin-top:.5rem">
-             <a href="/pages/reservas.html" class="btn btn-secondary btn-sm">
-               Ver todas las reservas (${lista.length})
-             </a>
-           </div>`
+             <a href="/pages/reservas.html" class="btn btn-secondary btn-sm">Ver todas (${lista.length})</a></div>`
         : '');
     } catch (err) {
       container.innerHTML = `<div style="color:#c62828">Error: ${escapeHtml(err.message)}</div>`;
@@ -315,24 +249,22 @@
   document.getElementById('editForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = e.submitter || document.querySelector('#editForm button[type="submit"]');
-    const textoOriginal = btn.textContent;
+    const txt = btn.textContent;
     btn.disabled = true; btn.textContent = 'Guardando...';
     try {
       await fetchAPI('/usuarios/perfil', {
         method: 'PUT',
         body: JSON.stringify({
-          biografia:          document.getElementById('biografia').value.trim()          || null,
-          nivelCertificacion: document.getElementById('nivel').value.trim()              || null,
+          biografia:          document.getElementById('biografia').value.trim() || null,
+          nivelCertificacion: document.getElementById('nivel').value.trim() || null,
           numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value, 10) || 0
         })
       });
-      showAlert('✅ Perfil actualizado correctamente.', 'success');
+      showAlert('Perfil actualizado correctamente.', 'success');
       await cargarPerfil();
     } catch (err) {
-      showAlert('❌ ' + (err.message || 'Error al guardar los cambios.'), 'error');
-    } finally {
-      btn.disabled = false; btn.textContent = textoOriginal;
-    }
+      showAlert(err.message || 'Error al guardar.', 'error');
+    } finally { btn.disabled = false; btn.textContent = txt; }
   });
 
   cargarPerfil();
