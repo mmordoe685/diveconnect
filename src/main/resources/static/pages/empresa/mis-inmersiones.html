@@ -9,7 +9,7 @@
 <body>
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container" style="padding-top:2rem">
+<div class="container-wide" style="padding-top:2rem">
   <div class="section-header">
     <h2>Mis Inmersiones</h2>
     <button class="btn btn-primary" onclick="abrirModalCrear()">+ Nueva Inmersión</button>
@@ -133,8 +133,8 @@ function renderTabla(lista) {
       <td>${i.plazasDisponibles ?? '—'} / ${i.plazasTotales ?? '—'}</td>
       <td><span class="badge ${i.activa ? 'badge-success' : 'badge-neutral'}">${i.activa ? 'Activa' : 'Inactiva'}</span></td>
       <td style="white-space:nowrap">
-        <button class="btn-icon" onclick="editarInmersion(${i.id})" title="Editar">✏️</button>
-        <button class="btn-icon danger" onclick="desactivar(${i.id})" title="Desactivar">🗑️</button>
+        <button class="btn-icon" onclick="editarInmersion(${i.id})" title="Editar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn-icon danger" onclick="desactivar(${i.id})" title="Desactivar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </td>
     </tr>
   `).join('');

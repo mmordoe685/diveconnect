@@ -9,7 +9,7 @@
 <body>
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container" style="padding-top:2rem;max-width:720px">
+<div class="container-wide" style="padding-top:2rem;max-width:900px">
   <div class="section-header">
     <h2>Mi Centro de Buceo</h2>
   </div>
@@ -28,7 +28,7 @@
         <h3 style="margin:0" id="centroNombre">—</h3>
         <p style="margin:.3rem 0 0;color:var(--gray-600)" id="centroCiudad">—</p>
       </div>
-      <button class="btn btn-outline" onclick="mostrarFormulario('editar')">✏️ Editar</button>
+      <button class="btn btn-outline" onclick="mostrarFormulario('editar')">Editar</button>
     </div>
     <div id="centroInfo"></div>
   </div>
@@ -127,11 +127,11 @@ function renderCentro(c) {
   document.getElementById('centroInfo').innerHTML = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem 1.5rem;font-size:.9rem">
       ${c.descripcion ? `<p style="grid-column:1/-1;color:var(--gray-700)">${c.descripcion}</p>` : ''}
-      ${c.direccion   ? `<span><strong>📍</strong> ${c.direccion}</span>` : ''}
-      ${c.telefono    ? `<span><strong>📞</strong> ${c.telefono}</span>` : ''}
-      ${c.email       ? `<span><strong>✉️</strong> ${c.email}</span>` : ''}
-      ${c.sitioWeb    ? `<span><strong>🌐</strong> <a href="${c.sitioWeb}" target="_blank">${c.sitioWeb}</a></span>` : ''}
-      ${c.certificaciones ? `<span><strong>🏅</strong> ${c.certificaciones}</span>` : ''}
+      ${c.direccion   ? `<span><strong>Direc.:</strong> ${c.direccion}</span>` : ''}
+      ${c.telefono    ? `<span><strong>Tel.:</strong> ${c.telefono}</span>` : ''}
+      ${c.email       ? `<span><strong>Email:</strong> ${c.email}</span>` : ''}
+      ${c.sitioWeb    ? `<span><strong>Web:</strong> <a href="${c.sitioWeb}" target="_blank">${c.sitioWeb}</a></span>` : ''}
+      ${c.certificaciones ? `<span><strong>Cert.:</strong> ${c.certificaciones}</span>` : ''}
       ${c.valoracionPromedio ? `<span><strong></strong> ${c.valoracionPromedio.toFixed(1)} / 5</span>` : ''}
     </div>
   `;
