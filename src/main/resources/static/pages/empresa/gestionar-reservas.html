@@ -9,7 +9,7 @@
 <body>
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container" style="padding-top:2rem">
+<div class="container-wide" style="padding-top:2rem">
   <div class="section-header">
     <h2>Reservas de mi Centro</h2>
   </div>
@@ -78,9 +78,9 @@ function renderTabla() {
       <td>${r.precioTotal != null ? r.precioTotal.toFixed(2) + ' €' : '—'}</td>
       <td><span class="badge ${estadoBadge(r.estado)}">${r.estado}</span></td>
       <td style="white-space:nowrap">
-        ${r.estado === 'PENDIENTE'  ? `<button class="btn-icon success" onclick="confirmar(${r.id})" title="Confirmar">✅</button>` : ''}
-        ${r.estado === 'CONFIRMADA' ? `<button class="btn-icon success" onclick="completar(${r.id})" title="Completar">🏁</button>` : ''}
-        ${r.estado !== 'CANCELADA' && r.estado !== 'COMPLETADA' ? `<button class="btn-icon danger" onclick="cancelar(${r.id})" title="Cancelar">✕</button>` : ''}
+        ${r.estado === 'PENDIENTE'  ? `<button class="btn-icon success" onclick="confirmar(${r.id})" title="Confirmar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></button>` : ''}
+        ${r.estado === 'CONFIRMADA' ? `<button class="btn-icon success" onclick="completar(${r.id})" title="Completar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></button>` : ''}
+        ${r.estado !== 'CANCELADA' && r.estado !== 'COMPLETADA' ? `<button class="btn-icon danger" onclick="cancelar(${r.id})" title="Cancelar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>` : ''}
       </td>
     </tr>
   `).join('');

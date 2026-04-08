@@ -9,7 +9,7 @@
 <body>
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container" style="padding-top:2rem">
+<div class="container-wide" style="padding-top:2rem">
   <div class="section-header">
     <h2>Gestión de Usuarios</h2>
     <a href="/pages/admin/dashboard.html" class="btn btn-outline">← Dashboard</a>
@@ -99,9 +99,9 @@ function renderTabla(lista) {
       <td><span class="badge ${u.activo ? 'badge-success' : 'badge-danger'}">${u.activo ? 'Activo' : 'Inactivo'}</span></td>
       <td>${u.fechaRegistro ? new Date(u.fechaRegistro).toLocaleDateString('es-ES') : '—'}</td>
       <td style="white-space:nowrap">
-        <button class="btn-icon" onclick="abrirModalRol(${u.id}, '${u.username}', '${u.tipoUsuario}')" title="Cambiar rol">🔑</button>
-        <button class="btn-icon ${u.activo ? 'danger' : 'success'}" onclick="toggleEstado(${u.id}, ${!u.activo})" title="${u.activo ? 'Desactivar' : 'Activar'}">${u.activo ? '🔒' : '🔓'}</button>
-        <button class="btn-icon danger" onclick="eliminar(${u.id}, '${u.username}')" title="Eliminar">🗑️</button>
+        <button class="btn-icon" onclick="abrirModalRol(${u.id}, '${u.username}', '${u.tipoUsuario}')" title="Cambiar rol"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.78 7.78 5.5 5.5 0 0 1 7.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg></button>
+        <button class="btn-icon ${u.activo ? 'danger' : 'success'}" onclick="toggleEstado(${u.id}, ${!u.activo})" title="${u.activo ? 'Desactivar' : 'Activar'}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${u.activo ? '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>' : '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>'}</svg></button>
+        <button class="btn-icon danger" onclick="eliminar(${u.id}, '${u.username}')" title="Eliminar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
       </td>
     </tr>
   `).join('');
