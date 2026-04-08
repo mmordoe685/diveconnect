@@ -18,19 +18,19 @@
       padding: 1.75rem 1.5rem;
       text-align: center;
       text-decoration: none;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(226,232,240,.8);
-      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow-card);
+      transition: transform var(--transition-slow), box-shadow var(--transition-slow);
     }
     .admin-nav-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-lg);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-card-hover);
       text-decoration: none;
     }
     .admin-nav-card .icon {
-      width: 56px; height: 56px;
+      width: 52px; height: 52px;
       margin: 0 auto .75rem;
-      background: linear-gradient(135deg, var(--ocean-50), var(--ocean-100));
+      background: var(--ocean-50);
+      border: 1px solid var(--ocean-200);
       border-radius: var(--radius-md);
       display: flex; align-items: center; justify-content: center;
     }
