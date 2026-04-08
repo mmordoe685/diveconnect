@@ -18,98 +18,47 @@
       box-shadow: var(--shadow-sm);
       border: 1px solid rgba(226,232,240,0.8);
       transition: transform var(--transition), box-shadow var(--transition);
-      display: flex;
-      flex-direction: column;
+      display: flex; flex-direction: column;
     }
     .centro-card:hover {
-      transform: translateY(-6px);
-      box-shadow: var(--shadow-xl);
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
     }
-    .centro-img {
-      width: 100%; height: 200px;
-      object-fit: cover;
-    }
-    .centro-img-placeholder {
-      width: 100%; height: 200px;
+    .centro-img { width:100%; height:190px; object-fit:cover; }
+    .centro-img-ph {
+      width:100%; height:190px;
       background: linear-gradient(135deg, var(--ocean-700), var(--ocean-950));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 3.5rem;
+      display:flex; align-items:center; justify-content:center;
     }
-    .centro-body {
-      padding: 1.35rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .centro-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: .75rem;
-      margin-bottom: .5rem;
-    }
-    .centro-nombre {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--gray-900);
-      line-height: 1.3;
-    }
-    .centro-rating {
-      display: flex;
-      align-items: center;
-      gap: .25rem;
-      font-size: .85rem;
-      font-weight: 700;
-      color: #F59E0B;
-      white-space: nowrap;
-    }
+    .centro-img-ph svg { opacity:.3; }
+    .centro-body { padding:1.35rem; flex:1; display:flex; flex-direction:column; }
+    .centro-header { display:flex; justify-content:space-between; align-items:flex-start; gap:.75rem; margin-bottom:.4rem; }
+    .centro-nombre { font-size:1.08rem; font-weight:700; color:var(--gray-900); line-height:1.3; }
+    .centro-rating { display:flex; align-items:center; gap:.2rem; font-size:.84rem; font-weight:700; color:#F59E0B; white-space:nowrap; }
     .centro-ciudad {
-      display: inline-flex;
-      align-items: center;
-      gap: .3rem;
-      background: var(--ocean-50);
-      color: var(--ocean-700);
-      border-radius: var(--radius-full);
-      padding: .22rem .7rem;
-      font-size: .78rem;
-      font-weight: 600;
-      margin-bottom: .75rem;
-      width: fit-content;
+      display:inline-flex; align-items:center; gap:.3rem;
+      background:var(--ocean-50); color:var(--ocean-700);
+      border-radius:var(--radius-full); padding:.2rem .65rem;
+      font-size:.76rem; font-weight:600; margin-bottom:.7rem; width:fit-content;
     }
     .centro-desc {
-      font-size: .85rem;
-      color: var(--gray-600);
-      line-height: 1.65;
-      margin-bottom: .9rem;
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+      font-size:.84rem; color:var(--gray-600); line-height:1.65;
+      margin-bottom:.85rem;
+      display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
     }
     .centro-contacto {
-      display: flex;
-      flex-wrap: wrap;
-      gap: .4rem .9rem;
-      font-size: .8rem;
-      color: var(--gray-500);
-      margin-bottom: 1rem;
+      display:flex; flex-wrap:wrap; gap:.35rem .85rem;
+      font-size:.78rem; color:var(--gray-500); margin-bottom:.85rem;
     }
-    .centro-contacto a { color: var(--ocean-600); text-decoration: none; }
-    .centro-contacto a:hover { text-decoration: underline; }
+    .centro-contacto a { color:var(--ocean-600); text-decoration:none; }
+    .centro-contacto a:hover { text-decoration:underline; }
     .centro-certs {
-      font-size: .77rem;
-      background: var(--gray-100);
-      color: var(--gray-600);
-      border-radius: var(--radius-sm);
-      padding: .35rem .7rem;
-      margin-bottom: 1rem;
+      font-size:.75rem; background:var(--gray-100); color:var(--gray-600);
+      border-radius:var(--radius-sm); padding:.3rem .65rem; margin-bottom:.85rem;
     }
     .centro-footer {
-      margin-top: auto;
-      padding-top: .85rem;
-      border-top: 1px solid var(--gray-200);
-      display: flex;
-      gap: .6rem;
+      margin-top:auto; padding-top:.85rem; border-top:1px solid var(--gray-200);
+      display:flex; gap:.6rem;
     }
   </style>
 </head>
@@ -118,19 +67,16 @@
 <header class="navbar" id="mainNavbar"></header>
 
 <div class="container-wide">
-
   <div class="section-header" style="margin-bottom:1.5rem">
     <div>
-      <h2 style="font-family:'Poppins',sans-serif;font-size:1.75rem;font-weight:700;
-                 color:var(--ocean-950);letter-spacing:-0.02em">
-        Centros de Buceo
-      </h2>
-      <p style="color:var(--gray-500);font-size:.9rem;margin-top:.2rem">
-        Descubre los mejores centros certificados de España
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.65rem;font-weight:700;
+                 color:var(--ocean-950);letter-spacing:-0.02em">Centros de Buceo</h2>
+      <p style="color:var(--gray-500);font-size:.88rem;margin-top:.15rem">
+        Centros certificados en toda la costa española
       </p>
     </div>
     <input type="text" id="buscarInput" class="form-input"
-           placeholder="🔍 Buscar por nombre, ciudad..."
+           placeholder="Buscar por nombre o ciudad..."
            style="width:260px;max-width:100%"
            oninput="filtrarCentros(this.value)">
   </div>
@@ -138,7 +84,6 @@
   <div id="centrosContainer">
     <div class="loading"><div class="spinner"></div></div>
   </div>
-
 </div>
 
 <script src="/js/api.js"></script>
@@ -155,11 +100,8 @@
       const lista = await fetchAPI('/centros-buceo');
       todosCentros = lista || [];
       if (todosCentros.length === 0) {
-        container.innerHTML = `
-          <div style="text-align:center;padding:4rem;color:var(--gray-500)">
-            <div style="font-size:3rem;margin-bottom:1rem">🏫</div>
-            <p>No hay centros de buceo registrados todavía.</p>
-          </div>`;
+        container.innerHTML = `<div style="text-align:center;padding:4rem;color:var(--gray-500)">
+          <p>No hay centros de buceo registrados.</p></div>`;
         return;
       }
       renderCentros(todosCentros);
@@ -173,79 +115,58 @@
     if (!query.trim()) { renderCentros(todosCentros); return; }
     const q = query.toLowerCase();
     renderCentros(todosCentros.filter(c =>
-      (c.nombre      || '').toLowerCase().includes(q) ||
-      (c.ciudad      || '').toLowerCase().includes(q) ||
-      (c.descripcion || '').toLowerCase().includes(q)
+      (c.nombre||'').toLowerCase().includes(q) ||
+      (c.ciudad||'').toLowerCase().includes(q) ||
+      (c.descripcion||'').toLowerCase().includes(q)
     ));
   }
 
   function renderCentros(lista) {
     const container = document.getElementById('centrosContainer');
     if (!lista || lista.length === 0) {
-      container.innerHTML = `
-        <div style="text-align:center;padding:3rem;color:var(--gray-500)">
-          <p>No se encontraron centros con ese criterio.</p>
-        </div>`;
+      container.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--gray-500)">
+        No se encontraron centros con ese criterio.</div>`;
       return;
     }
     container.innerHTML = `<div class="centros-grid">${lista.map(c => {
       const rating = c.valoracionMedia ? parseFloat(c.valoracionMedia).toFixed(1) : null;
       const imgHtml = c.imagenUrl
         ? `<img src="${escapeHtml(c.imagenUrl)}" class="centro-img" alt="${escapeHtml(c.nombre)}"
-               onerror="this.style.display='none';this.nextSibling.style.display='flex'">`
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
         : '';
       return `
         <div class="centro-card">
           ${imgHtml}
-          <div class="centro-img-placeholder" ${c.imagenUrl ? 'style="display:none"' : ''}>🏫</div>
-
+          <div class="centro-img-ph" ${c.imagenUrl ? 'style="display:none"' : ''}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
           <div class="centro-body">
             <div class="centro-header">
               <div class="centro-nombre">${escapeHtml(c.nombre)}</div>
-              ${rating ? `
-              <div class="centro-rating">
-                ★ ${rating}
-              </div>` : ''}
+              ${rating ? `<div class="centro-rating">&#9733; ${rating}</div>` : ''}
             </div>
-
-            ${c.ciudad ? `
-            <div class="centro-ciudad">
-              📍 ${escapeHtml(c.ciudad)}${c.pais ? ', ' + escapeHtml(c.pais) : ''}
-            </div>` : ''}
-
-            ${c.descripcion ? `
-            <p class="centro-desc">${escapeHtml(c.descripcion)}</p>` : ''}
-
+            ${c.ciudad ? `<div class="centro-ciudad">${escapeHtml(c.ciudad)}${c.pais ? ', '+escapeHtml(c.pais) : ''}</div>` : ''}
+            ${c.descripcion ? `<p class="centro-desc">${escapeHtml(c.descripcion)}</p>` : ''}
             <div class="centro-contacto">
-              ${c.telefono ? `<span>📞 <a href="tel:${escapeHtml(c.telefono)}">${escapeHtml(c.telefono)}</a></span>` : ''}
-              ${c.email    ? `<span>✉️ <a href="mailto:${escapeHtml(c.email)}">${escapeHtml(c.email)}</a></span>` : ''}
-              ${c.sitioWeb ? `<span>🌐 <a href="${escapeHtml(c.sitioWeb)}" target="_blank" rel="noopener">Web oficial</a></span>` : ''}
-              ${c.direccion ? `<span>📌 ${escapeHtml(c.direccion)}</span>` : ''}
+              ${c.telefono ? `<span><a href="tel:${escapeHtml(c.telefono)}">${escapeHtml(c.telefono)}</a></span>` : ''}
+              ${c.email ? `<span><a href="mailto:${escapeHtml(c.email)}">${escapeHtml(c.email)}</a></span>` : ''}
+              ${c.sitioWeb ? `<span><a href="${escapeHtml(c.sitioWeb)}" target="_blank" rel="noopener">Web oficial</a></span>` : ''}
+              ${c.direccion ? `<span>${escapeHtml(c.direccion)}</span>` : ''}
             </div>
-
-            ${c.certificaciones ? `
-            <div class="centro-certs">
-              🏅 ${escapeHtml(c.certificaciones)}
-            </div>` : ''}
-
+            ${c.certificaciones ? `<div class="centro-certs">${escapeHtml(c.certificaciones)}</div>` : ''}
             <div class="centro-footer">
               <button class="btn btn-primary btn-sm" style="flex:1"
-                onclick="verInmersiones(${c.id})">
-                🤿 Ver Inmersiones
+                onclick="window.location.href='/pages/Inmersiones.html?centro=${c.id}'">
+                Ver inmersiones
               </button>
-              ${c.sitioWeb ? `
-              <a href="${escapeHtml(c.sitioWeb)}" target="_blank" rel="noopener"
-                 class="btn btn-secondary btn-sm">
-                🌐 Web
-              </a>` : ''}
+              ${c.sitioWeb ? `<a href="${escapeHtml(c.sitioWeb)}" target="_blank" rel="noopener"
+                 class="btn btn-secondary btn-sm">Web</a>` : ''}
             </div>
           </div>
         </div>`;
     }).join('')}</div>`;
-  }
-
-  function verInmersiones(centroId) {
-    window.location.href = `/pages/Inmersiones.html?centro=${centroId}`;
   }
 
   cargarCentros();

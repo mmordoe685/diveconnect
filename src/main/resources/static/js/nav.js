@@ -6,27 +6,28 @@
 
 const NAV_LINKS = {
   USUARIO_COMUN: [
-    { href: '/pages/feed.html',        label: '🌊 Feed' },
-    { href: '/pages/Inmersiones.html', label: '🤿 Inmersiones' },
-    { href: '/pages/centros.html',     label: '🏫 Centros' },
-    { href: '/pages/reservas.html',    label: '📋 Mis Reservas' },
-    { href: '/pages/Perfil.html',      label: '👤 Mi Perfil' },
+    { href: '/pages/feed.html',        label: 'Feed' },
+    { href: '/pages/Inmersiones.html', label: 'Inmersiones' },
+    { href: '/pages/centros.html',     label: 'Centros' },
+    { href: '/pages/reservas.html',    label: 'Mis Reservas' },
+    { href: '/pages/Perfil.html',      label: 'Mi Perfil' },
   ],
   USUARIO_EMPRESA: [
-    { href: '/pages/feed.html',                    label: '🌊 Feed' },
-    { href: '/pages/empresa/dashboard.html',       label: '📊 Mi Panel' },
-    { href: '/pages/empresa/mi-centro.html',       label: '🏫 Mi Centro' },
-    { href: '/pages/empresa/mis-inmersiones.html', label: '🤿 Inmersiones' },
-    { href: '/pages/empresa/gestionar-reservas.html', label: '📋 Reservas' },
-    { href: '/pages/Perfil.html',                  label: '👤 Mi Perfil' },
+    { href: '/pages/feed.html',                       label: 'Feed' },
+    { href: '/pages/empresa/dashboard.html',          label: 'Panel' },
+    { href: '/pages/empresa/mi-centro.html',          label: 'Mi Centro' },
+    { href: '/pages/empresa/mis-inmersiones.html',    label: 'Inmersiones' },
+    { href: '/pages/empresa/gestionar-reservas.html', label: 'Reservas' },
+    { href: '/pages/Perfil.html',                     label: 'Perfil' },
   ],
   ADMINISTRADOR: [
-    { href: '/pages/admin/dashboard.html',   label: '📊 Panel Admin' },
-    { href: '/pages/admin/usuarios.html',    label: '👥 Usuarios' },
-    { href: '/pages/admin/centros.html',     label: '🏫 Centros' },
-    { href: '/pages/admin/inmersiones.html', label: '🤿 Inmersiones' },
-    { href: '/pages/admin/reservas.html',    label: '📋 Reservas' },
-    { href: '/pages/feed.html',              label: '🌊 Feed' },
+    { href: '/pages/admin/dashboard.html',   label: 'Panel' },
+    { href: '/pages/admin/usuarios.html',    label: 'Usuarios' },
+    { href: '/pages/admin/centros.html',     label: 'Centros' },
+    { href: '/pages/admin/inmersiones.html', label: 'Inmersiones' },
+    { href: '/pages/admin/reservas.html',    label: 'Reservas' },
+    { href: '/pages/feed.html',              label: 'Feed' },
+    { href: '/pages/Perfil.html',            label: 'Perfil' },
   ],
 };
 
@@ -37,7 +38,6 @@ function initNav() {
   const userStr = localStorage.getItem('user');
   const token   = localStorage.getItem('token');
 
-  // Not logged in — show minimal nav
   if (!token || !userStr) {
     _renderPublicNav(navbar);
     return;
@@ -51,16 +51,21 @@ function initNav() {
 
   navbar.innerHTML = `
     <div class="navbar-container">
-      <div class="navbar-logo">
-        <span>🌊</span><span>DiveConnect</span>
-      </div>
+      <a href="/pages/feed.html" class="navbar-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+          <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+          <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        </svg>
+        Dive<span>Connect</span>
+      </a>
       <nav class="navbar-menu" id="navMenu">
         ${links.map(l => `<a href="${l.href}" class="nav-link${_isActive(l.href) ? ' active' : ''}">${l.label}</a>`).join('')}
       </nav>
       <div class="navbar-actions">
-        <span class="badge ${_roleBadge(role)}">${_roleLabel(role)}</span>
+        <span class="role-indicator ${_roleBadge(role)}">${_roleLabel(role)}</span>
         <span id="navUsername" class="nav-username">${user.username || ''}</span>
-        <button class="btn btn-sm btn-outline" onclick="logout()">Salir</button>
+        <button class="btn btn-sm btn-ghost" style="border-color:rgba(255,255,255,.25);font-size:.8rem" onclick="logout()">Salir</button>
       </div>
     </div>
   `;
@@ -72,9 +77,9 @@ function _isActive(href) {
 }
 
 function _roleBadge(role) {
-  return role === 'ADMINISTRADOR' ? 'badge-admin'
-       : role === 'USUARIO_EMPRESA' ? 'badge-empresa'
-       : 'badge-comun';
+  return role === 'ADMINISTRADOR' ? 'role-admin'
+       : role === 'USUARIO_EMPRESA' ? 'role-empresa'
+       : 'role-comun';
 }
 
 function _roleLabel(role) {
@@ -86,9 +91,14 @@ function _roleLabel(role) {
 function _renderPublicNav(navbar) {
   navbar.innerHTML = `
     <div class="navbar-container">
-      <div class="navbar-logo">
-        <span>🌊</span><span>DiveConnect</span>
-      </div>
+      <a href="/index.html" class="navbar-logo">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+          <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+          <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        </svg>
+        Dive<span>Connect</span>
+      </a>
       <nav class="navbar-menu">
         <a href="/index.html" class="nav-link">Inicio</a>
         <a href="/pages/Inmersiones.html" class="nav-link">Inmersiones</a>
@@ -96,7 +106,7 @@ function _renderPublicNav(navbar) {
       </nav>
       <div class="navbar-actions">
         <a href="/pages/login.html" class="btn btn-sm btn-primary">Iniciar sesión</a>
-        <a href="/pages/register.html" class="btn btn-sm btn-outline">Registrarse</a>
+        <a href="/pages/register.html" class="btn btn-sm btn-outline" style="border-color:rgba(255,255,255,.4);color:var(--white)">Registrarse</a>
       </div>
     </div>
   `;
@@ -123,7 +133,6 @@ function requireRole(...roles) {
   try {
     const user = JSON.parse(localStorage.getItem('user'));
     if (!roles.includes(user.tipoUsuario)) {
-      alert('No tienes permiso para acceder a esta página.');
       window.location.href = '/pages/feed.html';
       return false;
     }

@@ -11,7 +11,7 @@
 
 <div class="container" style="padding-top:2rem">
   <div class="section-header">
-    <h2>📋 Reservas de mi Centro</h2>
+    <h2>Reservas de mi Centro</h2>
   </div>
 
   <div class="page-tabs">
@@ -65,7 +65,7 @@ function renderTabla() {
 
   const tbody = document.getElementById('tablaCuerpo');
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon">📋</div><p>Sin reservas</p></div></td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="icon"></div><p>Sin reservas</p></div></td></tr>';
     return;
   }
   tbody.innerHTML = lista.map(r => `

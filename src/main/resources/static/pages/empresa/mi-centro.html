@@ -11,12 +11,12 @@
 
 <div class="container" style="padding-top:2rem;max-width:720px">
   <div class="section-header">
-    <h2>🏫 Mi Centro de Buceo</h2>
+    <h2>Mi Centro de Buceo</h2>
   </div>
 
   <div id="sinCentro" style="display:none" class="card" style="text-align:center">
     <div class="empty-state">
-      <div class="icon">🏫</div>
+      <div class="icon"></div>
       <p>Aún no tienes un centro registrado.</p>
       <button class="btn btn-primary" onclick="mostrarFormulario(null)">Crear mi centro</button>
     </div>
@@ -132,7 +132,7 @@ function renderCentro(c) {
       ${c.email       ? `<span><strong>✉️</strong> ${c.email}</span>` : ''}
       ${c.sitioWeb    ? `<span><strong>🌐</strong> <a href="${c.sitioWeb}" target="_blank">${c.sitioWeb}</a></span>` : ''}
       ${c.certificaciones ? `<span><strong>🏅</strong> ${c.certificaciones}</span>` : ''}
-      ${c.valoracionPromedio ? `<span><strong>⭐</strong> ${c.valoracionPromedio.toFixed(1)} / 5</span>` : ''}
+      ${c.valoracionPromedio ? `<span><strong></strong> ${c.valoracionPromedio.toFixed(1)} / 5</span>` : ''}
     </div>
   `;
 }

@@ -37,17 +37,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         
         switch (usuario.getTipoUsuario()) {
             case ADMINISTRADOR:
-                authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-                authorities.add(new SimpleGrantedAuthority("ROLE_EMPRESA"));
-                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_ADMINISTRADOR"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_USUARIO_EMPRESA"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_USUARIO_COMUN"));
                 break;
             case USUARIO_EMPRESA:
-                authorities.add(new SimpleGrantedAuthority("ROLE_EMPRESA"));
-                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_USUARIO_EMPRESA"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_USUARIO_COMUN"));
                 break;
             case USUARIO_COMUN:
             default:
-                authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+                authorities.add(new SimpleGrantedAuthority("ROLE_USUARIO_COMUN"));
                 break;
         }
 

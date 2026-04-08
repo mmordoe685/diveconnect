@@ -9,41 +9,39 @@
 <body>
 <div class="auth-page">
 
-  <!-- Panel izquierdo — imagen -->
   <div class="auth-left">
-    <div class="auth-left-logo">🌊 <span>DiveConnect</span></div>
+    <div class="auth-left-logo">Dive<span>Connect</span></div>
 
     <div class="auth-left-content">
-      <h2>Bienvenido de vuelta,<br>buceador 🤿</h2>
-      <p>Tu comunidad submarina te espera. Comparte tus últimas inmersiones, descubre nuevos spots y reserva tu próxima aventura.</p>
+      <h2>Bienvenido de nuevo</h2>
+      <p>Accede a tu cuenta para gestionar tus inmersiones, conectar con otros buceadores y reservar tu próxima aventura.</p>
       <div class="auth-left-features">
         <div class="auth-left-feature">
           <div class="auth-left-feature-dot"></div>
-          Feed en tiempo real con inmersiones de tu comunidad
+          Feed en tiempo real de la comunidad
         </div>
         <div class="auth-left-feature">
           <div class="auth-left-feature-dot"></div>
-          Reservas online en los mejores centros de buceo
+          Reservas online en centros verificados
         </div>
         <div class="auth-left-feature">
           <div class="auth-left-feature-dot"></div>
-          Diario personal con todos tus datos técnicos
+          Diario personal con datos técnicos
         </div>
         <div class="auth-left-feature">
           <div class="auth-left-feature-dot"></div>
-          Comunidad de más de 2.400 buceadores activos
+          Más de 2.400 buceadores activos
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Panel derecho — formulario -->
   <div class="auth-right">
     <div class="auth-card">
 
       <div class="auth-logo">
         <h1 class="auth-title">Iniciar Sesión</h1>
-        <p class="auth-subtitle">Accede a tu cuenta de DiveConnect</p>
+        <p class="auth-subtitle">Introduce tus credenciales para acceder</p>
       </div>
 
       <div id="alertContainer"></div>
@@ -52,31 +50,17 @@
         <div class="form-group">
           <label class="form-label">Usuario o Email</label>
           <input id="usernameOrEmail" class="form-input" type="text"
-                 placeholder="usuario o correo@email.com" required autofocus autocomplete="username">
+                 placeholder="tu_usuario o correo@email.com" required autofocus autocomplete="username">
         </div>
         <div class="form-group">
           <label class="form-label">Contraseña</label>
           <input id="password" class="form-input" type="password"
-                 placeholder="••••••••" required autocomplete="current-password">
+                 placeholder="Tu contraseña" required autocomplete="current-password">
         </div>
         <button type="submit" id="submitBtn" class="btn btn-primary w-full" style="margin-top:.5rem">
-          Iniciar Sesión
+          Acceder
         </button>
       </form>
-
-      <div class="auth-divider"><span>o accede con demo</span></div>
-
-      <div style="display:flex;flex-direction:column;gap:.5rem">
-        <button onclick="loginDemo('buceador')" class="btn btn-secondary w-full btn-sm">
-          🤿 Demo — Buceador (buceador / admin)
-        </button>
-        <button onclick="loginDemo('oceandive')" class="btn btn-secondary w-full btn-sm">
-          🏫 Demo — Empresa (oceandive / admin)
-        </button>
-        <button onclick="loginDemo('admin')" class="btn btn-secondary w-full btn-sm">
-          🛡️ Demo — Admin (admin / admin)
-        </button>
-      </div>
 
       <div class="auth-footer">
         ¿No tienes cuenta?
@@ -96,7 +80,7 @@
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
     btn.disabled = true;
-    btn.textContent = 'Iniciando sesión...';
+    btn.textContent = 'Accediendo...';
     try {
       await login(
         document.getElementById('usernameOrEmail').value.trim(),
@@ -106,21 +90,9 @@
     } catch (err) {
       showAlert(err.message || 'Usuario o contraseña incorrectos', 'error');
       btn.disabled = false;
-      btn.textContent = 'Iniciar Sesión';
+      btn.textContent = 'Acceder';
     }
   });
-
-  async function loginDemo(username) {
-    const btn = document.getElementById('submitBtn');
-    btn.disabled = true;
-    try {
-      await login(username, 'admin');
-      window.location.href = '/pages/feed.html';
-    } catch (err) {
-      showAlert('Error en el acceso demo: ' + (err.message || ''), 'error');
-      btn.disabled = false;
-    }
-  }
 </script>
 </body>
 </html>

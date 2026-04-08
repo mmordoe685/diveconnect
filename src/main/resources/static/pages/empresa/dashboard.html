@@ -11,31 +11,47 @@
 
 <div class="container" style="padding-top:2rem">
   <div class="section-header">
-    <h2>📊 Panel de Empresa</h2>
-    <a href="/pages/empresa/mis-inmersiones.html" class="btn btn-primary">+ Nueva Inmersión</a>
+    <div>
+      <h2 style="font-family:'Poppins',sans-serif;font-size:1.65rem;font-weight:700;
+                 color:var(--ocean-950);letter-spacing:-0.02em">Panel de Empresa</h2>
+      <p style="color:var(--gray-500);font-size:.88rem;margin-top:.15rem">
+        Gestiona tu centro, inmersiones y reservas
+      </p>
+    </div>
+    <a href="/pages/empresa/mis-inmersiones.html" class="btn btn-primary">+ Nueva inmersión</a>
   </div>
 
   <div class="stats-grid" id="statsGrid">
-    <div class="stat-card"><div class="stat-icon">🤿</div><div class="stat-value" id="statInmersiones">—</div><div class="stat-label">Inmersiones activas</div></div>
-    <div class="stat-card"><div class="stat-icon">📋</div><div class="stat-value" id="statReservas">—</div><div class="stat-label">Reservas totales</div></div>
-    <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-value" id="statPendientes">—</div><div class="stat-label">Reservas pendientes</div></div>
-    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="statValoracion">—</div><div class="stat-label">Valoración media</div></div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-700)" stroke-width="2"><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg></div>
+      <div class="stat-value" id="statInmersiones">&mdash;</div><div class="stat-label">Inmersiones activas</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--ocean-700)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div class="stat-value" id="statReservas">&mdash;</div><div class="stat-label">Reservas totales</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
+      <div class="stat-value" id="statPendientes">&mdash;</div><div class="stat-label">Pendientes</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="stat-value" id="statValoracion">&mdash;</div><div class="stat-label">Valoración</div>
+    </div>
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem">
-    <!-- Últimas reservas -->
     <div class="card">
-      <h3 style="margin-top:0;color:var(--ocean-800)">Últimas reservas</h3>
+      <h3 style="margin-top:0;color:var(--ocean-950);font-size:1rem;font-weight:700">Últimas reservas</h3>
       <div id="ultimasReservas"><div class="loading"><div class="spinner"></div></div></div>
     </div>
-    <!-- Acciones rápidas -->
     <div class="card">
-      <h3 style="margin-top:0;color:var(--ocean-800)">Acciones rápidas</h3>
+      <h3 style="margin-top:0;color:var(--ocean-950);font-size:1rem;font-weight:700">Acciones rápidas</h3>
       <div style="display:flex;flex-direction:column;gap:.75rem">
-        <a href="/pages/empresa/mi-centro.html"          class="btn btn-outline">🏫 Gestionar mi Centro</a>
-        <a href="/pages/empresa/mis-inmersiones.html"    class="btn btn-outline">🤿 Gestionar Inmersiones</a>
-        <a href="/pages/empresa/gestionar-reservas.html" class="btn btn-outline">📋 Ver todas las Reservas</a>
-        <a href="/pages/Perfil.html"                     class="btn btn-outline">👤 Editar Perfil</a>
+        <a href="/pages/empresa/mi-centro.html"          class="btn btn-outline">Gestionar mi centro</a>
+        <a href="/pages/empresa/mis-inmersiones.html"    class="btn btn-outline">Gestionar inmersiones</a>
+        <a href="/pages/empresa/gestionar-reservas.html" class="btn btn-outline">Ver todas las reservas</a>
+        <a href="/pages/Perfil.html"                     class="btn btn-outline">Editar perfil</a>
       </div>
     </div>
   </div>
@@ -57,11 +73,10 @@ async function loadDashboard() {
   ]);
 
   const activas    = (inmersiones || []).filter(i => i.activa).length;
-  const pendientes = (reservas   || []).filter(r => r.estado === 'PENDIENTE').length;
+  const pendientes = (reservas    || []).filter(r => r.estado === 'PENDIENTE').length;
 
   let valoracion = '—';
   try {
-    const user = JSON.parse(localStorage.getItem('user'));
     const centro = await fetchAPI('/centros-buceo/mi-centro');
     if (centro && centro.valoracionPromedio) valoracion = centro.valoracionPromedio.toFixed(1);
   } catch {}
@@ -74,14 +89,14 @@ async function loadDashboard() {
   const cont = document.getElementById('ultimasReservas');
   const urs  = (reservas || []).slice(0, 5);
   if (!urs.length) {
-    cont.innerHTML = '<div class="empty-state"><div class="icon">📋</div><p>Sin reservas aún</p></div>';
+    cont.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--gray-400)">Sin reservas todavía</div>';
     return;
   }
   cont.innerHTML = urs.map(r => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--gray-200)">
       <div>
-        <strong>${r.inmersionTitulo || '—'}</strong><br>
-        <small style="color:var(--gray-600)">${r.usuarioUsername} · ${r.numeroPersonas} persona(s)</small>
+        <strong style="color:var(--gray-900);font-size:.9rem">${escapeHtml(r.inmersionTitulo || '—')}</strong><br>
+        <small style="color:var(--gray-500)">${escapeHtml(r.usuarioUsername)} &middot; ${r.numeroPersonas} persona(s)</small>
       </div>
       <span class="badge ${estadoBadge(r.estado)}">${r.estado}</span>
     </div>
