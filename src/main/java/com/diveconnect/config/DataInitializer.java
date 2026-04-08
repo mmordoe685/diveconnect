@@ -32,14 +32,20 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Solo inicializar si no existen usuarios de demo
-        if (usuarioRepository.existsByUsername("admin")
+        boolean usuariosExisten = usuarioRepository.existsByUsername("admin")
             && usuarioRepository.existsByUsername("buceador")
-            && usuarioRepository.existsByUsername("oceandive")) {
+            && usuarioRepository.existsByUsername("oceandive");
+
+        if (usuariosExisten && reservaRepository.count() > 0) {
             log.info("=== DataInitializer: datos ya existen, saltando ===");
             return;
         }
-        log.info("=== DataInitializer: creando datos de demostración ===");
+
+        if (usuariosExisten && reservaRepository.count() == 0) {
+            log.info("=== DataInitializer: usuarios existen pero faltan reservas, recreando todo ===");
+        } else {
+            log.info("=== DataInitializer: creando datos de demostración ===");
+        }
         borrarTodo();
         poblar();
         log.info("=== DataInitializer: completado con éxito ===");
