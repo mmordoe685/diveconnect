@@ -12,20 +12,20 @@
       gap: 1.5rem;
     }
     .centro-card {
-      background: var(--glass);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(160deg, rgba(14,77,100,0.12) 0%, rgba(255,255,255,0.04) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius-lg);
       overflow: hidden;
-      box-shadow: var(--shadow-card);
-      border: 1px solid var(--glass-border);
-      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all var(--transition);
       display: flex; flex-direction: column;
     }
     .centro-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-card-hover);
-      background: var(--glass-hover);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 48px rgba(14,77,100,0.25), 0 0 20px rgba(46,196,182,0.06);
+      border-color: rgba(46,196,182,0.2);
     }
     .centro-img { width:100%; height:190px; object-fit:cover; }
     .centro-img-ph {

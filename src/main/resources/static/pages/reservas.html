@@ -7,18 +7,23 @@
   <link rel="stylesheet" href="/css/style.css">
   <style>
     .reserva-card {
-      background: var(--glass);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: linear-gradient(160deg, rgba(14,77,100,0.12) 0%, rgba(255,255,255,0.04) 100%);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border-radius: var(--radius-lg);
       padding: 1.5rem;
       margin-bottom: 1rem;
-      box-shadow: var(--shadow-card);
-      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.08);
       border-left: 4px solid var(--turquoise);
-      transition: box-shadow var(--transition);
+      transition: all var(--transition);
     }
-    .reserva-card:hover { box-shadow: var(--shadow-card-hover); }
+    .reserva-card:hover {
+      box-shadow: 0 8px 32px rgba(14,77,100,0.2);
+      transform: translateY(-2px);
+      border-color: rgba(46,196,182,0.2);
+      border-left-color: var(--turquoise);
+    }
     .reserva-card.PENDIENTE  { border-left-color: #F59E0B; }
     .reserva-card.CONFIRMADA { border-left-color: #22C55E; }
     .reserva-card.CANCELADA  { border-left-color: #EF4444; opacity: .7; }

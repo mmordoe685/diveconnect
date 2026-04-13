@@ -39,9 +39,15 @@ let todos = [];
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('ADMINISTRADOR')) return;
   initNav();
-  const data = await fetchAPI('/admin/inmersiones');
-  todos = data || [];
-  filtrar();
+  try {
+    const data = await fetchAPI('/admin/inmersiones');
+    todos = data || [];
+    filtrar();
+  } catch (err) {
+    document.getElementById('tablaCuerpo').innerHTML =
+      '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--coral)">' +
+      'Error al cargar inmersiones: ' + escapeHtml(err.message) + '</td></tr>';
+  }
 });
 
 function filtrar() {
