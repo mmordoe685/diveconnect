@@ -46,9 +46,15 @@ let estadoActivo  = 'TODOS';
 document.addEventListener('DOMContentLoaded', async () => {
   if (!requireRole('USUARIO_EMPRESA', 'ADMINISTRADOR')) return;
   initNav();
-  const data = await fetchAPI('/reservas/mi-centro');
-  todasReservas = data || [];
-  renderTabla();
+  try {
+    const data = await fetchAPI('/reservas/mi-centro');
+    todasReservas = data || [];
+    renderTabla();
+  } catch (err) {
+    document.getElementById('tablaCuerpo').innerHTML =
+      '<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--coral)">' +
+      'Error al cargar reservas: ' + escapeHtml(err.message) + '</td></tr>';
+  }
 });
 
 function filtrarEstado(estado, btn) {

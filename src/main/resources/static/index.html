@@ -15,6 +15,15 @@
 
   <!-- HERO -->
   <div class="landing-container">
+    <div class="bubble" style="left:8%;width:6px;height:6px;animation-duration:12s;animation-delay:0s"></div>
+    <div class="bubble" style="left:18%;width:10px;height:10px;animation-duration:16s;animation-delay:2s"></div>
+    <div class="bubble" style="left:35%;width:4px;height:4px;animation-duration:10s;animation-delay:4s"></div>
+    <div class="bubble" style="left:52%;width:8px;height:8px;animation-duration:14s;animation-delay:1s"></div>
+    <div class="bubble" style="left:68%;width:5px;height:5px;animation-duration:11s;animation-delay:3s"></div>
+    <div class="bubble" style="left:82%;width:12px;height:12px;animation-duration:18s;animation-delay:5s"></div>
+    <div class="bubble" style="left:92%;width:7px;height:7px;animation-duration:13s;animation-delay:2.5s"></div>
+    <div class="bubble" style="left:45%;width:3px;height:3px;animation-duration:9s;animation-delay:6s"></div>
+
     <div class="landing-badge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
@@ -272,16 +281,17 @@
   </section>
 
   <!-- CTA -->
-  <section style="background:linear-gradient(135deg,var(--ocean-950),var(--ocean-800));
-                  padding:5rem 1.5rem;text-align:center;color:var(--white)">
-    <h2 style="font-family:'Poppins',sans-serif;font-size:clamp(1.8rem,4vw,2.6rem);
-               font-weight:700;margin-bottom:1rem;letter-spacing:-0.02em">
+  <section style="background:linear-gradient(135deg, #0E4D64 0%, #0B1F3A 50%, #0E4D64 100%);
+                  padding:6rem 1.5rem;text-align:center;color:var(--white);position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%, rgba(46,196,182,0.08) 0%, transparent 60%);pointer-events:none"></div>
+    <h2 style="font-family:'Montserrat',sans-serif;font-size:clamp(2rem,4.5vw,3rem);
+               font-weight:800;margin-bottom:1.25rem;letter-spacing:-0.03em;position:relative">
       ¿Preparado para tu próxima inmersión?
     </h2>
-    <p style="color:rgba(255,255,255,.72);font-size:1.08rem;max-width:480px;margin:0 auto 2.5rem;line-height:1.75">
+    <p style="color:rgba(244,249,249,.65);font-size:1.1rem;max-width:500px;margin:0 auto 3rem;line-height:1.8;position:relative">
       Crea tu cuenta gratis y únete a miles de buceadores que ya confían en DiveConnect.
     </p>
-    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap">
+    <div style="display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;position:relative">
       <a href="/pages/register.html" class="btn btn-coral btn-xl">Crear cuenta gratis</a>
       <a href="/pages/login.html" class="btn btn-ghost btn-xl">Ya tengo cuenta</a>
     </div>

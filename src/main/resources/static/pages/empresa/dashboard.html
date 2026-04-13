@@ -67,10 +67,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function loadDashboard() {
-  const [inmersiones, reservas] = await Promise.all([
-    fetchAPI('/inmersiones/mis-inmersiones'),
-    fetchAPI('/reservas/mi-centro'),
-  ]);
+  let inmersiones, reservas;
+  try {
+    [inmersiones, reservas] = await Promise.all([
+      fetchAPI('/inmersiones/mis-inmersiones'),
+      fetchAPI('/reservas/mi-centro'),
+    ]);
+  } catch (err) {
+    document.getElementById('ultimasReservas').innerHTML =
+      '<div style="text-align:center;padding:2rem;color:var(--coral)">Error: ' + escapeHtml(err.message) + '</div>';
+    return;
+  }
 
   const activas    = (inmersiones || []).filter(i => i.activa).length;
   const pendientes = (reservas    || []).filter(r => r.estado === 'PENDIENTE').length;

@@ -114,9 +114,15 @@ async function cargarCentro() {
 }
 
 async function cargarInmersiones() {
-  const data = await fetchAPI('/inmersiones/mis-inmersiones');
-  todasInmersiones = data || [];
-  renderTabla(todasInmersiones);
+  try {
+    const data = await fetchAPI('/inmersiones/mis-inmersiones');
+    todasInmersiones = data || [];
+    renderTabla(todasInmersiones);
+  } catch (err) {
+    document.getElementById('tablaCuerpo').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--coral)">' +
+      'Error al cargar inmersiones: ' + escapeHtml(err.message) + '</td></tr>';
+  }
 }
 
 function renderTabla(lista) {
