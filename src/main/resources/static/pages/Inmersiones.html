@@ -6,171 +6,460 @@
   <title>Inmersiones — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
+    /* ── Page hero ──────────────────────────────────────────────── */
+    .page-hero {
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(46,196,182,0.10) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 2.75rem 0 2rem;
+    }
+    .page-hero-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+    .page-hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--turquoise);
+      margin-bottom: .85rem;
+    }
+    .page-hero-eyebrow svg { stroke: var(--turquoise); }
+    .page-hero h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(1.75rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      color: var(--text-0);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: .5rem;
+    }
+    .page-hero p {
+      color: var(--text-1);
+      font-size: .95rem;
+      max-width: 500px;
+      line-height: 1.75;
+    }
+    .page-hero-count {
+      display: inline-block;
+      background: var(--turq-dim);
+      border: 1px solid rgba(46,196,182,0.18);
+      border-radius: var(--r-full);
+      padding: .18rem .7rem;
+      font-size: .75rem;
+      font-weight: 700;
+      color: var(--turquoise);
+      margin-left: .6rem;
+      vertical-align: middle;
+    }
+
+    /* ── Filter bar ──────────────────────────────────────────────── */
+    .filters-section {
+      background: var(--bg-0);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 56px;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .filters-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      flex-wrap: wrap;
+    }
+    .filter-search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 320px;
+    }
+    .filter-search-wrap svg {
+      position: absolute;
+      left: .85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      stroke: var(--text-2);
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+    .filter-search-wrap .form-input {
+      padding-left: 2.5rem;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+    .filter-select-wrap {
+      position: relative;
+    }
+    .filter-label {
+      font-size: .72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      color: var(--text-2);
+      white-space: nowrap;
+    }
+    .filter-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    #resultsCount {
+      font-size: .82rem;
+      color: var(--text-2);
+      white-space: nowrap;
+      margin-left: auto;
+    }
+    #resultsCount strong { color: var(--text-1); }
+
+    /* ── Grid ────────────────────────────────────────────────────── */
     .inmersiones-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 1.25rem;
     }
-    .inm-card {
-      background: linear-gradient(160deg, rgba(14,77,100,0.12) 0%, rgba(255,255,255,0.04) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: var(--radius-lg);
+
+    /* ── Dive card ───────────────────────────────────────────────── */
+    .dive-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
       overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.2);
-      border: 1px solid rgba(255,255,255,0.08);
-      transition: all var(--transition);
+      display: flex;
+      flex-direction: column;
+      transition: border-color var(--dur-md) var(--ease), box-shadow var(--dur-md) var(--ease), transform var(--dur-md) var(--ease);
+      cursor: default;
+    }
+    .dive-card:hover {
+      border-color: var(--border-acc);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.28), 0 0 32px rgba(46,196,182,0.06);
+      transform: translateY(-4px);
+    }
+
+    /* card image area */
+    .dive-img-wrap {
+      position: relative;
+      width: 100%;
+      height: 185px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0d2a3f 0%, #0E4D64 100%);
+      flex-shrink: 0;
+    }
+    .dive-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform .5s var(--ease);
+    }
+    .dive-card:hover .dive-img { transform: scale(1.04); }
+    .dive-img-ph {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .dive-img-ph svg { opacity: .22; }
+
+    /* level badge on image */
+    .dive-level-badge {
+      position: absolute;
+      top: .75rem;
+      left: .75rem;
+      border-radius: var(--r-full);
+      padding: .22rem .7rem;
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    /* card body */
+    .dive-body {
+      padding: 1.25rem 1.25rem 1rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+    }
+    .dive-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-0);
+      line-height: 1.35;
+      margin: 0;
+    }
+    .dive-desc {
+      font-size: .83rem;
+      color: var(--text-1);
+      line-height: 1.65;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin: 0;
+    }
+
+    /* meta chips row */
+    .dive-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .35rem;
+    }
+    .dive-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .28rem;
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      padding: .22rem .65rem;
+      font-size: .74rem;
+      font-weight: 500;
+      color: var(--text-1);
+      white-space: nowrap;
+    }
+    .dive-chip svg { stroke: var(--text-2); flex-shrink: 0; }
+    .dive-chip.accent {
+      background: var(--turq-dim);
+      border-color: rgba(46,196,182,0.18);
+      color: var(--turquoise);
+    }
+    .dive-chip.accent svg { stroke: var(--turquoise); }
+
+    /* card footer */
+    .dive-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: .9rem 1.25rem;
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+      gap: .75rem;
+    }
+    .dive-price {
       display: flex;
       flex-direction: column;
     }
-    .inm-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 16px 48px rgba(14,77,100,0.25), 0 0 20px rgba(46,196,182,0.06);
-      border-color: rgba(46,196,182,0.2);
+    .dive-price-amount {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--turquoise);
+      line-height: 1;
+      letter-spacing: -0.03em;
     }
-    .inm-img {
-      width: 100%; height: 190px;
-      object-fit: cover;
-      background: linear-gradient(135deg,var(--ocean-800),var(--ocean-950));
+    .dive-price-label {
+      font-size: .72rem;
+      color: var(--text-2);
+      margin-top: .15rem;
     }
-    .inm-img-ph {
-      width: 100%; height: 190px;
-      background: linear-gradient(135deg,var(--ocean-800),var(--ocean-950));
-      display: flex; align-items: center; justify-content: center;
+    .dive-slots {
+      font-size: .75rem;
+      color: var(--text-2);
+      font-weight: 500;
     }
-    .inm-img-ph svg { opacity: .3; }
-    .inm-body {
-      padding: 1.25rem 1.35rem;
-      flex: 1; display: flex; flex-direction: column;
+    .dive-slots strong { color: var(--text-1); }
+
+    /* ── Empty / error states ────────────────────────────────────── */
+    .list-empty {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5rem 2rem;
+      gap: 1rem;
+      color: var(--text-2);
     }
-    .inm-nivel {
-      display: inline-block;
-      font-size: .7rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: .06em;
-      border-radius: var(--radius-full);
-      padding: .18rem .65rem;
-      margin-bottom: .55rem; width: fit-content;
+    .list-empty svg { opacity: .3; }
+    .list-empty h3 { font-size: 1.05rem; font-weight: 700; color: var(--text-1); margin: 0; }
+    .list-empty p  { font-size: .88rem; color: var(--text-2); margin: 0; }
+
+    /* ── Modal customisations ────────────────────────────────────── */
+    .modal-booking-header {
+      display: flex;
+      flex-direction: column;
+      gap: .25rem;
+      margin-bottom: 1.4rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
     }
-    .inm-titulo {
-      font-size: 1.02rem; font-weight: 700;
-      color: var(--text); margin-bottom: .4rem; line-height: 1.35;
+    .modal-booking-header h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--text-0);
+      letter-spacing: -0.02em;
+      margin: 0;
     }
-    .inm-desc {
-      font-size: .84rem; color: var(--text-muted); line-height: 1.6;
-      margin-bottom: .85rem;
-      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    .modal-booking-header p {
+      font-size: .84rem;
+      color: var(--text-1);
+      margin: 0;
     }
-    .inm-meta {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: .3rem; font-size: .78rem; color: var(--text-dim); margin-bottom: .9rem;
+    .modal-total-box {
+      background: var(--turq-dim);
+      border: 1px solid rgba(46,196,182,0.18);
+      border-radius: var(--r-lg);
+      padding: 1rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 1rem 0;
     }
-    .inm-meta span { display: flex; align-items: center; gap: .3rem; }
-    .inm-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-top: auto; padding-top: .85rem; border-top: 1px solid var(--glass-border);
-    }
-    .inm-precio {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.35rem; font-weight: 700; color: var(--turquoise);
-    }
-    .inm-precio small {
-      font-size: .76rem; font-weight: 500; color: var(--text-muted); font-family: 'Inter', sans-serif;
+    .modal-total-box span { font-size: .88rem; color: var(--text-1); }
+    .modal-total-box strong {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--turquoise);
+      letter-spacing: -0.03em;
     }
 
-    .modal-overlay {
-      display:none; position:fixed; inset:0;
-      background:rgba(6,18,36,.75); backdrop-filter:blur(8px);
-      z-index:2000; align-items:center; justify-content:center; padding:1rem;
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .page-hero { padding: 2rem 0 1.5rem; }
+      .filters-inner { gap: .5rem; }
+      .filter-search-wrap { max-width: 100%; min-width: 100%; }
+      .filter-divider { display: none; }
+      #resultsCount { width: 100%; margin-left: 0; }
+      .inmersiones-grid { grid-template-columns: 1fr; }
     }
-    .modal-overlay.open { display:flex; }
-    .modal {
-      background:var(--deep); border:1px solid var(--glass-border);
-      border-radius:var(--radius-xl);
-      padding:2.25rem 2.5rem; width:100%; max-width:440px;
-      box-shadow:var(--shadow-2xl); animation:modalIn .25s ease both;
+    @media (max-width: 480px) {
+      .dive-chips { gap: .25rem; }
+      .dive-footer { flex-direction: column; align-items: flex-start; gap: .65rem; }
+      .dive-footer .btn { width: 100%; justify-content: center; }
     }
-    .modal h3 { font-family:'Poppins',sans-serif; font-size:1.3rem; font-weight:700;
-                color:var(--text); margin-bottom:.3rem; }
-    .modal .subtitle { color:var(--text-muted); font-size:.88rem; margin-bottom:1.5rem; }
-    .modal-total {
-      background:rgba(46,196,182,0.08); border:1px solid rgba(46,196,182,0.15);
-      border-radius:var(--radius-md); padding:1rem 1.25rem; margin:1rem 0;
-      display:flex; justify-content:space-between; align-items:center;
-    }
-    .modal-total span { font-size:.9rem; color:var(--text-muted); }
-    .modal-total strong { font-size:1.3rem; color:var(--turquoise);
-                          font-family:'Poppins',sans-serif; font-weight:700; }
-    .modal-actions { display:flex; gap:.75rem; margin-top:1.25rem; }
-
-    .filtros-bar {
-      display:flex; gap:1rem; flex-wrap:wrap; align-items:center;
-      margin-bottom:1.5rem;
-    }
-    .filtros-bar input, .filtros-bar select { flex:1; min-width:160px; }
   </style>
 </head>
 <body>
 
+<!-- ── Navbar ──────────────────────────────────────────────────── -->
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container-wide">
-  <div class="section-header" style="margin-bottom:1.5rem">
-    <div>
-      <h2 style="font-family:'Montserrat',sans-serif;font-size:1.65rem;font-weight:700;
-                 color:var(--text);letter-spacing:-0.02em">
-        Inmersiones disponibles
-      </h2>
-      <p style="color:var(--text-muted);font-size:.88rem;margin-top:.15rem">
-        Encuentra y reserva tu próxima aventura submarina
-      </p>
+<!-- ── Page hero ───────────────────────────────────────────────── -->
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-hero-eyebrow" data-reveal>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke-width="2.5">
+        <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+      </svg>
+      Experiencias de buceo
     </div>
+    <h1 data-reveal>
+      Inmersiones disponibles
+      <span class="page-hero-count" id="heroCount">—</span>
+    </h1>
+    <p data-reveal>Encuentra y reserva tu próxima aventura submarina. Filtra por nivel, precio o profundidad.</p>
   </div>
+</section>
 
-  <div class="filtros-bar">
-    <input type="text" id="buscarInput" class="form-input"
-           placeholder="Buscar por nombre o lugar..." oninput="filtrar()">
-    <select id="nivelFilter" class="form-input" onchange="filtrar()">
-      <option value="">Todos los niveles</option>
-      <option value="Sin certificación">Sin certificación</option>
-      <option value="Sin experiencia">Sin experiencia</option>
-      <option value="Open Water">Open Water</option>
-      <option value="Advanced Open Water">Advanced Open Water</option>
-      <option value="Rescue Diver">Rescue Diver</option>
-      <option value="Divemaster">Divemaster</option>
-    </select>
-    <select id="ordenFilter" class="form-input" onchange="filtrar()">
-      <option value="precio-asc">Precio: menor a mayor</option>
-      <option value="precio-desc">Precio: mayor a menor</option>
-      <option value="profundidad">Mayor profundidad</option>
-    </select>
+<!-- ── Filter bar ───────────────────────────────────────────────── -->
+<div class="filters-section" data-reveal>
+  <div class="filters-inner">
+
+    <!-- Search -->
+    <div class="filter-search-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="buscarInput" class="form-input"
+             placeholder="Buscar por nombre, lugar..." oninput="filtrar()"
+             style="font-size:.875rem">
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+      <span class="filter-label">Nivel</span>
+      <select id="nivelFilter" class="form-input" onchange="filtrar()"
+              style="width:auto;min-width:155px;font-size:.85rem">
+        <option value="">Todos los niveles</option>
+        <option value="Sin certificación">Sin certificación</option>
+        <option value="Sin experiencia">Sin experiencia</option>
+        <option value="Open Water">Open Water</option>
+        <option value="Advanced Open Water">Advanced Open Water</option>
+        <option value="Rescue Diver">Rescue Diver</option>
+        <option value="Divemaster">Divemaster</option>
+      </select>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+      <span class="filter-label">Ordenar</span>
+      <select id="ordenFilter" class="form-input" onchange="filtrar()"
+              style="width:auto;min-width:175px;font-size:.85rem">
+        <option value="precio-asc">Precio: menor a mayor</option>
+        <option value="precio-desc">Precio: mayor a menor</option>
+        <option value="profundidad">Mayor profundidad</option>
+      </select>
+    </div>
+
+    <span id="resultsCount"></span>
+
   </div>
+</div>
 
+<!-- ── Listing ───────────────────────────────────────────────────── -->
+<div class="container-wide" style="padding-top:2rem;padding-bottom:3rem">
   <div id="inmersionesContainer">
     <div class="loading"><div class="spinner"></div></div>
   </div>
 </div>
 
-<!-- Modal de reserva -->
+<!-- ── Reservation modal ────────────────────────────────────────── -->
 <div class="modal-overlay" id="reservaModal">
   <div class="modal">
-    <h3 id="modalTitulo">Reservar inmersión</h3>
-    <p class="subtitle" id="modalSubtitulo"></p>
+
+    <div class="modal-booking-header">
+      <h3 id="modalTitulo">Reservar inmersión</h3>
+      <p id="modalSubtitulo"></p>
+    </div>
+
     <div id="alertModal"></div>
+
     <div class="form-group">
       <label class="form-label">Número de personas</label>
-      <input type="number" id="numPersonas" class="form-input" value="1" min="1" oninput="actualizarTotal()">
+      <input type="number" id="numPersonas" class="form-input"
+             value="1" min="1" oninput="actualizarTotal()">
     </div>
-    <div class="modal-total">
+
+    <div class="modal-total-box">
       <span>Total estimado</span>
       <strong id="totalPrecio">&mdash;</strong>
     </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" style="flex:1" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn btn-primary" style="flex:2" id="confirmarBtn" onclick="confirmarReserva()">Confirmar reserva</button>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-primary" style="flex:2" id="confirmarBtn"
+              onclick="confirmarReserva()">Confirmar reserva</button>
     </div>
+
   </div>
 </div>
 
+<!-- ── Scripts ───────────────────────────────────────────────────── -->
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/nav.js"></script>
@@ -178,27 +467,52 @@
   requireAuth(); initNav();
 
   let todasInmersiones = [];
-  let inmersionActual = null;
+  let inmersionActual  = null;
 
+  /* ── Level styling ─────────────────────────────────────────────── */
+  const NIVEL_STYLE = {
+    'Sin certificación':   { bg: 'rgba(46,196,182,0.12)',  color: '#2EC4B6' },
+    'Sin experiencia':     { bg: 'rgba(46,196,182,0.12)',  color: '#2EC4B6' },
+    'Open Water':          { bg: 'rgba(100,180,255,0.12)', color: '#64B4FF' },
+    'Advanced Open Water': { bg: 'rgba(167,139,250,0.12)', color: '#A78BFA' },
+    'Rescue Diver':        { bg: 'rgba(255,209,102,0.12)', color: '#FFD166' },
+    'Divemaster':          { bg: 'rgba(255,107,107,0.12)', color: '#FF6B6B' },
+  };
+
+  function nivelBadgeStyle(nivel) {
+    const s = NIVEL_STYLE[nivel] || { bg: 'rgba(255,255,255,0.08)', color: 'rgba(240,244,248,0.6)' };
+    return `background:${s.bg};color:${s.color};border:1px solid ${s.color}33`;
+  }
+
+  /* ── Data loading ──────────────────────────────────────────────── */
   async function cargarInmersiones() {
     const container = document.getElementById('inmersionesContainer');
     try {
       const lista = await fetchAPI('/inmersiones/disponibles');
       todasInmersiones = lista || [];
+      document.getElementById('heroCount').textContent = todasInmersiones.length;
       if (todasInmersiones.length === 0) {
-        container.innerHTML = `
-          <div style="text-align:center;padding:4rem;color:var(--gray-500)">
-            <p style="font-size:1rem">No hay inmersiones disponibles en este momento.</p>
-          </div>`;
+        container.innerHTML = renderEmpty('No hay inmersiones disponibles en este momento.',
+          'Vuelve pronto para descubrir nuevas aventuras submarinas.');
+        updateResultsCount(0);
         return;
       }
       renderInmersiones(todasInmersiones);
     } catch (err) {
-      container.innerHTML = `<div class="card" style="text-align:center;padding:2rem;color:#c62828">
-        Error al cargar: ${escapeHtml(err.message)}</div>`;
+      container.innerHTML = `
+        <div class="card" style="text-align:center;padding:2.5rem;color:var(--coral);max-width:480px;margin:0 auto">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.5" style="margin:0 auto .75rem;display:block;opacity:.7">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p style="font-weight:600;margin-bottom:.25rem">Error al cargar</p>
+          <p style="font-size:.85rem;color:var(--text-2)">${escapeHtml(err.message)}</p>
+        </div>`;
     }
   }
 
+  /* ── Filtering & sorting ───────────────────────────────────────── */
   function filtrar() {
     const q     = document.getElementById('buscarInput').value.toLowerCase();
     const nivel = document.getElementById('nivelFilter').value;
@@ -206,9 +520,9 @@
 
     let lista = todasInmersiones.filter(i => {
       const matchQ = !q ||
-        (i.titulo || '').toLowerCase().includes(q) ||
-        (i.ubicacion || '').toLowerCase().includes(q) ||
-        (i.centroBuceoNombre || '').toLowerCase().includes(q);
+        (i.titulo             || '').toLowerCase().includes(q) ||
+        (i.ubicacion          || '').toLowerCase().includes(q) ||
+        (i.centroBuceoNombre  || '').toLowerCase().includes(q);
       const matchNivel = !nivel || (i.nivelRequerido || '') === nivel;
       return matchQ && matchNivel;
     });
@@ -223,83 +537,152 @@
     renderInmersiones(lista);
   }
 
+  /* ── Rendering ─────────────────────────────────────────────────── */
   function renderInmersiones(lista) {
     const container = document.getElementById('inmersionesContainer');
+    updateResultsCount(lista.length);
+
     if (!lista || lista.length === 0) {
-      container.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--gray-500)">
-        <p>No se encontraron inmersiones con ese filtro.</p></div>`;
+      container.innerHTML = `<div class="inmersiones-grid">${
+        renderEmpty('Sin resultados', 'Prueba a cambiar los filtros de búsqueda.')
+      }</div>`;
       return;
     }
 
-    const nivelColor = {
-      'Sin certificación':  '#DCFCE7:#166534',
-      'Sin experiencia':    '#DCFCE7:#166534',
-      'Open Water':         '#DCFCE7:#166534',
-      'Advanced Open Water':'#DBEAFE:#1E40AF',
-      'Rescue Diver':       '#FEF3C7:#92400E',
-      'Divemaster':         '#EDE9FE:#5B21B6',
-    };
-
-    container.innerHTML = `<div class="inmersiones-grid">${lista.map(i => {
-      const nc = (nivelColor[i.nivelRequerido] || 'var(--ocean-100):var(--ocean-800)').split(':');
-      const fecha = i.fechaInmersion
-        ? new Date(i.fechaInmersion).toLocaleDateString('es-ES', { day:'numeric', month:'short' })
-        : null;
-      const img = i.imagenUrl
-        ? `<img src="${escapeHtml(i.imagenUrl)}" class="inm-img" alt="${escapeHtml(i.titulo)}"
-               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
-        : '';
-      return `
-        <div class="inm-card">
-          ${img}
-          <div class="inm-img-ph" ${i.imagenUrl ? 'style="display:none"' : ''}>
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5">
-              <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
-              <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
-            </svg>
-          </div>
-          <div class="inm-body">
-            <span class="inm-nivel" style="background:${nc[0]};color:${nc[1]}">
-              ${escapeHtml(i.nivelRequerido || 'Todos los niveles')}
-            </span>
-            <div class="inm-titulo">${escapeHtml(i.titulo)}</div>
-            ${i.descripcion ? `<p class="inm-desc">${escapeHtml(i.descripcion)}</p>` : ''}
-            <div class="inm-meta">
-              ${i.ubicacion ? `<span>${escapeHtml(i.ubicacion)}</span>` : ''}
-              <span>${i.duracion || '—'} min</span>
-              <span>Máx. ${i.profundidadMaxima || '—'}m</span>
-              <span>${i.plazasDisponibles} plazas</span>
-              ${fecha ? `<span>${fecha}</span>` : ''}
-              ${i.centroBuceoNombre ? `<span>${escapeHtml(i.centroBuceoNombre)}</span>` : ''}
-            </div>
-            <div class="inm-footer">
-              <div class="inm-precio">
-                ${i.precio}&euro; <small>/ persona</small>
-              </div>
-              <button class="btn btn-primary btn-sm"
-                onclick='abrirModal(${JSON.stringify(i)})'>
-                Reservar
-              </button>
-            </div>
-          </div>
-        </div>`;
-    }).join('')}</div>`;
+    container.innerHTML = `<div class="inmersiones-grid">${lista.map(renderCard).join('')}</div>`;
   }
 
+  function renderCard(i) {
+    const fecha = i.fechaInmersion
+      ? new Date(i.fechaInmersion).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+      : null;
+
+    const imgHtml = i.imagenUrl
+      ? `<img src="${escapeHtml(i.imagenUrl)}" class="dive-img" alt="${escapeHtml(i.titulo)}"
+             loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+      : '';
+
+    const phVisible = i.imagenUrl ? 'style="display:none"' : '';
+
+    return `
+      <article class="dive-card">
+        <div class="dive-img-wrap">
+          ${imgHtml}
+          <div class="dive-img-ph" ${phVisible}>
+            <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1">
+              <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+              <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+              <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+            </svg>
+          </div>
+          <span class="dive-level-badge" style="${nivelBadgeStyle(i.nivelRequerido)}">
+            ${escapeHtml(i.nivelRequerido || 'Todos los niveles')}
+          </span>
+        </div>
+
+        <div class="dive-body">
+          <h3 class="dive-title">${escapeHtml(i.titulo)}</h3>
+          ${i.descripcion ? `<p class="dive-desc">${escapeHtml(i.descripcion)}</p>` : ''}
+
+          <div class="dive-chips">
+            ${i.ubicacion ? `
+              <span class="dive-chip">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                ${escapeHtml(i.ubicacion)}
+              </span>` : ''}
+            ${i.profundidadMaxima ? `
+              <span class="dive-chip accent">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+                  <path d="M12 2v20M17 7l-5 5-5-5"/>
+                </svg>
+                ${i.profundidadMaxima} m
+              </span>` : ''}
+            ${i.duracion ? `
+              <span class="dive-chip">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                ${i.duracion} min
+              </span>` : ''}
+            ${fecha ? `
+              <span class="dive-chip">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                ${escapeHtml(fecha)}
+              </span>` : ''}
+            ${i.centroBuceoNombre ? `
+              <span class="dive-chip">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                ${escapeHtml(i.centroBuceoNombre)}
+              </span>` : ''}
+          </div>
+        </div>
+
+        <div class="dive-footer">
+          <div class="dive-price">
+            <span class="dive-price-amount">${i.precio}&euro;</span>
+            <span class="dive-price-label">por persona</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.4rem">
+            <span class="dive-slots">
+              <strong>${i.plazasDisponibles}</strong> plaza${i.plazasDisponibles === 1 ? '' : 's'}
+            </span>
+            <button class="btn btn-primary btn-sm"
+                    onclick='abrirModal(${JSON.stringify(i)})'>
+              Reservar
+            </button>
+          </div>
+        </div>
+      </article>`;
+  }
+
+  function renderEmpty(title, subtitle) {
+    return `
+      <div class="list-empty">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+          <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+          <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        </svg>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(subtitle)}</p>
+      </div>`;
+  }
+
+  function updateResultsCount(n) {
+    const el = document.getElementById('resultsCount');
+    el.innerHTML = n > 0
+      ? `<strong>${n}</strong> inmersión${n === 1 ? '' : 'es'}`
+      : '<span style="color:var(--text-2)">Sin resultados</span>';
+  }
+
+  /* ── Modal ─────────────────────────────────────────────────────── */
   function abrirModal(inmersion) {
     inmersionActual = inmersion;
-    document.getElementById('modalTitulo').textContent = inmersion.titulo;
+    document.getElementById('modalTitulo').textContent    = inmersion.titulo;
     document.getElementById('modalSubtitulo').textContent =
-      `${inmersion.precio}\u20AC/persona \u00B7 ${inmersion.plazasDisponibles} plazas disponibles`;
-    document.getElementById('numPersonas').max = inmersion.plazasDisponibles;
+      `${inmersion.precio}\u20AC / persona \u00B7 ${inmersion.plazasDisponibles} plaza${inmersion.plazasDisponibles === 1 ? '' : 's'} disponible${inmersion.plazasDisponibles === 1 ? '' : 's'}`;
+    document.getElementById('numPersonas').max   = inmersion.plazasDisponibles;
     document.getElementById('numPersonas').value = 1;
     document.getElementById('alertModal').innerHTML = '';
     actualizarTotal();
-    document.getElementById('reservaModal').classList.add('open');
+    document.getElementById('reservaModal').classList.add('active');
   }
 
   function cerrarModal() {
-    document.getElementById('reservaModal').classList.remove('open');
+    document.getElementById('reservaModal').classList.remove('active');
     inmersionActual = null;
   }
 
@@ -320,12 +703,13 @@
     }
     if (num > inmersionActual.plazasDisponibles) {
       document.getElementById('alertModal').innerHTML =
-        `<div class="alert alert-error">Solo quedan ${inmersionActual.plazasDisponibles} plazas.</div>`;
+        `<div class="alert alert-error">Solo quedan ${inmersionActual.plazasDisponibles} plazas disponibles.</div>`;
       return;
     }
 
     const btn = document.getElementById('confirmarBtn');
-    btn.disabled = true; btn.textContent = 'Procesando...';
+    btn.disabled    = true;
+    btn.textContent = 'Procesando...';
 
     try {
       await fetchAPI('/reservas', {
@@ -333,16 +717,21 @@
         body: JSON.stringify({ inmersionId: inmersionActual.id, numeroPersonas: num })
       });
       cerrarModal();
-      showAlert(`Reserva confirmada. Total: ${(inmersionActual.precio * num).toFixed(2)}\u20AC. Consulta el estado en Mis Reservas.`, 'success');
+      showAlert(
+        `Reserva confirmada. Total: ${(inmersionActual.precio * num).toFixed(2)}\u20AC. Consulta el estado en Mis Reservas.`,
+        'success'
+      );
       setTimeout(() => cargarInmersiones(), 1500);
     } catch (err) {
       document.getElementById('alertModal').innerHTML =
-        `<div class="alert alert-error">${escapeHtml(err.message || 'Error al reservar')}</div>`;
+        `<div class="alert alert-error">${escapeHtml(err.message || 'Error al realizar la reserva')}</div>`;
     } finally {
-      btn.disabled = false; btn.textContent = 'Confirmar reserva';
+      btn.disabled    = false;
+      btn.textContent = 'Confirmar reserva';
     }
   }
 
+  /* Close modal on backdrop click */
   document.getElementById('reservaModal').addEventListener('click', function(e) {
     if (e.target === this) cerrarModal();
   });

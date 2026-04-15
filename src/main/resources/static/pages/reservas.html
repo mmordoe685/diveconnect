@@ -6,108 +6,389 @@
   <title>Mis Reservas — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
+    /* ── Page layout ─────────────────────────────── */
+    .reservas-page { padding: 2.25rem 0 4rem; }
+
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 800;
+      color: var(--text-0);
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: .35rem;
+    }
+    .page-header p { font-size: .9rem; color: var(--text-2); }
+
+    /* ── Stats bar ───────────────────────────────── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+    .stat-cell {
+      background: var(--bg-card);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: background var(--dur) var(--ease);
+    }
+    .stat-cell:hover { background: var(--glass-h); }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: var(--r-md);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 1.1rem;
+    }
+    .stat-icon.turq  { background: rgba(46,196,182,.12); color: var(--turquoise); }
+    .stat-icon.gold  { background: rgba(255,209,102,.12); color: var(--gold); }
+    .stat-icon.blue  { background: rgba(100,180,255,.12); color: var(--blue); }
+    .stat-icon.coral { background: rgba(255,107,107,.12); color: var(--coral); }
+    .stat-value {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--text-0); line-height: 1;
+    }
+    .stat-label { font-size: .75rem; color: var(--text-2); margin-top: .2rem; letter-spacing: .04em; text-transform: uppercase; }
+
+    /* ── Filter tabs ─────────────────────────────── */
+    .filter-bar {
+      display: flex; align-items: center;
+      gap: .4rem; flex-wrap: wrap;
+      margin-bottom: 1.75rem;
+    }
+    .filter-tab {
+      padding: .42rem 1.1rem;
+      border-radius: var(--r-full);
+      font-size: .82rem; font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--border);
+      background: var(--glass);
+      color: var(--text-2);
+      transition: all var(--transition-fast);
+      display: inline-flex; align-items: center; gap: .4rem;
+    }
+    .filter-tab .tab-count {
+      font-size: .7rem; font-weight: 700;
+      padding: .05rem .45rem;
+      border-radius: var(--r-full);
+      background: var(--glass-h);
+      color: var(--text-2);
+      transition: all var(--transition-fast);
+    }
+    .filter-tab:hover:not(.active) {
+      border-color: var(--border-h);
+      color: var(--text-1);
+      background: var(--glass-h);
+    }
+    .filter-tab.active {
+      background: var(--turquoise);
+      border-color: var(--turquoise);
+      color: var(--bg-0);
+    }
+    .filter-tab.active .tab-count {
+      background: rgba(0,0,0,.18);
+      color: var(--bg-0);
+    }
+
+    /* ── Reservation card ────────────────────────── */
     .reserva-card {
-      background: linear-gradient(160deg, rgba(14,77,100,0.12) 0%, rgba(255,255,255,0.04) 100%);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: var(--radius-lg);
-      padding: 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      overflow: hidden;
       margin-bottom: 1rem;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-left: 4px solid var(--turquoise);
-      transition: all var(--transition);
+      transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+      position: relative;
     }
-    .reserva-card:hover {
-      box-shadow: 0 8px 32px rgba(14,77,100,0.2);
+    .reserva-card::before {
+      content: '';
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      border-radius: var(--r-xl) 0 0 var(--r-xl);
+      background: var(--border-h);
+      transition: background var(--dur) var(--ease);
+    }
+    .reserva-card.PENDIENTE::before  { background: var(--gold); }
+    .reserva-card.CONFIRMADA::before { background: #22C55E; }
+    .reserva-card.COMPLETADA::before { background: var(--blue); }
+    .reserva-card.CANCELADA::before  { background: var(--coral); }
+    .reserva-card.CANCELADA         { opacity: .65; }
+
+    .reserva-card:hover:not(.CANCELADA) {
+      border-color: var(--border-h);
+      box-shadow: 0 6px 24px rgba(0,0,0,.22);
       transform: translateY(-2px);
-      border-color: rgba(46,196,182,0.2);
-      border-left-color: var(--turquoise);
     }
-    .reserva-card.PENDIENTE  { border-left-color: #F59E0B; }
-    .reserva-card.CONFIRMADA { border-left-color: #22C55E; }
-    .reserva-card.CANCELADA  { border-left-color: #EF4444; opacity: .7; }
-    .reserva-card.COMPLETADA { border-left-color: #3B82F6; }
-    .reserva-header { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; margin-bottom:1rem; flex-wrap:wrap; }
-    .reserva-titulo { font-size:1.02rem; font-weight:700; color:var(--text); margin-bottom:.15rem; }
-    .reserva-centro { font-size:.82rem; color:var(--text-muted); }
+
+    /* card body sections */
+    .card-body { padding: 1.35rem 1.5rem 1.35rem 1.85rem; }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .card-top-left { flex: 1; min-width: 0; }
+
+    .reserva-id {
+      font-size: .72rem; font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: .3rem;
+    }
+    .reserva-titulo {
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--text-0);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      margin-bottom: .2rem;
+    }
+    .reserva-centro {
+      font-size: .83rem; color: var(--text-2);
+      display: flex; align-items: center; gap: .35rem;
+    }
+
+    /* status badge */
     .estado-badge {
-      display:inline-flex; align-items:center; gap:.3rem;
-      padding:.28rem .8rem; border-radius:var(--radius-full);
-      font-size:.76rem; font-weight:700; white-space:nowrap;
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .3rem .85rem;
+      border-radius: var(--r-full);
+      font-size: .75rem; font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .estado-PENDIENTE  { background:#FEF3C7; color:#92400E; }
-    .estado-CONFIRMADA { background:#DCFCE7; color:#166534; }
-    .estado-CANCELADA  { background:#FEE2E2; color:#991B1B; }
-    .estado-COMPLETADA { background:#DBEAFE; color:#1E40AF; }
-    .reserva-meta { display:flex; flex-wrap:wrap; gap:.4rem 1.25rem; font-size:.83rem; color:var(--text-muted); margin-bottom:1rem; }
-    .reserva-precio { font-family:'Poppins',sans-serif; font-size:1.4rem; font-weight:700; color:var(--turquoise); }
-    .filtros-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.5rem; }
-    .filtro-tab {
-      padding:.4rem 1rem; border-radius:var(--radius-full);
-      font-size:.82rem; font-weight:600; cursor:pointer;
-      border:2px solid var(--glass-border); background:var(--glass); color:var(--text-muted);
-      transition:all var(--transition-fast);
+    .estado-badge .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      display: inline-block;
     }
-    .filtro-tab.active { background:var(--turquoise); border-color:var(--turquoise); color:var(--deep); }
-    .filtro-tab:hover:not(.active) { border-color:var(--turquoise); color:var(--turquoise); }
-    .resumen-card {
-      background:linear-gradient(135deg,var(--ocean-950),var(--ocean-800));
-      color:var(--white); border-radius:var(--radius-lg);
-      padding:1.35rem 1.75rem; display:flex; gap:2.5rem; flex-wrap:wrap;
-      margin-bottom:2rem; box-shadow:var(--shadow-lg);
+    .estado-PENDIENTE  { background: rgba(255,209,102,.12); color: var(--gold);      border: 1px solid rgba(255,209,102,.22); }
+    .estado-PENDIENTE  .dot { background: var(--gold); }
+    .estado-CONFIRMADA { background: rgba(34,197,94,.12);  color: #4ade80;           border: 1px solid rgba(34,197,94,.22); }
+    .estado-CONFIRMADA .dot { background: #4ade80; }
+    .estado-COMPLETADA { background: rgba(100,180,255,.12); color: var(--blue);      border: 1px solid rgba(100,180,255,.22); }
+    .estado-COMPLETADA .dot { background: var(--blue); }
+    .estado-CANCELADA  { background: rgba(255,107,107,.10); color: var(--coral);     border: 1px solid rgba(255,107,107,.2); }
+    .estado-CANCELADA  .dot { background: var(--coral); }
+
+    /* meta row */
+    .card-meta {
+      display: flex; flex-wrap: wrap;
+      gap: .35rem 1.5rem;
+      padding: .85rem 1.5rem .85rem 1.85rem;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
-    .resumen-stat { text-align:center; }
-    .resumen-num { font-family:'Poppins',sans-serif; font-size:1.8rem; font-weight:800; color:var(--ocean-300); line-height:1; }
-    .resumen-label { font-size:.76rem; color:rgba(255,255,255,.6); margin-top:.2rem; }
+    .meta-item {
+      display: flex; align-items: center; gap: .4rem;
+      font-size: .82rem; color: var(--text-2);
+    }
+    .meta-item svg { opacity: .6; }
+
+    /* card footer */
+    .card-footer {
+      padding: .9rem 1.5rem .9rem 1.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .75rem;
+    }
+    .reserva-precio {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.45rem; font-weight: 800;
+      color: var(--turquoise);
+      letter-spacing: -0.02em;
+    }
+    .reserva-precio span { font-size: .8rem; font-weight: 500; color: var(--text-2); margin-left: .25rem; }
+
+    /* ── Cancel modal ────────────────────────────── */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(6,12,28,.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--bg-1);
+      border: 1px solid var(--border-h);
+      border-radius: var(--r-2xl);
+      padding: 2.25rem 2.5rem;
+      max-width: 440px; width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,.4), 0 0 0 1px rgba(255,107,107,.08);
+      animation: modalIn .25s var(--ease);
+      position: relative;
+    }
+    .modal-icon {
+      width: 52px; height: 52px;
+      background: rgba(255,107,107,.12);
+      border: 1px solid rgba(255,107,107,.2);
+      border-radius: var(--r-lg);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem;
+      color: var(--coral);
+      font-size: 1.4rem;
+    }
+    .modal-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.15rem; font-weight: 800;
+      color: var(--text-0);
+      margin-bottom: .5rem;
+      letter-spacing: -0.02em;
+    }
+    .modal-body {
+      font-size: .88rem; color: var(--text-2);
+      line-height: 1.7;
+      margin-bottom: 1.75rem;
+    }
+    .modal-actions { display: flex; gap: .75rem; }
+    .modal-actions .btn { flex: 1; justify-content: center; }
+
+    /* ── Empty / error states ────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+    }
+    .empty-icon {
+      width: 64px; height: 64px;
+      background: var(--glass-h);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 1.75rem;
+      color: var(--text-2);
+    }
+    .empty-state h3 {
+      font-size: 1.05rem; font-weight: 700;
+      color: var(--text-0); margin-bottom: .5rem;
+    }
+    .empty-state p { font-size: .88rem; color: var(--text-2); margin-bottom: 1.75rem; }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 680px) {
+      .stats-bar { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 420px) {
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .card-body  { padding: 1.1rem 1.1rem 1.1rem 1.5rem; }
+      .card-meta  { padding: .75rem 1.1rem .75rem 1.5rem; }
+      .card-footer{ padding: .75rem 1.1rem .75rem 1.5rem; }
+      .modal-box  { padding: 1.75rem 1.5rem; }
+    }
   </style>
 </head>
 <body>
 
 <header class="navbar" id="mainNavbar"></header>
 
-<!-- Modal cancelar -->
-<div id="modalCancelar" style="display:none;position:fixed;inset:0;
-     background:rgba(6,18,36,.75);backdrop-filter:blur(8px);z-index:2000;
-     justify-content:center;align-items:center;padding:1rem">
-  <div style="background:var(--deep);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:2.25rem 2.5rem;
-              max-width:420px;width:100%;box-shadow:var(--shadow-2xl);animation:modalIn .25s ease">
-    <h3 style="font-family:'Poppins',sans-serif;font-size:1.2rem;font-weight:700;
-               color:var(--text);margin-bottom:.5rem">Cancelar reserva</h3>
-    <p style="color:var(--text-muted);margin-bottom:1.75rem;font-size:.88rem;line-height:1.65">
-      Esta acción no se puede deshacer. Las plazas quedarán disponibles para otros usuarios.</p>
-    <div style="display:flex;gap:.75rem">
-      <button class="btn btn-secondary" style="flex:1" onclick="cerrarModal()">Mantener</button>
-      <button class="btn btn-danger" style="flex:1" id="btnConfirmarCancelar" onclick="confirmarCancelacion()">Confirmar cancelación</button>
+<!-- Cancel modal -->
+<div id="modalCancelar" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-box">
+    <div class="modal-icon">&#9888;</div>
+    <div class="modal-title" id="modalTitle">Cancelar reserva</div>
+    <p class="modal-body">
+      Esta acción no se puede deshacer. Las plazas quedarán disponibles para otros usuarios.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="cerrarModal()">Mantener</button>
+      <button class="btn btn-danger" id="btnConfirmarCancelar" onclick="confirmarCancelacion()">Confirmar cancelación</button>
     </div>
   </div>
 </div>
 
-<div class="container">
-  <div style="margin-bottom:1.75rem">
-    <h2 style="font-family:'Montserrat',sans-serif;font-size:1.65rem;font-weight:700;
-               color:var(--text);letter-spacing:-0.02em">Mis Reservas</h2>
-    <p style="color:var(--text-muted);font-size:.88rem;margin-top:.15rem">
-      Historial y gestión de tus reservas de inmersiones
-    </p>
+<div class="container reservas-page">
+
+  <!-- Page header -->
+  <div class="page-header" data-reveal>
+    <h1>Mis Reservas</h1>
+    <p>Historial y gestión de tus reservas de inmersiones</p>
   </div>
 
-  <div class="resumen-card" id="resumenCard" style="display:none">
-    <div class="resumen-stat"><div class="resumen-num" id="statTotal">0</div><div class="resumen-label">Total</div></div>
-    <div class="resumen-stat"><div class="resumen-num" id="statPendientes">0</div><div class="resumen-label">Pendientes</div></div>
-    <div class="resumen-stat"><div class="resumen-num" id="statCompletadas">0</div><div class="resumen-label">Completadas</div></div>
-    <div class="resumen-stat"><div class="resumen-num" id="statGasto">0&euro;</div><div class="resumen-label">Invertido</div></div>
+  <!-- Stats bar (hidden until data loads) -->
+  <div class="stats-bar" id="statsBar" style="display:none" data-reveal data-delay="100">
+    <div class="stat-cell">
+      <div class="stat-icon turq">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-label">Total reservas</div>
+      </div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-icon gold">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div>
+        <div class="stat-value" id="statPendientes">0</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-icon blue">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div>
+        <div class="stat-value" id="statCompletadas">0</div>
+        <div class="stat-label">Completadas</div>
+      </div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-icon coral">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <div>
+        <div class="stat-value" id="statGasto">0&euro;</div>
+        <div class="stat-label">Total invertido</div>
+      </div>
+    </div>
   </div>
 
-  <div class="filtros-tabs" id="filtrosTabs" style="display:none">
-    <button class="filtro-tab active" onclick="filtrarEstado('TODAS',this)">Todas</button>
-    <button class="filtro-tab" onclick="filtrarEstado('PENDIENTE',this)">Pendientes</button>
-    <button class="filtro-tab" onclick="filtrarEstado('CONFIRMADA',this)">Confirmadas</button>
-    <button class="filtro-tab" onclick="filtrarEstado('COMPLETADA',this)">Completadas</button>
-    <button class="filtro-tab" onclick="filtrarEstado('CANCELADA',this)">Canceladas</button>
+  <!-- Filter tabs (hidden until data loads) -->
+  <div class="filter-bar" id="filtrosTabs" style="display:none" data-reveal data-delay="150">
+    <button class="filter-tab active" onclick="filtrarEstado('TODAS',this)">
+      Todas <span class="tab-count" id="countTodas">0</span>
+    </button>
+    <button class="filter-tab" onclick="filtrarEstado('PENDIENTE',this)">
+      Pendientes <span class="tab-count" id="countPendiente">0</span>
+    </button>
+    <button class="filter-tab" onclick="filtrarEstado('CONFIRMADA',this)">
+      Confirmadas <span class="tab-count" id="countConfirmada">0</span>
+    </button>
+    <button class="filter-tab" onclick="filtrarEstado('COMPLETADA',this)">
+      Completadas <span class="tab-count" id="countCompletada">0</span>
+    </button>
+    <button class="filter-tab" onclick="filtrarEstado('CANCELADA',this)">
+      Canceladas <span class="tab-count" id="countCancelada">0</span>
+    </button>
   </div>
 
-  <div id="reservasContainer"><div class="loading"><div class="spinner"></div></div></div>
+  <!-- Cards container -->
+  <div id="reservasContainer">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+
 </div>
 
 <script src="/js/api.js"></script>
@@ -116,90 +397,166 @@
 <script>
   requireAuth(); initNav();
 
-  let todasReservas = [];
+  let todasReservas    = [];
   let reservaAcancelar = null;
 
   const ESTADOS = {
-    PENDIENTE:  { label:'Pendiente'  },
-    CONFIRMADA: { label:'Confirmada' },
-    CANCELADA:  { label:'Cancelada'  },
-    COMPLETADA: { label:'Completada' }
+    PENDIENTE:  { label: 'Pendiente'  },
+    CONFIRMADA: { label: 'Confirmada' },
+    CANCELADA:  { label: 'Cancelada'  },
+    COMPLETADA: { label: 'Completada' }
   };
 
+  /* ── Icons (inline SVG helpers) ─────────────────────── */
+  const SVG = {
+    calendar: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+    dive:     `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>`,
+    people:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+    marker:   `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`
+  };
+
+  /* ── Load all reservations ───────────────────────────── */
   async function cargarReservas() {
     const container = document.getElementById('reservasContainer');
     try {
       const lista = await fetchAPI('/reservas/mis-reservas');
       todasReservas = lista || [];
+
       if (todasReservas.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center;padding:3.5rem">
-          <p style="color:var(--gray-500);font-size:1rem;margin-bottom:1.5rem">No tienes reservas todavía.</p>
-          <a href="/pages/Inmersiones.html" class="btn btn-primary">Ver inmersiones disponibles</a></div>`;
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">&#128306;</div>
+            <h3>Sin reservas todavía</h3>
+            <p>Explora las inmersiones disponibles y reserva tu próxima aventura.</p>
+            <a href="/pages/Inmersiones.html" class="btn btn-primary">Ver inmersiones disponibles</a>
+          </div>`;
         return;
       }
-      const pendientes  = todasReservas.filter(r => r.estado === 'PENDIENTE').length;
-      const completadas = todasReservas.filter(r => r.estado === 'COMPLETADA').length;
-      const gasto = todasReservas.filter(r => r.estado !== 'CANCELADA').reduce((s, r) => s + (r.precioTotal || 0), 0);
+
+      /* count by state */
+      const counts = { PENDIENTE: 0, CONFIRMADA: 0, COMPLETADA: 0, CANCELADA: 0 };
+      todasReservas.forEach(r => { if (counts[r.estado] !== undefined) counts[r.estado]++; });
+      const gasto = todasReservas
+        .filter(r => r.estado !== 'CANCELADA')
+        .reduce((s, r) => s + (r.precioTotal || 0), 0);
+
+      /* stats bar */
       document.getElementById('statTotal').textContent       = todasReservas.length;
-      document.getElementById('statPendientes').textContent  = pendientes;
-      document.getElementById('statCompletadas').textContent = completadas;
+      document.getElementById('statPendientes').textContent  = counts.PENDIENTE;
+      document.getElementById('statCompletadas').textContent = counts.COMPLETADA;
       document.getElementById('statGasto').textContent       = gasto.toFixed(0) + '\u20AC';
-      document.getElementById('resumenCard').style.display   = 'flex';
+      document.getElementById('statsBar').style.display      = 'grid';
+
+      /* tab counts */
+      document.getElementById('countTodas').textContent      = todasReservas.length;
+      document.getElementById('countPendiente').textContent  = counts.PENDIENTE;
+      document.getElementById('countConfirmada').textContent = counts.CONFIRMADA;
+      document.getElementById('countCompletada').textContent = counts.COMPLETADA;
+      document.getElementById('countCancelada').textContent  = counts.CANCELADA;
       document.getElementById('filtrosTabs').style.display   = 'flex';
+
       renderReservas(todasReservas);
     } catch (err) {
-      container.innerHTML = `<div class="card" style="text-align:center;color:#c62828;padding:2rem">
-        Error: ${escapeHtml(err.message)}</div>`;
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon" style="background:rgba(255,107,107,.1);color:var(--coral)">&#33;</div>
+          <h3>Error al cargar</h3>
+          <p>${escapeHtml(err.message)}</p>
+          <button class="btn btn-secondary" onclick="cargarReservas()">Reintentar</button>
+        </div>`;
     }
   }
 
+  /* ── Filter by state ─────────────────────────────────── */
   function filtrarEstado(estado, btn) {
-    document.querySelectorAll('.filtro-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    renderReservas(estado === 'TODAS' ? todasReservas : todasReservas.filter(r => r.estado === estado));
+    const lista = estado === 'TODAS'
+      ? todasReservas
+      : todasReservas.filter(r => r.estado === estado);
+    renderReservas(lista);
   }
 
+  /* ── Render cards ────────────────────────────────────── */
   function renderReservas(lista) {
     const container = document.getElementById('reservasContainer');
     if (!lista || lista.length === 0) {
-      container.innerHTML = `<div class="card" style="text-align:center;color:var(--gray-500);padding:2.5rem">
-        No hay reservas en este estado.</div>`;
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">&#128269;</div>
+          <h3>Sin resultados</h3>
+          <p>No hay reservas en este estado.</p>
+        </div>`;
       return;
     }
-    container.innerHTML = lista.map(r => {
-      const cfg = ESTADOS[r.estado] || ESTADOS.PENDIENTE;
-      const fechaRes = r.fechaReserva ? new Date(r.fechaReserva).toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'}) : null;
-      const fechaInm = r.inmersionFecha ? new Date(r.inmersionFecha).toLocaleDateString('es-ES',{day:'numeric',month:'long'}) : null;
+
+    container.innerHTML = lista.map((r, idx) => {
+      const cfg       = ESTADOS[r.estado] || ESTADOS.PENDIENTE;
+      const fechaRes  = r.fechaReserva
+        ? new Date(r.fechaReserva).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+        : null;
+      const fechaInm  = r.inmersionFecha
+        ? new Date(r.inmersionFecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+        : null;
       const puedeCancel = r.estado === 'PENDIENTE' || r.estado === 'CONFIRMADA';
+      const delay     = Math.min(idx * 50, 400);
+
       return `
-        <div class="reserva-card ${r.estado}">
-          <div class="reserva-header">
-            <div>
-              <div class="reserva-titulo">${escapeHtml(r.inmersionTitulo || 'Inmersión')}</div>
-              <div class="reserva-centro">${escapeHtml(r.centroBuceoNombre || 'Centro de buceo')}</div>
+        <div class="reserva-card ${r.estado}" data-reveal data-delay="${delay}">
+          <div class="card-body">
+            <div class="card-top">
+              <div class="card-top-left">
+                ${r.id ? `<div class="reserva-id">Reserva #${r.id}</div>` : ''}
+                <div class="reserva-titulo">${escapeHtml(r.inmersionTitulo || 'Inmersión')}</div>
+                <div class="reserva-centro">
+                  ${SVG.marker}
+                  ${escapeHtml(r.centroBuceoNombre || 'Centro de buceo')}
+                </div>
+              </div>
+              <span class="estado-badge estado-${r.estado}">
+                <span class="dot"></span>${cfg.label}
+              </span>
             </div>
-            <span class="estado-badge estado-${r.estado}">${cfg.label}</span>
           </div>
-          <div class="reserva-meta">
-            ${fechaRes ? `<span>Reservado el ${fechaRes}</span>` : ''}
-            ${fechaInm ? `<span>Inmersión: ${fechaInm}</span>` : ''}
-            ${r.numeroPersonas != null ? `<span>${r.numeroPersonas} persona${r.numeroPersonas !== 1 ? 's' : ''}</span>` : ''}
+
+          <div class="card-meta">
+            ${fechaRes  ? `<span class="meta-item">${SVG.calendar} Reservado el ${fechaRes}</span>` : ''}
+            ${fechaInm  ? `<span class="meta-item">${SVG.dive} Inmersión: ${fechaInm}</span>`       : ''}
+            ${r.numeroPersonas != null
+              ? `<span class="meta-item">${SVG.people} ${r.numeroPersonas} persona${r.numeroPersonas !== 1 ? 's' : ''}</span>`
+              : ''}
           </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.75rem">
-            ${r.precioTotal != null ? `<div class="reserva-precio">${r.precioTotal.toFixed(2)} &euro;</div>` : '<div></div>'}
-            ${puedeCancel ? `<button class="btn btn-danger btn-sm" onclick="pedirCancelacion(${r.id})">Cancelar</button>` : ''}
+
+          <div class="card-footer">
+            ${r.precioTotal != null
+              ? `<div class="reserva-precio">${r.precioTotal.toFixed(2)}&nbsp;&euro;<span>total</span></div>`
+              : '<div></div>'}
+            ${puedeCancel
+              ? `<button class="btn btn-danger btn-sm" onclick="pedirCancelacion(${r.id})">
+                   Cancelar reserva
+                 </button>`
+              : ''}
           </div>
         </div>`;
     }).join('');
   }
 
-  function pedirCancelacion(id) { reservaAcancelar = id; document.getElementById('modalCancelar').style.display = 'flex'; }
-  function cerrarModal() { reservaAcancelar = null; document.getElementById('modalCancelar').style.display = 'none'; }
+  /* ── Modal helpers ───────────────────────────────────── */
+  function pedirCancelacion(id) {
+    reservaAcancelar = id;
+    document.getElementById('modalCancelar').classList.add('open');
+  }
+
+  function cerrarModal() {
+    reservaAcancelar = null;
+    document.getElementById('modalCancelar').classList.remove('open');
+  }
 
   async function confirmarCancelacion() {
     if (!reservaAcancelar) return;
     const btn = document.getElementById('btnConfirmarCancelar');
-    btn.disabled = true; btn.textContent = 'Cancelando...';
+    btn.disabled    = true;
+    btn.textContent = 'Cancelando…';
     try {
       await fetchAPI(`/reservas/${reservaAcancelar}`, { method: 'DELETE' });
       cerrarModal();
@@ -207,10 +564,22 @@
       await cargarReservas();
     } catch (err) {
       showAlert(err.message || 'No se pudo cancelar.', 'error');
-    } finally { btn.disabled = false; btn.textContent = 'Confirmar cancelación'; }
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Confirmar cancelación';
+    }
   }
 
-  document.getElementById('modalCancelar').addEventListener('click', function(e) { if (e.target === this) cerrarModal(); });
+  /* close modal on overlay click */
+  document.getElementById('modalCancelar').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+  });
+
+  /* close modal on Escape */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarModal();
+  });
+
   cargarReservas();
 </script>
 <script src="/js/animations.js"></script>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feed - DiveConnect</title>
-    <link rel="stylesheet" href="/css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feed — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
 
@@ -12,54 +12,69 @@
 
 <div class="container">
 
-    <!-- Nueva publicación -->
-    <div class="card">
-        <form id="nuevaPublicacionForm">
-            <div class="form-group">
-                <textarea class="form-input" id="contenido"
-                    placeholder="¿Qué tal tu última inmersión? Comparte tu experiencia..."
-                    rows="3" required></textarea>
-            </div>
+  <!-- Header -->
+  <div style="margin-bottom:1.5rem" data-reveal>
+    <h2 style="font-family:'Outfit',sans-serif;font-size:1.5rem;font-weight:800;color:var(--text-0);letter-spacing:-0.02em">
+      Feed de la comunidad
+    </h2>
+    <p style="color:var(--text-2);font-size:.88rem;margin-top:.2rem">
+      Comparte tus experiencias y descubre las de otros buceadores
+    </p>
+  </div>
 
-            <button type="button" class="btn btn-secondary btn-sm mb-2" onclick="toggleDetalles()">
-                Añadir detalles de inmersión
-            </button>
+  <!-- Nueva publicacion -->
+  <div class="card" style="margin-bottom:1.5rem;border:1px solid var(--border-h)">
+    <form id="nuevaPublicacionForm">
+      <div class="form-group" style="margin-bottom:.75rem">
+        <textarea class="form-input" id="contenido"
+          placeholder="¿Que tal tu ultima inmersion? Comparte tu experiencia..."
+          rows="3" required style="resize:vertical;min-height:80px"></textarea>
+      </div>
 
-            <div id="detallesInmersion" class="hidden">
-                <div class="form-group">
-                    <label class="form-label">Lugar de inmersión</label>
-                    <input type="text" class="form-input" id="lugarInmersion"
-                           placeholder="Ej: Islas Medas, Costa Brava">
-                </div>
-                <div class="flex gap-2">
-                    <div class="form-group">
-                        <label class="form-label">Profundidad (m)</label>
-                        <input type="number" step="0.1" class="form-input" id="profundidadMaxima">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Temperatura (°C)</label>
-                        <input type="number" step="0.1" class="form-input" id="temperaturaAgua">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Visibilidad (m)</label>
-                        <input type="number" step="0.1" class="form-input" id="visibilidad">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Especies vistas</label>
-                    <input type="text" class="form-input" id="especiesVistas"
-                           placeholder="Ej: Meros, pulpos, barracudas">
-                </div>
-            </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:.75rem;flex-wrap:wrap">
+        <button type="button" class="btn btn-ghost btn-sm" onclick="toggleDetalles()" style="gap:.35rem">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Detalles de inmersion
+        </button>
+        <button type="submit" class="btn btn-primary btn-sm">
+          Publicar
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        </button>
+      </div>
 
-            <button type="submit" class="btn btn-primary">Publicar</button>
-        </form>
-    </div>
+      <div id="detallesInmersion" class="hidden" style="margin-top:1rem;padding:1rem;background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md)">
+        <div class="form-group">
+          <label class="form-label">Lugar de inmersion</label>
+          <input type="text" class="form-input" id="lugarInmersion"
+                 placeholder="Ej: Islas Medas, Costa Brava">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem">
+          <div class="form-group">
+            <label class="form-label">Profundidad (m)</label>
+            <input type="number" step="0.1" class="form-input" id="profundidadMaxima">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Temperatura</label>
+            <input type="number" step="0.1" class="form-input" id="temperaturaAgua">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Visibilidad (m)</label>
+            <input type="number" step="0.1" class="form-input" id="visibilidad">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Especies vistas</label>
+          <input type="text" class="form-input" id="especiesVistas"
+                 placeholder="Ej: Meros, pulpos, barracudas">
+        </div>
+      </div>
+    </form>
+  </div>
 
-    <!-- Lista de publicaciones -->
-    <div id="publicacionesContainer">
-        <div class="loading"><div class="spinner"></div></div>
-    </div>
+  <!-- Lista de publicaciones -->
+  <div id="publicacionesContainer">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
 
 </div>
 
@@ -68,51 +83,58 @@
 <script src="/js/nav.js"></script>
 <script src="/js/publicaciones.js"></script>
 <script>
-    requireAuth();
-    initNav();
+  requireAuth();
+  initNav();
 
-    function toggleDetalles() {
-        document.getElementById('detallesInmersion').classList.toggle('hidden');
+  function toggleDetalles() {
+    document.getElementById('detallesInmersion').classList.toggle('hidden');
+  }
+
+  async function loadFeed() {
+    const container = document.getElementById('publicacionesContainer');
+    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+    try {
+      const lista = await getFeed();
+      if (!lista || lista.length === 0) {
+        container.innerHTML = `<div class="card text-center" style="padding:3rem;color:var(--text-2)">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:.4;margin:0 auto 1rem;display:block">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+          <p style="font-weight:600;color:var(--text-1);margin-bottom:.25rem">No hay publicaciones aun</p>
+          <p style="font-size:.85rem">Se el primero en compartir tu experiencia</p>
+        </div>`;
+      } else {
+        container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
+      }
+    } catch (err) {
+      container.innerHTML = `<div class="card text-center" style="padding:2rem;color:var(--coral)">
+        Error al cargar publicaciones: ${escapeHtml(err.message)}</div>`;
     }
+  }
 
-    async function loadFeed() {
-        const container = document.getElementById('publicacionesContainer');
-        container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-        try {
-            const lista = await getFeed();
-            if (!lista || lista.length === 0) {
-                container.innerHTML = '<div class="card text-center">No hay publicaciones aún. ¡Sé el primero!</div>';
-            } else {
-                container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
-            }
-        } catch (err) {
-            container.innerHTML = '<div class="card text-center">Error al cargar publicaciones.</div>';
-        }
+  document.getElementById('nuevaPublicacionForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+      contenido:         document.getElementById('contenido').value.trim(),
+      lugarInmersion:    document.getElementById('lugarInmersion').value.trim() || null,
+      profundidadMaxima: parseFloat(document.getElementById('profundidadMaxima').value) || null,
+      temperaturaAgua:   parseFloat(document.getElementById('temperaturaAgua').value) || null,
+      visibilidad:       parseFloat(document.getElementById('visibilidad').value) || null,
+      especiesVistas:    document.getElementById('especiesVistas').value.trim() || null,
+    };
+    if (!data.contenido) { showAlert('El contenido no puede estar vacio', 'error'); return; }
+    try {
+      await createPublicacion(data);
+      showAlert('Publicacion creada!', 'success');
+      document.getElementById('nuevaPublicacionForm').reset();
+      document.getElementById('detallesInmersion').classList.add('hidden');
+      await loadFeed();
+    } catch (err) {
+      showAlert(err.message || 'Error al publicar', 'error');
     }
+  });
 
-    document.getElementById('nuevaPublicacionForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const data = {
-            contenido:         document.getElementById('contenido').value.trim(),
-            lugarInmersion:    document.getElementById('lugarInmersion').value.trim() || null,
-            profundidadMaxima: parseFloat(document.getElementById('profundidadMaxima').value) || null,
-            temperaturaAgua:   parseFloat(document.getElementById('temperaturaAgua').value) || null,
-            visibilidad:       parseFloat(document.getElementById('visibilidad').value) || null,
-            especiesVistas:    document.getElementById('especiesVistas').value.trim() || null,
-        };
-        if (!data.contenido) { showAlert('El contenido no puede estar vacío', 'error'); return; }
-        try {
-            await createPublicacion(data);
-            showAlert('¡Publicación creada!', 'success');
-            document.getElementById('nuevaPublicacionForm').reset();
-            document.getElementById('detallesInmersion').classList.add('hidden');
-            await loadFeed();
-        } catch (err) {
-            showAlert(err.message || 'Error al publicar', 'error');
-        }
-    });
-
-    loadFeed();
+  loadFeed();
 </script>
 <script src="/js/animations.js"></script>
 </body>

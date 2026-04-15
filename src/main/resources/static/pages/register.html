@@ -9,12 +9,18 @@
 <body>
 <div class="auth-page">
 
-  <!-- Panel izquierdo — imagen -->
+  <!-- Panel izquierdo -->
   <div class="auth-left">
-    <div class="auth-left-logo">Dive<span>Connect</span></div>
+    <div class="auth-left-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2EC4B6" stroke-width="2.5">
+        <path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+        <path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>
+      </svg>
+      Dive<span>Connect</span>
+    </div>
 
     <div class="auth-left-content">
-      <h2>Únete a la comunidad<br>submarina</h2>
+      <h2>Unete a la comunidad submarina</h2>
       <p>Crea tu cuenta gratis y empieza a compartir tus aventuras bajo el agua con miles de buceadores.</p>
       <div class="auth-left-features">
         <div class="auth-left-feature">
@@ -27,7 +33,7 @@
         </div>
         <div class="auth-left-feature">
           <div class="auth-left-feature-dot"></div>
-          Accede a inmersiones verificadas en toda España
+          Accede a inmersiones verificadas en toda Espana
         </div>
         <div class="auth-left-feature">
           <div class="auth-left-feature-dot"></div>
@@ -43,13 +49,12 @@
 
       <div class="auth-logo">
         <h1 class="auth-title">Crear Cuenta</h1>
-        <p class="auth-subtitle">Únete a DiveConnect — es completamente gratis</p>
+        <p class="auth-subtitle">Unete a DiveConnect — es completamente gratis</p>
       </div>
 
       <div id="alertContainer"></div>
 
       <form id="registerForm">
-        <!-- Tipo de cuenta -->
         <div class="form-group">
           <label class="form-label">Tipo de cuenta</label>
           <select id="tipoUsuario" class="form-input" onchange="toggleEmpresaFields()">
@@ -58,7 +63,6 @@
           </select>
         </div>
 
-        <!-- Campos empresa (ocultos por defecto) -->
         <div id="empresaFields" class="empresa-fields" style="display:none">
           <div class="form-group">
             <label class="form-label">Nombre de la empresa</label>
@@ -77,25 +81,28 @@
           <input id="email" class="form-input" type="email"
                  placeholder="correo@ejemplo.com" required autocomplete="email">
         </div>
-        <div class="form-group">
-          <label class="form-label">Contraseña</label>
-          <input id="password" class="form-input" type="password"
-                 placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Confirmar contraseña</label>
-          <input id="confirmPassword" class="form-input" type="password"
-                 placeholder="Repite la contraseña" required autocomplete="new-password">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+          <div class="form-group">
+            <label class="form-label">Contrasena</label>
+            <input id="password" class="form-input" type="password"
+                   placeholder="Min. 6 caracteres" required minlength="6" autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirmar</label>
+            <input id="confirmPassword" class="form-input" type="password"
+                   placeholder="Repite contrasena" required autocomplete="new-password">
+          </div>
         </div>
 
-        <button type="submit" id="submitBtn" class="btn btn-primary w-full" style="margin-top:.5rem">
+        <button type="submit" id="submitBtn" class="btn btn-primary w-full" style="margin-top:.75rem;padding:.8rem">
           Crear Cuenta Gratis
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </form>
 
       <div class="auth-footer">
         ¿Ya tienes cuenta?
-        <a href="/pages/login.html">Inicia sesión aquí</a>
+        <a href="/pages/login.html">Inicia sesion aqui</a>
       </div>
     </div>
   </div>
@@ -120,7 +127,7 @@
     const confirm  = document.getElementById('confirmPassword').value;
 
     if (password !== confirm) {
-      showAlert('Las contraseñas no coinciden', 'error');
+      showAlert('Las contrasenas no coinciden', 'error');
       return;
     }
 
@@ -141,12 +148,12 @@
 
     try {
       await registrarUsuario(payload);
-      showAlert('¡Cuenta creada correctamente! Redirigiendo al login...', 'success');
+      showAlert('Cuenta creada correctamente! Redirigiendo al login...', 'success');
       setTimeout(() => window.location.href = '/pages/login.html', 2000);
     } catch (err) {
       showAlert(err.message || 'Error al registrarse', 'error');
       btn.disabled = false;
-      btn.textContent = 'Crear Cuenta Gratis';
+      btn.innerHTML = 'Crear Cuenta Gratis <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
     }
   });
 </script>
