@@ -6,12 +6,12 @@
   <title>Mi Perfil — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
   <style>
+    /* ── Profile Hero ───────────────────────────────────────── */
     .perfil-hero {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: var(--r-xl);
       padding: 2.5rem;
-      color: var(--text-0);
       margin-bottom: 1.5rem;
       position: relative;
       overflow: hidden;
@@ -20,68 +20,186 @@
       content: '';
       position: absolute;
       top: -80px; right: -80px;
-      width: 300px; height: 300px;
+      width: 320px; height: 320px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(46,196,182,0.08), transparent 70%);
+      background: radial-gradient(circle, rgba(46,196,182,0.07), transparent 70%);
       pointer-events: none;
     }
+    .perfil-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,107,107,0.05), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Top row: avatar + info ─────────────────────────────── */
     .perfil-top {
-      display: flex; align-items: center; gap: 1.5rem;
-      flex-wrap: wrap; position: relative; z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      gap: 1.75rem;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
     }
     .perfil-avatar {
-      width: 88px; height: 88px; border-radius: 50%;
+      width: 92px; height: 92px;
+      border-radius: 50%;
       background: linear-gradient(135deg, var(--turquoise), #0E4D64);
       display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; font-weight: 800; color: var(--bg-0);
+      font-size: 2.1rem; font-weight: 800;
+      color: var(--bg-0);
       flex-shrink: 0;
-      border: 3px solid rgba(46,196,182,0.25);
-      box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+      border: 3px solid rgba(46,196,182,0.28);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35);
     }
-    .perfil-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+    .perfil-avatar img {
+      width: 100%; height: 100%;
+      border-radius: 50%; object-fit: cover;
+    }
     .perfil-info { flex: 1; min-width: 200px; }
     .perfil-username {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.5rem; font-weight: 700;
-      letter-spacing: -0.02em; margin-bottom: .15rem;
+      font-size: 1.55rem; font-weight: 700;
+      letter-spacing: -0.025em;
       color: var(--text-0);
+      margin-bottom: .3rem;
     }
+    .perfil-tags { display: flex; flex-wrap: wrap; gap: .35rem; margin-bottom: .5rem; }
     .perfil-tag {
-      display: inline-flex; align-items: center; gap: .35rem;
+      display: inline-flex; align-items: center; gap: .3rem;
       background: rgba(46,196,182,0.1);
-      border: 1px solid rgba(46,196,182,0.18);
+      border: 1px solid rgba(46,196,182,0.2);
       border-radius: var(--r-full);
-      padding: .2rem .75rem;
-      font-size: .76rem; font-weight: 600;
+      padding: .2rem .8rem;
+      font-size: .75rem; font-weight: 600;
       color: var(--turquoise);
-      margin-right: .35rem; margin-bottom: .5rem;
+    }
+    .perfil-email {
+      font-size: .8rem;
+      color: var(--text-2);
+      margin-bottom: .4rem;
     }
     .perfil-bio {
-      font-size: .88rem; color: var(--text-1);
-      line-height: 1.65; max-width: 500px;
+      font-size: .875rem;
+      color: var(--text-1);
+      line-height: 1.65;
+      max-width: 520px;
+      margin: 0;
     }
+
+    /* ── Stats bar ──────────────────────────────────────────── */
     .perfil-stats {
-      display: flex; gap: 0; margin-top: 2rem;
-      padding-top: 1.5rem; border-top: 1px solid var(--border);
+      display: flex;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
       position: relative; z-index: 1;
     }
     .perfil-stat {
-      flex: 1; text-align: center;
+      flex: 1;
+      text-align: center;
       border-right: 1px solid var(--border);
+      padding: .25rem 0;
     }
     .perfil-stat:last-child { border-right: none; }
     .perfil-stat-num {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.7rem; font-weight: 800;
-      color: var(--turquoise); line-height: 1; margin-bottom: .15rem;
+      font-size: 1.75rem; font-weight: 800;
+      color: var(--turquoise);
+      line-height: 1;
+      margin-bottom: .2rem;
     }
-    .perfil-stat-label { font-size: .73rem; color: var(--text-2); }
+    .perfil-stat-label {
+      font-size: .72rem;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
 
-    .section-title-sm {
+    /* ── Section labels ─────────────────────────────────────── */
+    .section-label {
       font-family: 'Outfit', sans-serif;
-      font-size: 1.02rem; font-weight: 700;
+      font-size: .72rem; font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
       color: var(--turquoise);
       margin-bottom: 1rem;
+    }
+
+    /* ── Edit form card ─────────────────────────────────────── */
+    .edit-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-xl);
+      padding: 1.75rem 2rem;
+      margin-bottom: 1.5rem;
+    }
+    .edit-card-header {
+      display: flex; align-items: center; gap: .6rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: .9rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .edit-card-icon {
+      width: 32px; height: 32px;
+      background: rgba(46,196,182,0.1);
+      border: 1px solid rgba(46,196,182,0.2);
+      border-radius: var(--r-sm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .95rem;
+    }
+    .edit-card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: .95rem; font-weight: 700;
+      color: var(--text-0);
+    }
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 540px) {
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    /* ── Reservations list ──────────────────────────────────── */
+    .reserva-row {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: .75rem;
+      padding: .9rem 1.25rem;
+      margin-bottom: .6rem;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .reserva-row:hover {
+      border-color: var(--border-h);
+      box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    }
+    .reserva-titulo {
+      font-weight: 700;
+      color: var(--text-0);
+      font-size: .9rem;
+      margin-bottom: .15rem;
+    }
+    .reserva-meta {
+      font-size: .76rem;
+      color: var(--text-2);
+    }
+    .reserva-precio { color: var(--turquoise); font-weight: 700; }
+    .estado-badge {
+      padding: .25rem .8rem;
+      border-radius: var(--r-full);
+      font-size: .72rem; font-weight: 700;
+      white-space: nowrap;
+      letter-spacing: .03em;
     }
   </style>
 </head>
@@ -89,21 +207,26 @@
 
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="container">
+<div class="container" style="max-width:760px">
 
+  <!-- ── Profile Hero ── -->
   <div class="perfil-hero" id="perfilHero">
-    <div class="loading" style="color:rgba(255,255,255,.7)"><div class="spinner"></div></div>
+    <div class="loading" style="color:var(--text-2)"><div class="spinner"></div></div>
   </div>
 
-  <div class="card">
-    <div class="section-title-sm">Editar perfil</div>
+  <!-- ── Edit Form ── -->
+  <div class="edit-card">
+    <div class="edit-card-header">
+      <div class="edit-card-icon">✏️</div>
+      <div class="edit-card-title">Editar perfil</div>
+    </div>
     <form id="editForm">
       <div class="form-group">
         <label class="form-label">Biografía</label>
         <textarea id="biografia" class="form-input" rows="3"
           placeholder="Cuéntanos sobre tu experiencia como buceador..."></textarea>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div class="form-grid-2">
         <div class="form-group">
           <label class="form-label">Nivel de Certificación</label>
           <input id="nivel" class="form-input" type="text" placeholder="Ej: Open Water, Advanced...">
@@ -117,10 +240,12 @@
     </form>
   </div>
 
-  <div class="section-title-sm" style="margin-top:.5rem">Mis publicaciones</div>
+  <!-- ── Publications ── -->
+  <div class="section-label" style="margin-top:.25rem">Mis publicaciones</div>
   <div id="misPublicaciones"><div class="loading"><div class="spinner"></div></div></div>
 
-  <div class="section-title-sm" style="margin-top:1.5rem">Reservas recientes</div>
+  <!-- ── Reservations ── -->
+  <div class="section-label" style="margin-top:1.75rem">Reservas recientes</div>
   <div id="misReservas"><div class="loading"><div class="spinner"></div></div></div>
 
 </div>
@@ -145,9 +270,9 @@
         : `<div class="perfil-avatar">${inicial}</div>`;
 
       const tipoLabel = {
-        USUARIO_COMUN: 'Buceador',
-        USUARIO_EMPRESA: 'Empresa',
-        ADMINISTRADOR: 'Administrador'
+        USUARIO_COMUN:  'Buceador',
+        USUARIO_EMPRESA:'Empresa',
+        ADMINISTRADOR:  'Administrador'
       }[user.tipoUsuario] || 'Buceador';
 
       hero.innerHTML = `
@@ -155,12 +280,12 @@
           ${avatarHtml}
           <div class="perfil-info">
             <div class="perfil-username">@${escapeHtml(user.username)}</div>
-            <div>
+            <div class="perfil-tags">
               <span class="perfil-tag">${tipoLabel}</span>
               ${user.nivelCertificacion ? `<span class="perfil-tag">${escapeHtml(user.nivelCertificacion)}</span>` : ''}
             </div>
-            ${user.email ? `<div style="font-size:.8rem;color:rgba(255,255,255,.5);margin-top:.3rem">${escapeHtml(user.email)}</div>` : ''}
-            ${user.biografia ? `<p class="perfil-bio" style="margin-top:.5rem">${escapeHtml(user.biografia)}</p>` : ''}
+            ${user.email ? `<div class="perfil-email">${escapeHtml(user.email)}</div>` : ''}
+            ${user.biografia ? `<p class="perfil-bio">${escapeHtml(user.biografia)}</p>` : ''}
           </div>
         </div>
         <div class="perfil-stats">
@@ -186,7 +311,7 @@
       document.getElementById('nivel').value          = user.nivelCertificacion || '';
       document.getElementById('numInmersiones').value = user.numeroInmersiones  || 0;
     } catch (err) {
-      hero.innerHTML = `<p style="color:rgba(255,255,255,.7);padding:1rem">
+      hero.innerHTML = `<p style="color:var(--text-2);padding:1rem">
         Error al cargar el perfil: ${escapeHtml(err.message)}</p>`;
     }
   }
@@ -198,13 +323,13 @@
       if (!user.id) { container.innerHTML = ''; return; }
       const lista = await fetchAPI(`/publicaciones/usuario/${user.id}`);
       if (!lista || lista.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center;color:var(--gray-500);padding:2rem">
-          No has publicado nada todavía. <a href="/pages/feed.html" style="color:var(--ocean-600)">Ir al feed</a></div>`;
+        container.innerHTML = `<div class="card" style="text-align:center;color:var(--text-2);padding:2rem">
+          No has publicado nada todavía. <a href="/pages/feed.html" style="color:var(--turquoise)">Ir al feed</a></div>`;
       } else {
         container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
       }
     } catch (err) {
-      container.innerHTML = `<div style="color:#c62828">Error: ${escapeHtml(err.message)}</div>`;
+      container.innerHTML = `<div style="color:var(--coral)">Error: ${escapeHtml(err.message)}</div>`;
     }
   }
 
@@ -213,38 +338,41 @@
     try {
       const lista = await fetchAPI('/reservas/mis-reservas');
       if (!lista || lista.length === 0) {
-        container.innerHTML = `<div class="card" style="text-align:center;color:var(--gray-500);padding:1.5rem">
-          No tienes reservas. <a href="/pages/Inmersiones.html" style="color:var(--ocean-600)">Ver inmersiones</a></div>`;
+        container.innerHTML = `<div class="card" style="text-align:center;color:var(--text-2);padding:1.5rem">
+          No tienes reservas. <a href="/pages/Inmersiones.html" style="color:var(--turquoise)">Ver inmersiones</a></div>`;
         return;
       }
       const estadoStyle = {
-        PENDIENTE:  'background:#FEF3C7;color:#92400E',
-        CONFIRMADA: 'background:#DCFCE7;color:#166534',
-        CANCELADA:  'background:#FEE2E2;color:#991B1B',
-        COMPLETADA: 'background:#DBEAFE;color:#1E40AF'
+        PENDIENTE:  { background: 'rgba(255,209,102,0.12)', color: '#FFD166' },
+        CONFIRMADA: { background: 'rgba(46,196,182,0.12)',  color: '#2EC4B6' },
+        CANCELADA:  { background: 'rgba(255,107,107,0.12)', color: '#FF6B6B' },
+        COMPLETADA: { background: 'rgba(100,180,255,0.12)', color: '#64B4FF' }
       };
       const recientes = lista.slice(0, 5);
       container.innerHTML = recientes.map(r => {
         const estilo = estadoStyle[r.estado] || estadoStyle.PENDIENTE;
-        const fecha  = r.fechaReserva ? new Date(r.fechaReserva).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'}) : '';
+        const fecha  = r.fechaReserva
+          ? new Date(r.fechaReserva).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })
+          : '';
+        const badgeStyle = `background:${estilo.background};color:${estilo.color};border:1px solid ${estilo.color}33`;
         return `
-          <div class="card" style="display:flex;justify-content:space-between;align-items:center;
-              flex-wrap:wrap;gap:.75rem;margin-bottom:.65rem;padding:1rem 1.35rem">
+          <div class="reserva-row">
             <div>
-              <div style="font-weight:700;color:var(--gray-900);margin-bottom:.1rem">
-                ${escapeHtml(r.inmersionTitulo || 'Inmersión')}</div>
-              <div style="font-size:.78rem;color:var(--gray-500)">
-                ${fecha}${r.precioTotal != null ? ` &middot; <strong style="color:var(--ocean-700)">${r.precioTotal.toFixed(2)}&euro;</strong>` : ''}</div>
+              <div class="reserva-titulo">${escapeHtml(r.inmersionTitulo || 'Inmersión')}</div>
+              <div class="reserva-meta">
+                ${fecha}${r.precioTotal != null
+                  ? ` &middot; <span class="reserva-precio">${r.precioTotal.toFixed(2)}&euro;</span>`
+                  : ''}
+              </div>
             </div>
-            <span style="${estilo};padding:.25rem .7rem;border-radius:var(--radius-full);
-                         font-size:.73rem;font-weight:700;white-space:nowrap">${r.estado}</span>
+            <span class="estado-badge" style="${badgeStyle}">${r.estado}</span>
           </div>`;
       }).join('') + (lista.length > 5
-        ? `<div style="text-align:center;margin-top:.5rem">
+        ? `<div style="text-align:center;margin-top:.75rem">
              <a href="/pages/reservas.html" class="btn btn-secondary btn-sm">Ver todas (${lista.length})</a></div>`
         : '');
     } catch (err) {
-      container.innerHTML = `<div style="color:#c62828">Error: ${escapeHtml(err.message)}</div>`;
+      container.innerHTML = `<div style="color:var(--coral)">Error: ${escapeHtml(err.message)}</div>`;
     }
   }
 

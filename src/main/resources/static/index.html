@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DiveConnect — La plataforma de la comunidad submarina</title>
+  <meta name="description" content="Conecta con buceadores, descubre centros verificados y registra cada inmersión. La plataforma definitiva del submarinismo en España.">
   <link rel="stylesheet" href="/css/style.css">
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -13,213 +14,300 @@
 </head>
 <body>
 
+  <!-- Cursor glow effect -->
   <div class="cursor-glow"></div>
 
-  <!-- HERO -->
+  <!-- ═══════════════════════════════════════════════════════
+       HERO — Full viewport
+  ═══════════════════════════════════════════════════════ -->
   <div class="landing-container">
-    <div class="bubble" style="left:8%;width:6px;height:6px;animation-duration:12s;animation-delay:0s"></div>
-    <div class="bubble" style="left:18%;width:10px;height:10px;animation-duration:16s;animation-delay:2s"></div>
-    <div class="bubble" style="left:35%;width:4px;height:4px;animation-duration:10s;animation-delay:4s"></div>
-    <div class="bubble" style="left:52%;width:8px;height:8px;animation-duration:14s;animation-delay:1s"></div>
-    <div class="bubble" style="left:68%;width:5px;height:5px;animation-duration:11s;animation-delay:3s"></div>
-    <div class="bubble" style="left:82%;width:12px;height:12px;animation-duration:18s;animation-delay:5s"></div>
-    <div class="bubble" style="left:92%;width:7px;height:7px;animation-duration:13s;animation-delay:2.5s"></div>
-    <div class="bubble" style="left:45%;width:3px;height:3px;animation-duration:9s;animation-delay:6s"></div>
 
-    <div class="landing-badge" data-reveal="scale" data-delay="100">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
+    <!-- Bubble particles -->
+    <div class="bubble" style="left:5%;width:5px;height:5px;animation-duration:14s;animation-delay:0s"></div>
+    <div class="bubble" style="left:14%;width:9px;height:9px;animation-duration:18s;animation-delay:1.5s"></div>
+    <div class="bubble" style="left:28%;width:4px;height:4px;animation-duration:11s;animation-delay:3.5s"></div>
+    <div class="bubble" style="left:42%;width:7px;height:7px;animation-duration:16s;animation-delay:0.8s"></div>
+    <div class="bubble" style="left:58%;width:3px;height:3px;animation-duration:9s;animation-delay:5s"></div>
+    <div class="bubble" style="left:71%;width:11px;height:11px;animation-duration:20s;animation-delay:2.2s"></div>
+    <div class="bubble" style="left:85%;width:6px;height:6px;animation-duration:13s;animation-delay:4s"></div>
+    <div class="bubble" style="left:94%;width:8px;height:8px;animation-duration:15s;animation-delay:1s"></div>
+
+    <!-- Badge -->
+    <div class="landing-badge" data-reveal="scale" data-delay="80">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4l3 3"/>
       </svg>
       Plataforma activa desde 2026
     </div>
 
-    <h1 data-reveal data-delay="200">Dive<span>Connect</span></h1>
+    <!-- Main heading -->
+    <h1 data-reveal data-delay="180" data-parallax="0.15">
+      Dive<span>Connect</span>
+    </h1>
 
-    <p class="landing-subtitle" data-reveal data-delay="350">
-      La plataforma que conecta a buceadores, centros de buceo y apasionados
-      del submarinismo. Comparte experiencias, descubre nuevos spots y reserva
-      tus proximas inmersiones.
+    <!-- Subtitle -->
+    <p class="landing-subtitle" data-reveal data-delay="320" data-parallax="0.08">
+      La plataforma que conecta buceadores, centros de buceo y apasionados<br>
+      del submarinismo. Comparte experiencias, descubre nuevos spots<br>
+      y reserva tus próximas inmersiones.
     </p>
 
-    <div class="landing-buttons" data-reveal data-delay="500">
+    <!-- CTA buttons -->
+    <div class="landing-buttons" data-reveal data-delay="460">
       <a href="/pages/register.html" class="btn btn-primary btn-xl btn-magnetic">
-        Empezar ahora
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        Empezar gratis
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
       </a>
       <a href="/pages/login.html" class="btn btn-ghost btn-xl">
-        Tengo una cuenta
+        Ya tengo cuenta
       </a>
     </div>
 
-    <div class="landing-features" data-stagger="100">
+    <!-- Feature pills -->
+    <div class="landing-features" data-stagger="80" data-delay="600">
       <div class="landing-feature">
         <div class="feat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+          </svg>
         </div>
-        <span>Inmersiones</span>
+        <span>Diario digital</span>
       </div>
       <div class="landing-feature">
         <div class="feat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="10" r="3"/>
+            <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/>
+          </svg>
         </div>
         <span>Descubre spots</span>
       </div>
       <div class="landing-feature">
         <div class="feat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
         </div>
         <span>Reserva online</span>
       </div>
       <div class="landing-feature">
         <div class="feat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
         </div>
         <span>Comunidad</span>
       </div>
     </div>
 
-    <div class="landing-wave">
-      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" style="width:100%;height:80px;display:block">
-        <path fill="var(--bg-0)" d="M0,40 C360,80 720,0 1080,50 C1260,75 1380,30 1440,40 L1440,100 L0,100 Z"/>
+    <!-- Wave divider -->
+    <div class="wave-divider">
+      <svg viewBox="0 0 1440 110" preserveAspectRatio="none" style="width:100%;height:90px;display:block" aria-hidden="true">
+        <path fill="var(--bg-0)" d="M0,50 C240,90 480,10 720,55 C960,100 1200,20 1440,50 L1440,110 L0,110 Z"/>
       </svg>
     </div>
-  </div>
+  </div><!-- /landing-container -->
 
-  <!-- FEATURES -->
-  <section style="padding:6rem 1.5rem;background:var(--bg-0)">
-    <div style="max-width:1140px;margin:0 auto;text-align:center">
-      <span class="section-label" data-reveal>Funcionalidades</span>
-      <h2 class="section-title" data-reveal data-delay="100" style="margin:0 auto .85rem">
-        Todo lo que necesitas en una sola plataforma
-      </h2>
-      <p class="section-desc" data-reveal data-delay="200" style="margin:0 auto 3.5rem">
-        Diseñada para buceadores que quieren sacar el maximo partido a cada inmersion.
-      </p>
 
-      <div class="features-grid" data-reveal data-delay="300">
-        <div class="feature-card">
+  <!-- ═══════════════════════════════════════════════════════
+       FEATURES — 6-card grid
+  ═══════════════════════════════════════════════════════ -->
+  <section style="padding:7rem 1.5rem 6rem;background:var(--bg-0)">
+    <div style="max-width:1160px;margin:0 auto">
+
+      <div style="text-align:center;margin-bottom:4rem">
+        <span class="section-label" data-reveal>Funcionalidades</span>
+        <h2 class="section-title" data-reveal data-delay="120" style="margin:0 auto .9rem">
+          Todo lo que necesitas<br>en una sola plataforma
+        </h2>
+        <p class="section-desc" data-reveal data-delay="240" style="margin:0 auto">
+          Diseñada para buceadores que quieren sacar el máximo partido a cada inmersión,<br>
+          desde el primer registro hasta la reserva del siguiente viaje.
+        </p>
+      </div>
+
+      <div class="features-grid" data-stagger="60">
+
+        <div class="feature-card" data-reveal data-delay="0">
           <div class="feature-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="1.8" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+            </svg>
           </div>
           <h3>Diario de Inmersiones</h3>
-          <p>Registra cada inmersion con profundidad, temperatura, visibilidad y las especies avistadas. Tu historial siempre accesible.</p>
+          <p>Registra cada inmersión con profundidad, temperatura, visibilidad y las especies avistadas. Tu historial siempre accesible desde cualquier dispositivo.</p>
         </div>
-        <div class="feature-card">
+
+        <div class="feature-card" data-reveal data-delay="60">
           <div class="feature-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="1.8" aria-hidden="true">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
           </div>
           <h3>Red Social</h3>
-          <p>Sigue a otros buceadores, comenta sus experiencias y comparte las tuyas con toda la comunidad.</p>
+          <p>Sigue a otros buceadores, comenta sus experiencias y comparte las tuyas con toda la comunidad. Conexiones reales entre apasionados del mar.</p>
         </div>
-        <div class="feature-card">
+
+        <div class="feature-card" data-reveal data-delay="120">
           <div class="feature-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="1.8" aria-hidden="true">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
           </div>
           <h3>Centros Verificados</h3>
-          <p>Directorio de centros de buceo con certificaciones, valoraciones y contacto directo para reservar.</p>
+          <p>Directorio curado de centros de buceo con certificaciones, valoraciones reales y contacto directo para reservar sin intermediarios.</p>
         </div>
-        <div class="feature-card">
+
+        <div class="feature-card" data-reveal data-delay="180">
           <div class="feature-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="1.8" aria-hidden="true">
+              <rect x="3" y="4" width="18" height="18" rx="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18"/>
+            </svg>
           </div>
           <h3>Reservas Online</h3>
-          <p>Reserva inmersiones directamente desde la plataforma. Gestion en tiempo real para centros y usuarios.</p>
+          <p>Reserva inmersiones directamente desde la plataforma. Gestión en tiempo real para centros y confirmación instantánea para los usuarios.</p>
         </div>
-        <div class="feature-card">
+
+        <div class="feature-card" data-reveal data-delay="240">
           <div class="feature-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="1.8" aria-hidden="true">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <path d="M8 21h8M12 17v4"/>
+            </svg>
           </div>
           <h3>Panel de Empresa</h3>
-          <p>Herramientas profesionales para centros de buceo: gestion de inmersiones, clientes y estadisticas.</p>
+          <p>Herramientas profesionales para centros: gestión de inmersiones, clientes, estadísticas de reservas y visibilidad ampliada en la plataforma.</p>
         </div>
-        <div class="feature-card">
+
+        <div class="feature-card" data-reveal data-delay="300">
           <div class="feature-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--turquoise)" stroke-width="1.8" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
           </div>
           <h3>Seguridad</h3>
-          <p>Autenticacion JWT, roles diferenciados y cifrado de datos. Tu informacion siempre protegida.</p>
+          <p>Autenticación JWT, roles diferenciados y cifrado de datos en cada capa. Tu información siempre bajo control, siempre protegida.</p>
         </div>
+
       </div>
     </div>
   </section>
 
-  <!-- PASOS -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       STEPS — Cómo funciona
+  ═══════════════════════════════════════════════════════ -->
   <section class="steps-section">
-    <div style="max-width:1140px;margin:0 auto;text-align:center">
-      <span class="section-label" data-reveal>Como funciona</span>
-      <h2 class="section-title" data-reveal data-delay="100" style="color:var(--text-0);margin:0 auto .85rem">
+    <div style="max-width:1160px;margin:0 auto;text-align:center">
+      <span class="section-label" data-reveal>Cómo funciona</span>
+      <h2 class="section-title" data-reveal data-delay="120" style="color:var(--text-0);margin:0 auto .9rem">
         Empieza en tres sencillos pasos
       </h2>
-      <p class="section-desc" data-reveal data-delay="200" style="color:var(--text-1);margin:0 auto">
-        Unete a la comunidad de submarinistas de Espana en cuestion de minutos.
+      <p class="section-desc" data-reveal data-delay="240" style="color:var(--text-1);margin:0 auto">
+        Únete a la comunidad de submarinistas de España en cuestión de minutos.
       </p>
     </div>
 
-    <div class="steps-grid" data-stagger="120">
-      <div class="step-card" data-tilt>
-        <div class="step-number">1</div>
+    <div class="steps-grid" data-stagger="130">
+
+      <div class="step-card" data-reveal="scale" data-delay="0" data-tilt>
+        <div class="step-number">01</div>
         <h3>Crea tu cuenta</h3>
-        <p>Registrate como buceador o como centro de buceo. Personaliza tu perfil con tu experiencia y certificaciones.</p>
+        <p>Regístrate como buceador o como centro de buceo. Personaliza tu perfil con tu experiencia, certificaciones y zonas de buceo favoritas.</p>
       </div>
-      <div class="step-card" data-tilt>
-        <div class="step-number">2</div>
+
+      <div class="step-card" data-reveal="scale" data-delay="130" data-tilt>
+        <div class="step-number">02</div>
         <h3>Explora y conecta</h3>
-        <p>Descubre inmersiones, sigue a otros buceadores y comparte tus experiencias en el feed de la comunidad.</p>
+        <p>Descubre inmersiones de la comunidad, sigue a otros buceadores y comparte tus propias experiencias en el feed en tiempo real.</p>
       </div>
-      <div class="step-card" data-tilt>
-        <div class="step-number">3</div>
+
+      <div class="step-card" data-reveal="scale" data-delay="260" data-tilt>
+        <div class="step-number">03</div>
         <h3>Reserva y bucea</h3>
-        <p>Encuentra el centro perfecto, reserva tu plaza online y disfruta de la mejor experiencia submarina.</p>
+        <p>Encuentra el centro perfecto, reserva tu plaza online con un clic y disfruta de la mejor experiencia submarina que España tiene para ofrecer.</p>
       </div>
+
     </div>
   </section>
 
-  <!-- STATS -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       STATS — Cifras de la plataforma
+  ═══════════════════════════════════════════════════════ -->
   <section class="stats-landing">
-    <div style="max-width:1140px;margin:0 auto;text-align:center">
+    <div style="max-width:1160px;margin:0 auto;text-align:center">
       <span class="section-label" data-reveal>La plataforma en cifras</span>
-      <h2 class="section-title" data-reveal data-delay="100" style="margin:0 auto .85rem">Una comunidad en crecimiento constante</h2>
+      <h2 class="section-title" data-reveal data-delay="120" style="margin:0 auto .9rem">
+        Una comunidad en crecimiento constante
+      </h2>
+      <p class="section-desc" data-reveal data-delay="240" style="margin:0 auto">
+        Buceadores, centros e inmersiones que confían en DiveConnect cada día.
+      </p>
+    </div>
 
-      <div class="stats-landing-grid" data-stagger="100" style="margin-top:3.5rem">
-        <div class="stat-landing-card" data-tilt>
-          <div class="stat-landing-number" data-count-to="2400" data-count-suffix="+">0</div>
-          <div class="stat-landing-label">Buceadores activos</div>
-          <div class="stat-landing-desc">Comunidad en crecimiento</div>
-        </div>
-        <div class="stat-landing-card" data-tilt>
-          <div class="stat-landing-number" data-count-to="320" data-count-suffix="+">0</div>
-          <div class="stat-landing-label">Centros verificados</div>
-          <div class="stat-landing-desc">En toda la costa espanola</div>
-        </div>
-        <div class="stat-landing-card" data-tilt>
-          <div class="stat-landing-number" data-count-to="18000" data-count-suffix="+">0</div>
-          <div class="stat-landing-label">Inmersiones registradas</div>
-          <div class="stat-landing-desc">Y subiendo cada dia</div>
-        </div>
-        <div class="stat-landing-card" data-tilt>
-          <div class="stat-landing-number" data-count-to="4.9">0</div>
-          <div class="stat-landing-label">Valoracion media</div>
-          <div class="stat-landing-desc">Satisfaccion de usuarios</div>
-        </div>
+    <div class="stats-landing-grid" data-stagger="100" style="margin-top:3.5rem">
+
+      <div class="stat-landing-card" data-reveal data-delay="0" data-tilt>
+        <div class="stat-landing-number" data-count-to="2400" data-count-suffix="+">0</div>
+        <div class="stat-landing-label">Buceadores activos</div>
+        <div class="stat-landing-desc">Comunidad en crecimiento</div>
       </div>
+
+      <div class="stat-landing-card" data-reveal data-delay="100" data-tilt>
+        <div class="stat-landing-number" data-count-to="320" data-count-suffix="+">0</div>
+        <div class="stat-landing-label">Centros verificados</div>
+        <div class="stat-landing-desc">En toda la costa española</div>
+      </div>
+
+      <div class="stat-landing-card" data-reveal data-delay="200" data-tilt>
+        <div class="stat-landing-number" data-count-to="18000" data-count-suffix="+">0</div>
+        <div class="stat-landing-label">Inmersiones registradas</div>
+        <div class="stat-landing-desc">Y subiendo cada día</div>
+      </div>
+
+      <div class="stat-landing-card" data-reveal data-delay="300" data-tilt>
+        <div class="stat-landing-number" data-count-to="4.9">0</div>
+        <div class="stat-landing-label">Valoración media</div>
+        <div class="stat-landing-desc">Satisfacción de usuarios</div>
+      </div>
+
     </div>
   </section>
 
-  <!-- TESTIMONIOS -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       TESTIMONIALS
+  ═══════════════════════════════════════════════════════ -->
   <section class="testimonials-section">
-    <div style="text-align:center">
+    <div style="text-align:center;margin-bottom:1rem">
       <span class="section-label" data-reveal>Testimonios</span>
-      <h2 class="section-title" data-reveal data-delay="100" style="margin:0 auto .85rem">Lo que dicen nuestros usuarios</h2>
+      <h2 class="section-title" data-reveal data-delay="120" style="margin:0 auto .9rem">
+        Lo que dicen nuestros usuarios
+      </h2>
+      <p class="section-desc" data-reveal data-delay="240" style="margin:0 auto">
+        Buceadores y centros de toda España ya confían en la plataforma.
+      </p>
     </div>
 
     <div class="testimonials-grid" data-stagger="120">
-      <div class="testimonial-card" data-tilt>
-        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+
+      <div class="testimonial-card" data-reveal="left" data-delay="0" data-tilt>
+        <div class="testimonial-stars" aria-label="5 estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="testimonial-text">
-          DiveConnect ha cambiado la forma en que organizo mis inmersiones. Puedo ver spots nuevos,
-          conectar con otros buceadores y llevar un registro detallado de cada salida.
+          "DiveConnect ha cambiado la forma en que organizo mis inmersiones. Puedo ver spots nuevos,
+          conectar con otros buceadores y llevar un registro detallado de cada salida. Es la herramienta
+          que necesitaba."
         </p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">J</div>
@@ -230,96 +318,166 @@
         </div>
       </div>
 
-      <div class="testimonial-card" data-tilt>
-        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="testimonial-card" data-reveal data-delay="120" data-tilt>
+        <div class="testimonial-stars" aria-label="5 estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="testimonial-text">
-          Como centro de buceo, la plataforma nos ha permitido digitalizar la gestion de reservas.
-          Nuestros clientes reservan en segundos y nosotros gestionamos todo desde un solo panel.
+          "Como centro de buceo, la plataforma nos ha permitido digitalizar por completo la gestión de
+          reservas. Nuestros clientes reservan en segundos y nosotros gestionamos todo desde un solo panel
+          de control."
         </p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">O</div>
           <div>
             <div class="testimonial-name">Ocean Dive Center</div>
-            <div class="testimonial-role">Centro PADI 5 Estrellas &middot; Palamos</div>
+            <div class="testimonial-role">Centro PADI 5 Estrellas &middot; Palamós</div>
           </div>
         </div>
       </div>
 
-      <div class="testimonial-card" data-tilt>
-        <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+      <div class="testimonial-card" data-reveal="right" data-delay="240" data-tilt>
+        <div class="testimonial-stars" aria-label="5 estrellas">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         <p class="testimonial-text">
-          Me encanta poder compartir mis fotos submarinas y recibir comentarios de la comunidad.
-          La seccion de inmersiones con datos tecnicos es perfecta para mi diario de buceo.
+          "Me encanta poder compartir mis fotos submarinas y recibir comentarios de la comunidad.
+          La sección de inmersiones con datos técnicos es perfecta para mi diario de buceo científico."
         </p>
         <div class="testimonial-author">
           <div class="testimonial-avatar">M</div>
           <div>
-            <div class="testimonial-name">Marina Lopez</div>
-            <div class="testimonial-role">Biologa marina &middot; Open Water</div>
+            <div class="testimonial-name">Marina López</div>
+            <div class="testimonial-role">Bióloga marina &middot; Open Water</div>
           </div>
         </div>
       </div>
+
     </div>
   </section>
 
-  <!-- CTA -->
-  <section style="background:linear-gradient(135deg, var(--bg-2) 0%, var(--bg-0) 50%, var(--bg-2) 100%);
-                  padding:6rem 1.5rem;text-align:center;color:var(--text-0);position:relative;overflow:hidden;
-                  border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
-    <div style="position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%, rgba(46,196,182,0.06) 0%, transparent 60%);pointer-events:none"></div>
-    <h2 data-reveal style="font-family:'Outfit',sans-serif;font-size:clamp(2rem,4.5vw,3rem);
-               font-weight:800;margin-bottom:1.25rem;letter-spacing:-0.03em;position:relative">
-      Preparado para tu proxima inmersion?
-    </h2>
-    <p data-reveal data-delay="150" style="color:var(--text-1);font-size:1.1rem;max-width:500px;margin:0 auto 3rem;line-height:1.8;position:relative">
-      Crea tu cuenta gratis y unete a miles de buceadores que ya confian en DiveConnect.
-    </p>
-    <div data-reveal data-delay="300" style="display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap;position:relative">
-      <a href="/pages/register.html" class="btn btn-coral btn-xl btn-magnetic">Crear cuenta gratis</a>
-      <a href="/pages/login.html" class="btn btn-ghost btn-xl">Ya tengo cuenta</a>
+
+  <!-- ═══════════════════════════════════════════════════════
+       CTA — Final call to action
+  ═══════════════════════════════════════════════════════ -->
+  <section style="
+    position:relative;
+    overflow:hidden;
+    padding:8rem 1.5rem;
+    text-align:center;
+    background:linear-gradient(160deg, var(--bg-2) 0%, var(--bg-0) 45%, var(--bg-2) 100%);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+  ">
+    <!-- Ambient glow -->
+    <div aria-hidden="true" style="
+      position:absolute;inset:0;pointer-events:none;
+      background:radial-gradient(ellipse 70% 55% at 50% 50%, rgba(46,196,182,0.07) 0%, transparent 65%);
+    "></div>
+    <!-- Decorative top gradient bar -->
+    <div aria-hidden="true" style="
+      position:absolute;top:0;left:50%;transform:translateX(-50%);
+      width:260px;height:1px;
+      background:linear-gradient(90deg, transparent, var(--turquoise), transparent);
+      opacity:0.5;
+    "></div>
+
+    <div style="position:relative;max-width:640px;margin:0 auto">
+      <span class="section-label" data-reveal>Empieza hoy</span>
+
+      <h2 data-reveal data-delay="120" style="
+        font-family:'Outfit',sans-serif;
+        font-size:clamp(2.1rem,4.8vw,3.2rem);
+        font-weight:800;
+        letter-spacing:-0.035em;
+        line-height:1.15;
+        color:var(--text-0);
+        margin:.75rem auto 1.5rem;
+      ">
+        ¿Preparado para tu<br>próxima inmersión?
+      </h2>
+
+      <p data-reveal data-delay="240" style="
+        color:var(--text-1);
+        font-size:1.05rem;
+        line-height:1.85;
+        max-width:460px;
+        margin:0 auto 3rem;
+      ">
+        Crea tu cuenta gratis y únete a miles de buceadores que ya confían
+        en DiveConnect para registrar, descubrir y reservar.
+      </p>
+
+      <div data-reveal data-delay="380" style="display:flex;gap:1.25rem;justify-content:center;flex-wrap:wrap">
+        <a href="/pages/register.html" class="btn btn-coral btn-xl btn-magnetic">
+          Crear cuenta gratis
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+        <a href="/pages/login.html" class="btn btn-ghost btn-xl">
+          Ya tengo cuenta
+        </a>
+      </div>
+
+      <p data-reveal data-delay="480" style="margin-top:2rem;font-size:0.82rem;color:var(--text-2)">
+        Sin tarjeta de crédito &nbsp;&middot;&nbsp; Gratis para siempre en el plan básico
+      </p>
     </div>
   </section>
 
-  <!-- FOOTER -->
+
+  <!-- ═══════════════════════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════════════════════ -->
   <footer class="landing-footer">
     <div class="footer-inner">
+
       <div class="footer-brand">
-        <div style="font-family:'Outfit',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text-0)">
+        <div style="
+          font-family:'Outfit',sans-serif;
+          font-size:1.45rem;
+          font-weight:800;
+          color:var(--text-0);
+          letter-spacing:-0.02em;
+          margin-bottom:.75rem;
+        ">
           Dive<span style="color:var(--turquoise)">Connect</span>
         </div>
-        <p>La plataforma de referencia para la comunidad submarina de Espana. Comparte, descubre y reserva.</p>
+        <p>La plataforma de referencia para la comunidad submarina de España. Comparte, descubre y reserva.</p>
       </div>
+
       <div class="footer-col">
         <h4>Plataforma</h4>
         <ul>
-          <li><a href="/pages/login.html">Iniciar sesion</a></li>
+          <li><a href="/pages/login.html">Iniciar sesión</a></li>
           <li><a href="/pages/register.html">Crear cuenta</a></li>
           <li><a href="/pages/Inmersiones.html">Inmersiones</a></li>
           <li><a href="/pages/centros.html">Centros de buceo</a></li>
         </ul>
       </div>
+
       <div class="footer-col">
         <h4>Para empresas</h4>
         <ul>
           <li><a href="/pages/register.html">Registrar centro</a></li>
-          <li><a href="/pages/empresa/dashboard.html">Panel de gestion</a></li>
+          <li><a href="/pages/empresa/dashboard.html">Panel de gestión</a></li>
           <li><a href="/pages/empresa/mis-inmersiones.html">Gestionar oferta</a></li>
           <li><a href="/pages/empresa/gestionar-reservas.html">Gestionar reservas</a></li>
         </ul>
       </div>
+
       <div class="footer-col">
         <h4>Contacto</h4>
         <ul>
-          <li><a href="#">info@diveconnect.es</a></li>
-          <li><a href="#">Soporte tecnico</a></li>
-          <li><a href="#">Politica de privacidad</a></li>
-          <li><a href="#">Terminos de uso</a></li>
+          <li><a href="mailto:info@diveconnect.es">info@diveconnect.es</a></li>
+          <li><a href="#">Soporte técnico</a></li>
+          <li><a href="#">Política de privacidad</a></li>
+          <li><a href="#">Términos de uso</a></li>
         </ul>
       </div>
+
     </div>
+
     <div class="footer-bottom">
       <span>&copy; 2026 DiveConnect. Todos los derechos reservados.</span>
-      <span>Hecho en Espana para la comunidad buceadora</span>
+      <span>Hecho en España para la comunidad buceadora</span>
     </div>
   </footer>
 
