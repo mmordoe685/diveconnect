@@ -112,18 +112,19 @@ function showAlert(message, type) {
     div.id = '__dc_alert__';
 
     const palette = {
-        success: { bg: '#DCFCE7', color: '#166534', border: '#86EFAC' },
-        error:   { bg: '#FEE2E2', color: '#991B1B', border: '#FCA5A5' },
-        info:    { bg: '#DBEAFE', color: '#1E40AF', border: '#93C5FD' }
+        success: { bg: 'rgba(46,196,182,0.12)', color: '#2EC4B6', border: 'rgba(46,196,182,0.25)' },
+        error:   { bg: 'rgba(255,107,107,0.12)', color: '#FF6B6B', border: 'rgba(255,107,107,0.25)' },
+        info:    { bg: 'rgba(100,180,255,0.12)', color: '#64B4FF', border: 'rgba(100,180,255,0.25)' }
     };
     const c = palette[type] || palette.info;
 
     div.style.cssText =
         'position:fixed;top:72px;right:16px;z-index:99999;' +
-        'padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;' +
-        'max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,0.15);' +
+        'padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;' +
+        'max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.4);' +
+        'backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);' +
         'background:' + c.bg + ';color:' + c.color + ';border:1px solid ' + c.border + ';' +
-        'animation:slideIn .25s ease';
+        'animation:slideIn .25s cubic-bezier(0.16,1,0.3,1)';
 
     // Animación de entrada
     if (!document.getElementById('__dc_alert_style__')) {
