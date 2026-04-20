@@ -112,7 +112,7 @@ function showAlert(message, type) {
     div.id = '__dc_alert__';
 
     const palette = {
-        success: { bg: 'rgba(46,196,182,0.12)', color: '#2EC4B6', border: 'rgba(46,196,182,0.25)' },
+        success: { bg: 'rgba(0,212,170,0.12)', color: '#00D4AA', border: 'rgba(0,212,170,0.25)' },
         error:   { bg: 'rgba(255,107,107,0.12)', color: '#FF6B6B', border: 'rgba(255,107,107,0.25)' },
         info:    { bg: 'rgba(100,180,255,0.12)', color: '#64B4FF', border: 'rgba(100,180,255,0.25)' }
     };
