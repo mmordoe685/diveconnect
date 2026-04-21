@@ -30,6 +30,7 @@ public class DataInitializer implements CommandLineRunner {
     private final CentroBuceoRepository   centroBuceoRepository;
     private final PuntoMapaRepository     puntoMapaRepository;
     private final FotoPuntoMapaRepository fotoPuntoMapaRepository;
+    private final HistoriaRepository      historiaRepository;
     private final PasswordEncoder         passwordEncoder;
 
     @Override
@@ -38,7 +39,9 @@ public class DataInitializer implements CommandLineRunner {
             && usuarioRepository.existsByUsername("buceador")
             && usuarioRepository.existsByUsername("oceandive");
 
-        if (usuariosExisten && reservaRepository.count() > 0 && puntoMapaRepository.count() > 0) {
+        if (usuariosExisten && reservaRepository.count() > 0
+            && puntoMapaRepository.count() > 0
+            && historiaRepository.count() > 0) {
             log.info("=== DataInitializer: datos ya existen, saltando ===");
             return;
         }
@@ -47,6 +50,8 @@ public class DataInitializer implements CommandLineRunner {
             log.info("=== DataInitializer: usuarios existen pero faltan reservas, recreando todo ===");
         } else if (usuariosExisten && puntoMapaRepository.count() == 0) {
             log.info("=== DataInitializer: usuarios existen pero faltan puntos de mapa, recreando todo ===");
+        } else if (usuariosExisten && historiaRepository.count() == 0) {
+            log.info("=== DataInitializer: usuarios existen pero faltan historias, recreando todo ===");
         } else {
             log.info("=== DataInitializer: creando datos de demostración ===");
         }
@@ -62,6 +67,7 @@ public class DataInitializer implements CommandLineRunner {
         comentarioRepository.deleteAll();
         reservaRepository.deleteAll();
         publicacionRepository.deleteAll();
+        historiaRepository.deleteAll();
         fotoPuntoMapaRepository.deleteAll();
         puntoMapaRepository.deleteAll();
         inmersionRepository.deleteAll();
@@ -355,6 +361,43 @@ public class DataInitializer implements CommandLineRunner {
                 new FotoSeed("https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80", "Pradera de posidonia", "Luz cenital atravesando las praderas")
             ));
 
+        // ── HISTORIAS (24h, foto/video) ───────────────────────────────────────
+        crearHistoria(uOcean,
+            "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Salida matinal a las Medas 🤿",
+            2);
+        crearHistoria(uBlue,
+            "https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Tabarca hoy — visibilidad 18m ✨",
+            5);
+        crearHistoria(uIsland,
+            "https://images.unsplash.com/photo-1576513657268-8e2173b1e0a5?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Ses Margalides: azul absoluto 💙",
+            1);
+        crearHistoria(javier,
+            "https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Posidonia + rayos de sol = perfección",
+            3);
+        crearHistoria(marina,
+            "https://images.unsplash.com/photo-1571149793834-7e9d67a9d7f8?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Pulpo curioso en Tabarca 🐙",
+            8);
+        crearHistoria(lucia,
+            "https://images.unsplash.com/photo-1540820658951-0dd4a3463252?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Nudibranquio — foto del día 📸",
+            12);
+        crearHistoria(sofia,
+            "https://images.unsplash.com/photo-1682687220795-796d3f6638a3?w=800&q=80",
+            Historia.MediaType.FOTO,
+            "Formación con @oceandive, aprendiendo Divemaster",
+            6);
+
         // ── SEGUIDORES ────────────────────────────────────────────────────────
         seguir(carlos,  javier);
         seguir(carlos,  marina);
@@ -468,8 +511,28 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seguir(Usuario seguidor, Usuario seguido) {
-        seguidor.getSiguiendo().add(seguido);
-        usuarioRepository.save(seguidor);
+        // Inserta directamente en la tabla seguidores para evitar el bug clásico
+        // de @ManyToMany + entidades detached que reinsertaba todas las filas
+        // previas de la colección (causando Duplicate Entry en seguidores.PRIMARY).
+        usuarioRepository.addSeguidor(seguidor.getId(), seguido.getId());
+    }
+
+    /**
+     * Crea una historia con fecha de publicación personalizada (para evitar que
+     * las 7 historias tengan la misma timestamp) y expiración a 24h desde esa fecha.
+     * `horasAtras` es cuántas horas en el pasado se creó (debe ser < 24 para que siga activa).
+     */
+    private void crearHistoria(Usuario usuario, String mediaUrl,
+                                Historia.MediaType mediaType, String texto, int horasAtras) {
+        Historia h = new Historia();
+        h.setUsuario(usuario);
+        h.setMediaUrl(mediaUrl);
+        h.setMediaType(mediaType);
+        h.setTexto(texto);
+        LocalDateTime ahora = LocalDateTime.now().minusHours(horasAtras);
+        h.setFechaPublicacion(ahora);
+        h.setExpiraEn(ahora.plusHours(24));
+        historiaRepository.save(h);
     }
 
     /** Estructura auxiliar para sembrar fotos sin tener que instanciar la entidad. */

@@ -7,735 +7,765 @@
   <link rel="stylesheet" href="/css/style.css">
   <style>
     /* ═══════════════════════════════════════════════════════════
-       Feed Instagram-style (Oceano)
+       Feed (Instagram-style + tematizado submarinismo)
        ═══════════════════════════════════════════════════════════ */
-    .feed-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 320px;
-      gap: 2.5rem;
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 2rem 1.25rem;
+    .feed-wrap{
+      max-width:640px;margin:0 auto;padding:1rem 1rem 2rem;position:relative;
     }
 
-    @media (max-width: 900px) {
-      .feed-layout { grid-template-columns: 1fr; gap: 1.5rem; }
-      .feed-sidebar { display: none; }
+    /* ── Stories row ──────────────────────────────────────────── */
+    .stories-wrap{
+      position:relative;
+      background:linear-gradient(135deg,#FFFBF5 0%,#E0F7F4 100%);
+      border:1px solid var(--line);border-radius:20px;
+      padding:1rem .5rem;margin-bottom:1.25rem;overflow:hidden;
+    }
+    .stories-wrap::before{
+      content:"";position:absolute;inset:0;
+      background:
+        radial-gradient(circle at 8% 120%,rgba(0,212,170,.14),transparent 50%),
+        radial-gradient(circle at 92% -20%,rgba(91,94,166,.12),transparent 50%);
+      pointer-events:none;
+    }
+    .stories-row{
+      position:relative;display:flex;gap:.85rem;overflow-x:auto;
+      padding:0 .75rem;
+      scrollbar-width:none;-ms-overflow-style:none;
+    }
+    .stories-row::-webkit-scrollbar{display:none}
+
+    .story-item{
+      flex:0 0 auto;text-align:center;cursor:pointer;
+      background:transparent;border:none;padding:0;font-family:inherit;
+      transition:transform var(--dur) var(--ease-spring);
+    }
+    .story-item:hover{transform:translateY(-2px)}
+    .story-ring{
+      width:72px;height:72px;border-radius:50%;padding:3px;margin:0 auto .4rem;
+      background:conic-gradient(from 180deg,#00D4AA 0%,#5B5EA6 25%,#F5A623 50%,#FF6B6B 75%,#00D4AA 100%);
+      position:relative;
+    }
+    .story-ring.seen{
+      background:transparent;border:2px solid var(--line-h);padding:4px;
+    }
+    .story-ring-inner{
+      width:100%;height:100%;border-radius:50%;
+      background:white;padding:2px;overflow:hidden;
+    }
+    .story-ring img,.story-ring-inner img{
+      width:100%;height:100%;border-radius:50%;object-fit:cover;display:block;
+    }
+    .story-add-badge{
+      position:absolute;right:-2px;bottom:-2px;
+      width:22px;height:22px;border-radius:50%;
+      background:var(--seafoam);color:#fff;border:2px solid white;
+      display:grid;place-items:center;font-weight:700;line-height:1;
+    }
+    .story-add-badge svg{width:12px;height:12px;stroke:#fff;stroke-width:3}
+    .story-label{
+      font-size:.72rem;font-weight:600;color:var(--t1);
+      max-width:76px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     }
 
-    /* ── Stories row ─────────────────────────────────────────── */
-    .stories-row {
-      display: flex;
-      gap: 1rem;
-      padding: 1rem 1.25rem;
-      overflow-x: auto;
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      margin-bottom: 1.75rem;
-      scrollbar-width: none;
+    /* ── Publicación (tarjeta IG) ─────────────────────────────── */
+    .post-card{
+      background:var(--bg-raise);border:1px solid var(--line);border-radius:16px;
+      margin-bottom:1.25rem;overflow:hidden;
+      box-shadow:var(--sh-card);
     }
-    .stories-row::-webkit-scrollbar { display: none; }
-
-    .story {
-      flex: 0 0 auto;
-      text-align: center;
-      cursor: pointer;
+    .post-head{
+      display:flex;align-items:center;gap:.7rem;padding:.85rem 1rem;
     }
-
-    .story-ring {
-      width: 68px;
-      height: 68px;
-      border-radius: 50%;
-      padding: 3px;
-      background: conic-gradient(from 180deg, #00D4AA, #5B5EA6, #F5A623, #FF6B6B, #00D4AA);
-      margin: 0 auto 0.35rem;
-      transition: transform .25s ease;
+    .post-avatar{
+      width:38px;height:38px;border-radius:50%;object-fit:cover;
+      border:2px solid var(--seafoam-mid);
     }
-    .story-ring:hover { transform: scale(1.06); }
+    .post-user{flex:1;min-width:0}
+    .post-user-name{
+      font-weight:700;color:var(--navy);font-size:.9rem;
+      text-decoration:none;display:block;line-height:1.1;
+    }
+    .post-user-meta{color:var(--t3);font-size:.72rem;display:block}
+    .post-head-action{
+      background:transparent;border:none;cursor:pointer;color:var(--t2);
+      width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+    }
+    .post-head-action:hover{background:var(--alt);color:var(--t1)}
 
-    .story-ring img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2.5px solid var(--white);
+    .post-media{
+      width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#E0F7F4,#FFFBF5);
+      overflow:hidden;position:relative;display:grid;place-items:center;
+    }
+    .post-media img,.post-media video{
+      width:100%;height:100%;object-fit:cover;
+    }
+    .post-media-placeholder{
+      text-align:center;color:var(--t3);padding:2rem;
+      font-family:'DM Serif Display',serif;font-size:1.4rem;
     }
 
-    .story-label {
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--text-2);
-      max-width: 72px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .post-actions{
+      display:flex;align-items:center;padding:.6rem 1rem;gap:.25rem;
+    }
+    .post-action-btn{
+      background:transparent;border:none;cursor:pointer;
+      width:38px;height:38px;border-radius:50%;color:var(--t1);
+      display:grid;place-items:center;
+      transition:transform .12s var(--ease-spring),color var(--dur) var(--ease);
+    }
+    .post-action-btn:hover{background:var(--alt)}
+    .post-action-btn:active{transform:scale(.88)}
+    .post-action-btn svg{width:26px;height:26px;stroke-width:1.6;fill:none;stroke:currentColor}
+    .post-action-btn.liked{color:#FF3040}
+    .post-action-btn.liked svg{fill:#FF3040;stroke:#FF3040}
+    .post-action-btn.bookmark{margin-left:auto}
+
+    .post-likes{
+      padding:0 1rem;font-weight:700;color:var(--navy);font-size:.9rem;
+    }
+    .post-caption{
+      padding:.4rem 1rem .25rem;font-size:.9rem;color:var(--t1);line-height:1.4;
+    }
+    .post-caption strong{color:var(--navy);margin-right:.35rem}
+    .post-chips{
+      display:flex;flex-wrap:wrap;gap:.4rem;padding:.35rem 1rem;
+    }
+    .post-chip{
+      background:var(--seafoam-dim);color:var(--navy);
+      padding:.22rem .55rem;border-radius:999px;
+      font-size:.72rem;font-weight:700;display:inline-flex;gap:.25rem;align-items:center;
+    }
+    .post-time{
+      padding:.25rem 1rem .85rem;color:var(--t3);font-size:.72rem;
+      text-transform:uppercase;letter-spacing:.04em;
     }
 
-    /* ── Compose card ────────────────────────────────────────── */
-    .compose-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 1.25rem;
-      margin-bottom: 1.5rem;
+    /* Comentarios */
+    .post-comments{padding:0 1rem 1rem;border-top:1px solid var(--line)}
+    .post-comment{font-size:.87rem;padding:.45rem 0;color:var(--t1)}
+    .post-comment strong{color:var(--navy);margin-right:.3rem}
+    .post-comment-form{
+      display:flex;gap:.5rem;padding-top:.5rem;
+    }
+    .post-comment-form input{
+      flex:1;border:none;background:transparent;padding:.4rem 0;
+      font-family:inherit;font-size:.88rem;color:var(--t1);outline:none;
+    }
+    .post-comment-form button{
+      background:transparent;border:none;color:var(--seafoam);font-weight:700;
+      cursor:pointer;font-size:.85rem;
+    }
+    .post-comment-form button:disabled{opacity:.4;cursor:not-allowed}
+
+    /* Estado vacío */
+    .feed-empty{
+      text-align:center;padding:3rem 1rem;color:var(--t2);
+    }
+    .feed-empty .big{
+      font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--navy);
+      margin:0 0 .5rem;
+    }
+    .feed-empty button{
+      margin-top:1rem;padding:.7rem 1.5rem;border:none;border-radius:999px;
+      background:linear-gradient(135deg,var(--seafoam),var(--indigo));color:white;
+      font-weight:700;cursor:pointer;
     }
 
-    .compose-head {
-      display: flex;
-      gap: 0.85rem;
-      align-items: flex-start;
+    /* Preview imagen upload */
+    .media-preview{
+      margin-top:.65rem;border-radius:12px;overflow:hidden;background:var(--alt);
+      aspect-ratio:1/1;display:grid;place-items:center;color:var(--t3);position:relative;
     }
+    .media-preview img,.media-preview video{width:100%;height:100%;object-fit:cover}
+    .media-preview-empty{font-size:.8rem;padding:2rem}
 
-    .compose-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      flex: 0 0 44px;
-      object-fit: cover;
-      border: 2px solid var(--seafoam-soft, #B5EAD7);
+    /* Subheader (saludos inspirado en apps de buceo) */
+    .feed-greeting{
+      padding:.25rem 0 .85rem;
     }
-
-    .compose-textarea {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      font-size: 0.95rem;
-      resize: none;
-      min-height: 50px;
-      max-height: 200px;
-      color: var(--text-1);
-      outline: none;
+    .feed-greeting h2{
+      font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--navy);
+      margin:0;line-height:1.15;
     }
-
-    .compose-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 0.75rem;
-      padding-top: 0.75rem;
-      border-top: 1px solid var(--border);
-    }
-
-    .compose-tools {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .tool-btn {
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: transparent;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      color: var(--text-2);
-      transition: background .2s, color .2s;
-    }
-    .tool-btn:hover { background: var(--glass); color: var(--seafoam); }
-
-    /* ── Post card Instagram-style ───────────────────────────── */
-    .ig-post {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      margin-bottom: 1.75rem;
-      overflow: hidden;
-      opacity: 0;
-      animation: fadeSlideUp .5s ease forwards;
-    }
-
-    @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .ig-header {
-      display: flex;
-      align-items: center;
-      padding: 0.85rem 1rem;
-      gap: 0.75rem;
-    }
-
-    .ig-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      padding: 2px;
-      background: conic-gradient(from 180deg, #00D4AA, #5B5EA6, #F5A623, #FF6B6B, #00D4AA);
-    }
-
-    .ig-avatar-inner {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: var(--white);
-      display: grid;
-      place-items: center;
-      overflow: hidden;
-      color: var(--indigo);
-      font-weight: 700;
-      font-size: 0.95rem;
-    }
-
-    .ig-avatar-inner img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-
-    .ig-meta { flex: 1; }
-    .ig-username {
-      font-weight: 700;
-      font-size: 0.92rem;
-      color: var(--text-1);
-    }
-    .ig-location {
-      font-size: 0.75rem;
-      color: var(--text-2);
-    }
-
-    .ig-image {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      object-fit: cover;
-      background: linear-gradient(135deg, #00D4AA22, #5B5EA622);
-      display: block;
-    }
-
-    .ig-actions {
-      display: flex;
-      align-items: center;
-      padding: 0.6rem 1rem 0.4rem;
-      gap: 1rem;
-    }
-
-    .ig-action {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-1);
-      padding: 4px;
-      display: grid;
-      place-items: center;
-      transition: transform .2s;
-    }
-    .ig-action:hover { transform: scale(1.12); }
-
-    .ig-action.liked { color: var(--coral); }
-    .ig-action.liked svg { fill: var(--coral); }
-
-    .ig-bookmark { margin-left: auto; }
-
-    .ig-likes {
-      padding: 0 1rem;
-      font-weight: 700;
-      font-size: 0.88rem;
-      color: var(--text-1);
-    }
-
-    .ig-caption {
-      padding: 0.4rem 1rem 0.2rem;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      color: var(--text-1);
-      word-wrap: break-word;
-    }
-
-    .ig-caption .username {
-      font-weight: 700;
-      margin-right: 0.4rem;
-    }
-
-    .ig-diveinfo {
-      margin: 0.6rem 1rem 0;
-      padding: 0.7rem 0.85rem;
-      background: linear-gradient(135deg, rgba(0,212,170,.08), rgba(91,94,166,.05));
-      border: 1px solid rgba(0,212,170,.18);
-      border-radius: 10px;
-      font-size: 0.78rem;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-      gap: 0.45rem;
-    }
-
-    .ig-diveinfo .chip {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      color: var(--text-2);
-    }
-    .ig-diveinfo .chip strong {
-      color: var(--seafoam-dark, #006E5F);
-    }
-
-    .ig-comments-count {
-      padding: 0.3rem 1rem 0.2rem;
-      font-size: 0.78rem;
-      color: var(--text-2);
-      cursor: pointer;
-    }
-    .ig-comments-count:hover { color: var(--seafoam); }
-
-    .ig-time {
-      padding: 0.2rem 1rem 0.9rem;
-      font-size: 0.68rem;
-      color: var(--text-3, #9ca3af);
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-
-    .ig-comment-area {
-      border-top: 1px solid var(--border);
-      padding: 0.75rem 1rem;
-      display: none;
-    }
-    .ig-comment-area.open { display: block; }
-
-    .ig-comment-list {
-      max-height: 220px;
-      overflow-y: auto;
-      margin-bottom: 0.6rem;
-    }
-
-    .ig-comment {
-      padding: 0.4rem 0;
-      font-size: 0.85rem;
-      line-height: 1.35;
-    }
-    .ig-comment .username { font-weight: 700; margin-right: .4rem; color: var(--text-1); }
-    .ig-comment .text     { color: var(--text-1); }
-    .ig-comment .date     { display:block; font-size:.65rem; color: var(--text-3, #9ca3af); margin-top:.15rem; }
-
-    .ig-comment-form {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .ig-comment-form input {
-      flex: 1;
-      border: none;
-      background: var(--glass);
-      border-radius: 20px;
-      padding: 0.55rem 1rem;
-      font-size: 0.85rem;
-      outline: none;
-      color: var(--text-1);
-    }
-    .ig-comment-form input:focus { background: var(--white); box-shadow: 0 0 0 2px var(--seafoam); }
-
-    .ig-post-send {
-      background: var(--seafoam);
-      color: var(--white);
-      border: none;
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      flex: 0 0 32px;
-    }
-
-    .ig-delete {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-2);
-      padding: 4px;
-    }
-    .ig-delete:hover { color: var(--coral); }
-
-    /* ── Sidebar ─────────────────────────────────────────────── */
-    .feed-sidebar {
-      position: sticky;
-      top: 100px;
-      align-self: start;
-    }
-
-    .side-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      padding: 1.25rem;
-      margin-bottom: 1.25rem;
-    }
-
-    .side-profile {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-    }
-    .side-profile img {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .side-profile .uname { font-weight: 700; color: var(--text-1); }
-    .side-profile .role  { font-size: .78rem; color: var(--text-2); }
-
-    .side-title {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-2);
-      font-weight: 600;
-      margin-bottom: 0.8rem;
-    }
-
-    .side-list-item {
-      display: flex;
-      align-items: center;
-      gap: 0.65rem;
-      padding: 0.4rem 0;
-      text-decoration: none;
-      color: inherit;
-    }
-    .side-list-item img {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-    .side-list-item .name { font-size: .85rem; font-weight: 600; color: var(--text-1); }
-    .side-list-item .sub  { font-size: .7rem; color: var(--text-2); }
-
-    /* Empty state */
-    .empty-feed {
-      text-align: center;
-      padding: 3.5rem 1rem;
-      color: var(--text-2);
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-    }
+    .feed-greeting p{margin:.15rem 0 0;color:var(--t2);font-size:.85rem}
   </style>
 </head>
 <body>
 
 <header class="navbar" id="mainNavbar"></header>
 
-<div class="feed-layout">
+<main class="feed-wrap">
 
-  <!-- ═════════ COLUMNA PRINCIPAL ═════════ -->
-  <main>
+  <div class="feed-greeting">
+    <h2 id="greetingTitle">Hola, buceador</h2>
+    <p>Descubre lo que la comunidad ha visto bajo el agua.</p>
+  </div>
 
-    <!-- Stories -->
+  <!-- Stories row -->
+  <section class="stories-wrap" aria-label="Historias">
+    <div class="bubbles-layer" aria-hidden="true" id="storiesBubbles"></div>
     <div class="stories-row" id="storiesRow">
-      <!-- populated by JS -->
+      <!-- JS renderiza "tu historia" primero y luego las del resto -->
     </div>
+  </section>
 
-    <!-- Compose -->
-    <div class="compose-card" data-reveal>
-      <form id="nuevaPublicacionForm">
-        <div class="compose-head">
-          <img id="composeAvatar" class="compose-avatar" src="" alt="">
-          <textarea id="contenido"
-                    class="compose-textarea"
-                    placeholder="¿Qué profundidades exploras hoy?"
-                    rows="2" required></textarea>
-        </div>
+  <!-- Feed de publicaciones -->
+  <section id="feedContainer" aria-label="Publicaciones"></section>
 
-        <div id="detallesInmersion" class="hidden" style="margin:0.85rem 0 0; padding:.75rem; background:var(--glass); border-radius:12px">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
-            <input type="text" class="form-input" id="lugarInmersion" placeholder="Lugar (ej: Islas Medas)">
-            <input type="text" class="form-input" id="especiesVistas" placeholder="Especies (ej: mero, pulpo)">
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-top:.5rem">
-            <input type="number" step="0.1" class="form-input" id="profundidadMaxima" placeholder="Prof. (m)">
-            <input type="number" step="0.1" class="form-input" id="temperaturaAgua" placeholder="Temp. (°C)">
-            <input type="number" step="0.1" class="form-input" id="visibilidad" placeholder="Visib. (m)">
-          </div>
-        </div>
+</main>
 
-        <div class="compose-actions">
-          <div class="compose-tools">
-            <button type="button" class="tool-btn" title="Detalles de inmersión" onclick="toggleDetalles()">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-              </svg>
-            </button>
-            <button type="button" class="tool-btn" title="Lugar">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
-              </svg>
-            </button>
-          </div>
-          <button type="submit" class="btn btn-primary btn-sm">Publicar</button>
-        </div>
-      </form>
+<!-- Modal crear publicación -->
+<div class="dv-modal-backdrop" id="modalPublicacion">
+  <div class="dv-modal">
+    <div class="dv-modal-head">
+      <h3>Nueva publicación</h3>
+      <button onclick="closeModal('modalPublicacion')" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
     </div>
+    <div class="dv-modal-body">
+      <label class="dv-label">URL de foto o video</label>
+      <input id="pubMediaUrl" class="dv-input" placeholder="https://..." oninput="previewMedia('pub')">
+      <small style="color:var(--t3);font-size:.72rem;display:block;margin:.3rem 0 .7rem">
+        Ej. sube tu foto a imgur/unsplash y pega aquí la URL directa.
+      </small>
 
-    <!-- Lista de publicaciones Instagram-style -->
-    <div id="publicacionesContainer">
-      <div class="loading"><div class="spinner"></div></div>
-    </div>
-  </main>
+      <div class="media-preview" id="pubPreview">
+        <div class="media-preview-empty">La vista previa aparecerá aquí</div>
+      </div>
 
-  <!-- ═════════ SIDEBAR ═════════ -->
-  <aside class="feed-sidebar">
-    <!-- Perfil del usuario activo -->
-    <div class="side-card" id="sideProfileCard"></div>
+      <label class="dv-label" style="margin-top:1rem">Descripción</label>
+      <textarea id="pubContenido" class="dv-textarea" rows="3" placeholder="Cuenta cómo fue la inmersión..."></textarea>
 
-    <!-- Sugerencias / empresas destacadas -->
-    <div class="side-card">
-      <div class="side-title">Centros destacados</div>
-      <div id="sideEmpresas">
-        <div class="loading"><div class="spinner" style="width:24px;height:24px"></div></div>
+      <div class="dv-form-row">
+        <div>
+          <label class="dv-label">Lugar</label>
+          <input id="pubLugar" class="dv-input" placeholder="Islas Medas">
+        </div>
+        <div>
+          <label class="dv-label">Profundidad (m)</label>
+          <input id="pubProf" class="dv-input" type="number" min="0" max="60" step=".5" placeholder="18">
+        </div>
+      </div>
+      <div class="dv-form-row-3">
+        <div>
+          <label class="dv-label">Especies vistas</label>
+          <input id="pubEspecies" class="dv-input" placeholder="Mero, pulpo, morena">
+        </div>
+        <div>
+          <label class="dv-label">Temp ºC</label>
+          <input id="pubTemp" class="dv-input" type="number" min="0" max="35" step=".5" placeholder="19">
+        </div>
+        <div>
+          <label class="dv-label">Vis (m)</label>
+          <input id="pubVis" class="dv-input" type="number" min="0" max="60" step=".5" placeholder="25">
+        </div>
       </div>
     </div>
-
-    <!-- Link al mapa -->
-    <div class="side-card" style="background:linear-gradient(135deg, rgba(0,212,170,.12), rgba(91,94,166,.08))">
-      <div class="side-title" style="color:var(--indigo)">Explora el mapa</div>
-      <p style="font-size:.82rem;color:var(--text-2);margin-bottom:.7rem">
-        Descubre los puntos submarinos documentados por centros de toda España.
-      </p>
-      <a href="/pages/mapa.html" class="btn btn-primary btn-sm" style="width:100%">
-        Ver mapa interactivo →
-      </a>
+    <div class="dv-modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalPublicacion')">Cancelar</button>
+      <button class="btn btn-primary" id="pubSubmitBtn" onclick="publicar()">Publicar</button>
     </div>
-  </aside>
+  </div>
+</div>
 
+<!-- Modal crear historia -->
+<div class="dv-modal-backdrop" id="modalHistoria">
+  <div class="dv-modal">
+    <div class="dv-modal-head">
+      <h3>Tu historia de 24h</h3>
+      <button onclick="closeModal('modalHistoria')" aria-label="Cerrar">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="dv-modal-body">
+      <label class="dv-label">URL de foto o video</label>
+      <input id="histMediaUrl" class="dv-input" placeholder="https://..." oninput="previewMedia('hist')">
+      <div class="dv-form-row" style="margin-top:.6rem">
+        <div>
+          <label class="dv-label">Tipo</label>
+          <select id="histTipo" class="dv-select">
+            <option value="FOTO">Foto</option>
+            <option value="VIDEO">Video</option>
+          </select>
+        </div>
+        <div>
+          <label class="dv-label">Texto (opcional)</label>
+          <input id="histTexto" class="dv-input" placeholder="¡Qué inmersión!">
+        </div>
+      </div>
+      <div class="media-preview" id="histPreview" style="margin-top:.6rem">
+        <div class="media-preview-empty">La vista previa aparecerá aquí</div>
+      </div>
+      <small style="color:var(--t3);font-size:.72rem;display:block;margin-top:.6rem">
+        Desaparece automáticamente a las 24 horas, como en Instagram.
+      </small>
+    </div>
+    <div class="dv-modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalHistoria')">Cancelar</button>
+      <button class="btn btn-primary" id="histSubmitBtn" onclick="publicarHistoria()">Publicar historia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Visor de historias -->
+<div class="story-viewer" id="storyViewer" aria-modal="true" role="dialog">
+  <div class="story-viewer-progress" id="svProgress"></div>
+  <div class="story-viewer-header">
+    <img id="svAvatar" class="story-viewer-avatar" src="" alt="">
+    <div class="story-viewer-user" id="svUser"></div>
+    <button class="story-viewer-close" onclick="closeStoryViewer()" aria-label="Cerrar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="story-viewer-media" id="svMedia">
+    <button class="story-viewer-tap-prev" onclick="svNav(-1)" aria-label="Anterior"></button>
+    <button class="story-viewer-tap-next" onclick="svNav(1)" aria-label="Siguiente"></button>
+  </div>
 </div>
 
 <script src="/js/api.js"></script>
-<script src="/js/auth.js"></script>
 <script src="/js/nav.js"></script>
 <script src="/js/publicaciones.js"></script>
 <script>
-  requireAuth();
-  initNav();
+(function(){
+  // Guard
+  if (!requireAuth()) return;
 
-  const me = getCurrentUser();
-  if (me) {
-    const avatarUrl = me.fotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(me.username)}&background=00D4AA&color=fff&size=100`;
-    document.getElementById('composeAvatar').src = avatarUrl;
+  document.addEventListener('DOMContentLoaded', async () => {
+    initNav();
+    initBubbles();
 
-    const roleLabel = me.tipoUsuario === 'USUARIO_EMPRESA' ? 'Centro de buceo'
-                    : me.tipoUsuario === 'ADMINISTRADOR'   ? 'Administrador'
-                    : 'Buceador';
-    document.getElementById('sideProfileCard').innerHTML = `
-      <div class="side-profile">
-        <img src="${avatarUrl}" alt="${me.username}">
-        <div>
-          <div class="uname">${escapeHtml(me.username)}</div>
-          <div class="role">${roleLabel}</div>
-        </div>
-      </div>
-      <a href="/pages/Perfil.html" class="btn btn-ghost btn-sm" style="width:100%;margin-top:.9rem">Mi perfil</a>
-    `;
-  }
+    const u = getCurrentUser();
+    document.getElementById('greetingTitle').textContent = `Hola, ${u?.username || 'buceador'}`;
 
-  function toggleDetalles() {
-    document.getElementById('detallesInmersion').classList.toggle('hidden');
-  }
+    // Expose para dock "Crear"
+    window.openCreatePublicacion = () => openModal('modalPublicacion');
+    window.openCreateHistoria = () => openModal('modalHistoria');
 
-  // ═══════ Render estilo Instagram ═══════
-  function renderIgPost(p) {
-    const me = getCurrentUser();
-    const esMia = me && me.id === p.usuarioId;
-    const avatarInitial = (p.usuarioUsername || '?').charAt(0).toUpperCase();
-    const likedClass = p.likedByCurrentUser ? ' liked' : '';
+    // Si llega ?create=publicacion|historia desde otra página, abrir modal
+    const qs = new URLSearchParams(location.search);
+    if (qs.get('create') === 'publicacion') window.openCreatePublicacion();
+    if (qs.get('create') === 'historia') window.openCreateHistoria();
 
-    const dateLabel = formatFecha(p.fechaPublicacion);
-
-    const placeholderImg = `https://images.unsplash.com/photo-1682687220742-aba13b6e50ba?w=800&q=80`;
-    const mainImg = p.imagenUrl || (p.lugarInmersion ? placeholderImg : null);
-
-    const diveInfoHtml = (p.lugarInmersion || p.profundidadMaxima || p.temperaturaAgua || p.visibilidad || p.especiesVistas) ? `
-      <div class="ig-diveinfo">
-        ${p.lugarInmersion    ? `<span class="chip"><strong>📍</strong> ${escapeHtml(p.lugarInmersion)}</span>` : ''}
-        ${p.profundidadMaxima ? `<span class="chip"><strong>▼</strong> ${p.profundidadMaxima}m</span>` : ''}
-        ${p.temperaturaAgua   ? `<span class="chip"><strong>🌡</strong> ${p.temperaturaAgua}°C</span>` : ''}
-        ${p.visibilidad       ? `<span class="chip"><strong>👁</strong> ${p.visibilidad}m</span>` : ''}
-        ${p.especiesVistas    ? `<span class="chip" style="grid-column:1/-1"><strong>🐠</strong> ${escapeHtml(p.especiesVistas)}</span>` : ''}
-      </div>` : '';
-
-    return `
-      <article class="ig-post" id="pub-${p.id}">
-        <header class="ig-header">
-          <div class="ig-avatar"><div class="ig-avatar-inner">${avatarInitial}</div></div>
-          <div class="ig-meta">
-            <div class="ig-username">${escapeHtml(p.usuarioUsername)}</div>
-            ${p.lugarInmersion ? `<div class="ig-location">${escapeHtml(p.lugarInmersion)}</div>` : ''}
-          </div>
-          ${esMia ? `<button class="ig-delete" onclick="handleDeletePublicacion(${p.id})" title="Eliminar">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
-              <path d="M10 11v6M14 11v6"/>
-            </svg>
-          </button>` : ''}
-        </header>
-
-        ${mainImg ? `<img class="ig-image" src="${escapeHtml(mainImg)}" alt="post image" loading="lazy">` : ''}
-
-        <div class="ig-actions">
-          <button class="ig-action${likedClass}" id="btn-like-${p.id}" onclick="handleLike(${p.id}, ${p.likedByCurrentUser || false})">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="${p.likedByCurrentUser ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-          </button>
-          <button class="ig-action" onclick="toggleComentarios(${p.id})">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-          </button>
-          <button class="ig-action" title="Compartir">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/>
-            </svg>
-          </button>
-          <button class="ig-action ig-bookmark" title="Guardar">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
-            </svg>
-          </button>
-        </div>
-
-        <div class="ig-likes"><span id="likes-count-${p.id}">${p.numeroLikes || 0}</span> me gusta</div>
-
-        <div class="ig-caption">
-          <span class="username">${escapeHtml(p.usuarioUsername)}</span>${escapeHtml(p.contenido)}
-        </div>
-
-        ${diveInfoHtml}
-
-        ${(p.numeroComentarios || 0) > 0 ? `
-          <div class="ig-comments-count" onclick="toggleComentarios(${p.id})" id="coms-count-${p.id}">
-            Ver los ${p.numeroComentarios} comentarios
-          </div>` : `<div id="coms-count-${p.id}" style="display:none"></div>`}
-
-        <div class="ig-time">${dateLabel}</div>
-
-        <div class="ig-comment-area" id="comentarios-${p.id}">
-          <div class="ig-comment-list" id="comentarios-list-${p.id}"></div>
-          <form class="ig-comment-form" onsubmit="event.preventDefault(); handleComentario(${p.id});">
-            <input type="text" id="comentario-input-${p.id}" placeholder="Añade un comentario..." maxlength="500">
-            <button type="submit" class="ig-post-send" title="Enviar">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            </button>
-          </form>
-        </div>
-      </article>`;
-  }
-
-  // Override renderPublicacion global para que use el nuevo estilo
-  window.renderPublicacion = renderIgPost;
-
-  // Override renderComentarios para estilo Instagram
-  window.renderComentarios = function(publicacionId, lista) {
-    const listDiv = document.getElementById(`comentarios-list-${publicacionId}`);
-    if (!listDiv) return;
-    if (!lista || lista.length === 0) {
-      listDiv.innerHTML = '<p style="color:var(--text-3,#9ca3af);font-size:.8rem;padding:.4rem 0">Sé el primero en comentar ✨</p>';
-      return;
-    }
-    listDiv.innerHTML = lista.map(c => `
-      <div class="ig-comment">
-        <span class="username">${escapeHtml(c.usuarioUsername)}</span><span class="text">${escapeHtml(c.contenido)}</span>
-        <span class="date">${formatFecha(c.fechaComentario)}</span>
-      </div>`).join('');
-  };
-
-  // ═══════ Stories (centros activos) ═══════
-  async function loadStories() {
-    const row = document.getElementById('storiesRow');
-    try {
-      const empresas = await fetchAPI('/usuarios/empresas').catch(() => []);
-      const items = (empresas || []).slice(0, 10);
-      if (items.length === 0) {
-        row.style.display = 'none';
-        return;
-      }
-      row.innerHTML = items.map(e => {
-        const name = e.nombreEmpresa || e.username;
-        const img  = e.fotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=00D4AA&color=fff&size=100`;
-        return `
-          <div class="story" onclick="location.href='/pages/Perfil.html?u=${encodeURIComponent(e.username)}'">
-            <div class="story-ring"><img src="${img}" alt="${escapeHtml(name)}"></div>
-            <div class="story-label">${escapeHtml(name)}</div>
-          </div>`;
-      }).join('');
-    } catch (e) {
-      row.style.display = 'none';
-    }
-  }
-
-  // ═══════ Sidebar: empresas destacadas ═══════
-  async function loadSideEmpresas() {
-    const c = document.getElementById('sideEmpresas');
-    try {
-      const empresas = await fetchAPI('/usuarios/empresas').catch(() => []);
-      if (!empresas || empresas.length === 0) {
-        c.innerHTML = '<p style="font-size:.78rem;color:var(--text-2)">Aún no hay centros publicados.</p>';
-        return;
-      }
-      c.innerHTML = empresas.slice(0, 4).map(e => {
-        const name = e.nombreEmpresa || e.username;
-        const img  = e.fotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=5B5EA6&color=fff&size=80`;
-        return `
-          <a class="side-list-item" href="/pages/Perfil.html?u=${encodeURIComponent(e.username)}">
-            <img src="${img}" alt="">
-            <div style="flex:1;min-width:0">
-              <div class="name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(name)}</div>
-              <div class="sub">${escapeHtml(e.direccion || 'Centro de buceo')}</div>
-            </div>
-          </a>`;
-      }).join('');
-    } catch (e) {
-      c.innerHTML = '<p style="font-size:.78rem;color:var(--text-2)">Error al cargar.</p>';
-    }
-  }
-
-  // ═══════ Feed loader ═══════
-  async function loadFeed() {
-    const container = document.getElementById('publicacionesContainer');
-    container.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
-    try {
-      const lista = await getFeed();
-      if (!lista || lista.length === 0) {
-        container.innerHTML = `
-          <div class="empty-feed">
-            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" style="opacity:.35;margin:0 auto 1rem;display:block">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-            <p style="font-weight:600;color:var(--text-1);margin-bottom:.35rem;font-size:1.05rem">Tu feed está tranquilo</p>
-            <p style="font-size:.9rem">Sé el primero en compartir tu inmersión o sigue a algún buceador.</p>
-          </div>`;
-      } else {
-        container.innerHTML = lista.map(renderIgPost).join('');
-      }
-    } catch (err) {
-      container.innerHTML = `<div class="empty-feed" style="color:var(--coral)">Error: ${escapeHtml(err.message)}</div>`;
-    }
-  }
-
-  document.getElementById('nuevaPublicacionForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const data = {
-      contenido:         document.getElementById('contenido').value.trim(),
-      lugarInmersion:    document.getElementById('lugarInmersion').value.trim() || null,
-      profundidadMaxima: parseFloat(document.getElementById('profundidadMaxima').value) || null,
-      temperaturaAgua:   parseFloat(document.getElementById('temperaturaAgua').value) || null,
-      visibilidad:       parseFloat(document.getElementById('visibilidad').value) || null,
-      especiesVistas:    document.getElementById('especiesVistas').value.trim() || null,
-    };
-    if (!data.contenido) { showAlert('Escribe algo antes de publicar', 'error'); return; }
-    try {
-      await createPublicacion(data);
-      showAlert('¡Publicación compartida!', 'success');
-      document.getElementById('nuevaPublicacionForm').reset();
-      document.getElementById('detallesInmersion').classList.add('hidden');
-      await loadFeed();
-    } catch (err) {
-      showAlert(err.message || 'Error al publicar', 'error');
-    }
+    await Promise.all([cargarStories(), cargarFeed()]);
   });
 
-  // Init
-  loadStories();
-  loadSideEmpresas();
-  loadFeed();
+  // ── Decorative bubbles ───────────────────────────────────────
+  function initBubbles(){
+    const layer = document.getElementById('storiesBubbles');
+    if (!layer) return;
+    for (let i = 0; i < 7; i++) {
+      const b = document.createElement('span');
+      b.className = 'bubble';
+      const size = 6 + Math.random()*14;
+      b.style.width = b.style.height = `${size}px`;
+      b.style.left = `${Math.random()*100}%`;
+      b.style.bottom = `-${Math.random()*20}px`;
+      b.style.animationDelay = `${Math.random()*6}s`;
+      b.style.animationDuration = `${5 + Math.random()*5}s`;
+      layer.appendChild(b);
+    }
+  }
+
+  // ── Stories ──────────────────────────────────────────────────
+  async function cargarStories(){
+    const row = document.getElementById('storiesRow');
+    const me  = getCurrentUser();
+    try{
+      const grupos = await fetchAPI('/historias');
+      // "Tu historia" siempre primero
+      const miGrupo = grupos.find(g => g.usuarioId === me?.id);
+      const otros   = grupos.filter(g => g.usuarioId !== me?.id);
+
+      row.innerHTML = '';
+      // Siempre el botón "Tu historia" (con + si no tienes)
+      row.appendChild(renderTuHistoria(me, miGrupo));
+      // Resto de grupos
+      otros.forEach(g => row.appendChild(renderGrupo(g)));
+    }catch(e){
+      console.error(e);
+      row.innerHTML = '<span style="color:var(--t3);font-size:.8rem;padding:1rem">No se pudieron cargar las historias.</span>';
+    }
+  }
+
+  function renderTuHistoria(me, grupo){
+    const btn = document.createElement('button');
+    btn.className = 'story-item';
+    const avatar = me?.fotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(me?.username || 'Tu')}&background=00D4AA&color=fff&size=200`;
+    if (grupo) {
+      // Ya tienes historia → abrir visor
+      btn.onclick = () => openStoryViewer(grupo);
+      btn.innerHTML = `
+        <div class="story-ring">
+          <div class="story-ring-inner"><img src="${avatar}" alt=""></div>
+        </div>
+        <div class="story-label">Tu historia</div>`;
+    } else {
+      // No tienes → abrir modal crear
+      btn.onclick = () => openModal('modalHistoria');
+      btn.innerHTML = `
+        <div class="story-ring seen">
+          <div class="story-ring-inner"><img src="${avatar}" alt=""></div>
+          <span class="story-add-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </span>
+        </div>
+        <div class="story-label">Tu historia</div>`;
+    }
+    return btn;
+  }
+
+  function renderGrupo(g){
+    const btn = document.createElement('button');
+    btn.className = 'story-item';
+    btn.onclick = () => openStoryViewer(g);
+    const avatar = g.usuarioFotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(g.usuarioUsername)}&background=5B5EA6&color=fff&size=200`;
+    const label = g.usuarioEmpresa || g.usuarioUsername;
+    btn.innerHTML = `
+      <div class="story-ring">
+        <div class="story-ring-inner"><img src="${avatar}" alt=""></div>
+      </div>
+      <div class="story-label">${escapeHtml(label)}</div>`;
+    return btn;
+  }
+
+  // ── Story viewer ─────────────────────────────────────────────
+  let _svGrupo = null, _svIdx = 0, _svTimer = null;
+
+  window.openStoryViewer = function(grupo){
+    _svGrupo = grupo; _svIdx = 0;
+    const viewer = document.getElementById('storyViewer');
+    document.getElementById('svUser').textContent = grupo.usuarioEmpresa || grupo.usuarioUsername;
+    document.getElementById('svAvatar').src = grupo.usuarioFotoPerfil ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(grupo.usuarioUsername)}&background=5B5EA6&color=fff&size=200`;
+
+    // Progreso
+    const prog = document.getElementById('svProgress');
+    prog.innerHTML = grupo.historias.map((_,i) => `
+      <div class="story-viewer-progress-seg"><div class="story-viewer-progress-seg-fill" data-i="${i}"></div></div>
+    `).join('');
+
+    viewer.classList.add('open');
+    mostrarSlide();
+  };
+
+  window.closeStoryViewer = function(){
+    if (_svTimer) clearTimeout(_svTimer);
+    document.getElementById('storyViewer').classList.remove('open');
+    // Limpia el media actual
+    const media = document.getElementById('svMedia');
+    media.querySelectorAll('img,video,.story-viewer-caption').forEach(el => el.remove());
+  };
+
+  window.svNav = function(delta){
+    if (!_svGrupo) return;
+    _svIdx += delta;
+    if (_svIdx < 0) { _svIdx = 0; return; }
+    if (_svIdx >= _svGrupo.historias.length) { closeStoryViewer(); return; }
+    mostrarSlide();
+  };
+
+  function mostrarSlide(){
+    if (_svTimer) clearTimeout(_svTimer);
+    const h = _svGrupo.historias[_svIdx];
+    const media = document.getElementById('svMedia');
+    // Limpia media anterior
+    media.querySelectorAll('img,video,.story-viewer-caption').forEach(el => el.remove());
+
+    // Añade nuevo medio (antes de los botones de tap)
+    let el;
+    if (h.mediaType === 'VIDEO') {
+      el = document.createElement('video');
+      el.src = h.mediaUrl; el.autoplay = true; el.muted = true; el.playsInline = true;
+    } else {
+      el = document.createElement('img');
+      el.src = h.mediaUrl; el.alt = '';
+    }
+    media.insertBefore(el, media.querySelector('.story-viewer-tap-prev'));
+
+    // Texto/caption
+    if (h.texto) {
+      const cap = document.createElement('div');
+      cap.className = 'story-viewer-caption';
+      cap.textContent = h.texto;
+      media.insertBefore(cap, media.querySelector('.story-viewer-tap-prev'));
+    }
+
+    // Reinicia progresos previos, rellena actuales
+    const segs = document.querySelectorAll('.story-viewer-progress-seg-fill');
+    segs.forEach((s,i) => {
+      s.style.transition = 'none';
+      s.style.width = i < _svIdx ? '100%' : '0%';
+    });
+    const cur = segs[_svIdx];
+    if (cur) {
+      requestAnimationFrame(() => {
+        cur.style.transition = 'width 4.5s linear';
+        cur.style.width = '100%';
+      });
+    }
+
+    _svTimer = setTimeout(() => svNav(1), 4500);
+  }
+
+  // Cerrar con ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeStoryViewer();
+    if (e.key === 'ArrowRight') svNav(1);
+    if (e.key === 'ArrowLeft') svNav(-1);
+  });
+
+  // ── Feed global ──────────────────────────────────────────────
+  async function cargarFeed(){
+    const cont = document.getElementById('feedContainer');
+    cont.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--t3)">Cargando el feed…</div>';
+    try{
+      const data = await getFeed(0, 30);
+      if (!data || data.length === 0) {
+        cont.innerHTML = `
+          <div class="feed-empty">
+            <div class="big">Aún no hay publicaciones</div>
+            <p>Sé el primero en compartir una inmersión con la comunidad.</p>
+            <button onclick="openModal('modalPublicacion')">Crear publicación</button>
+          </div>`;
+        return;
+      }
+      cont.innerHTML = '';
+      data.forEach(p => cont.appendChild(renderPostIG(p)));
+    }catch(e){
+      console.error(e);
+      cont.innerHTML = '<div class="feed-empty"><div class="big">Error</div><p>No pudimos cargar el feed.</p></div>';
+    }
+  }
+
+  function renderPostIG(p){
+    const card = document.createElement('article');
+    card.className = 'post-card';
+    card.dataset.id = p.id;
+
+    const me = getCurrentUser();
+    const mio = me && p.usuarioId === me.id;
+
+    const avatar = p.usuarioFotoPerfil ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(p.usuarioUsername)}&background=00D4AA&color=fff&size=200`;
+
+    const chips = [];
+    if (p.lugarInmersion)    chips.push(`<span class="post-chip">📍 ${escapeHtml(p.lugarInmersion)}</span>`);
+    if (p.profundidadMaxima) chips.push(`<span class="post-chip">🤿 ${p.profundidadMaxima}m</span>`);
+    if (p.temperaturaAgua)   chips.push(`<span class="post-chip">🌡 ${p.temperaturaAgua}°C</span>`);
+    if (p.visibilidad)       chips.push(`<span class="post-chip">👁 ${p.visibilidad}m</span>`);
+    if (p.especiesVistas)    chips.push(`<span class="post-chip">🐠 ${escapeHtml(p.especiesVistas)}</span>`);
+
+    let mediaHtml;
+    if (p.videoUrl) {
+      mediaHtml = `<video src="${escapeAttr(p.videoUrl)}" controls playsinline></video>`;
+    } else if (p.imagenUrl) {
+      mediaHtml = `<img src="${escapeAttr(p.imagenUrl)}" alt="" loading="lazy">`;
+    } else {
+      mediaHtml = `<div class="post-media-placeholder">${escapeHtml(p.contenido || 'Sin medio')}</div>`;
+    }
+
+    card.innerHTML = `
+      <div class="post-head">
+        <img class="post-avatar" src="${avatar}" alt="">
+        <div class="post-user">
+          <span class="post-user-name">${escapeHtml(p.usuarioUsername)}</span>
+          <span class="post-user-meta">${p.lugarInmersion ? escapeHtml(p.lugarInmersion) : 'DiveConnect'}</span>
+        </div>
+        ${mio ? `<button class="post-head-action" onclick="eliminarPost(${p.id})" aria-label="Eliminar">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        </button>` : ''}
+      </div>
+      <div class="post-media">${mediaHtml}</div>
+      <div class="post-actions">
+        <button class="post-action-btn like-btn ${p.likedByCurrentUser ? 'liked' : ''}" data-id="${p.id}" onclick="toggleLike(${p.id})" aria-label="Me gusta">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.4-9.5-9.1C.9 8.4 2.8 4.6 6.3 4.6c2 0 3.6 1.1 4.7 2.6h2c1.1-1.5 2.7-2.6 4.7-2.6 3.5 0 5.4 3.8 3.8 7.3C19 16.6 12 21 12 21z"/></svg>
+        </button>
+        <button class="post-action-btn" onclick="toggleComentariosIG(${p.id})" aria-label="Comentarios">
+          <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </button>
+        <button class="post-action-btn" aria-label="Compartir">
+          <svg viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>
+        </button>
+        <button class="post-action-btn bookmark" aria-label="Guardar">
+          <svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        </button>
+      </div>
+      <div class="post-likes"><span class="likes-count">${p.numeroLikes || 0}</span> me gusta</div>
+      ${p.contenido ? `<div class="post-caption"><strong>${escapeHtml(p.usuarioUsername)}</strong>${escapeHtml(p.contenido)}</div>` : ''}
+      ${chips.length ? `<div class="post-chips">${chips.join('')}</div>` : ''}
+      <div class="post-time">${tiempoRelativo(p.fechaPublicacion)}</div>
+      <div class="post-comments" id="comments-${p.id}" style="display:none"></div>
+    `;
+    return card;
+  }
+
+  // ── Acciones post ────────────────────────────────────────────
+  window.toggleLike = async function(id){
+    const btn = document.querySelector(`.like-btn[data-id="${id}"]`);
+    const card = btn.closest('.post-card');
+    const countEl = card.querySelector('.likes-count');
+    const liked = btn.classList.contains('liked');
+    try{
+      if (liked) {
+        await unlikePublicacion(id);
+        btn.classList.remove('liked');
+        countEl.textContent = Math.max(0, parseInt(countEl.textContent||'0',10)-1);
+      } else {
+        await likePublicacion(id);
+        btn.classList.add('liked');
+        countEl.textContent = parseInt(countEl.textContent||'0',10)+1;
+      }
+    }catch(e){ console.error(e); }
+  };
+
+  window.eliminarPost = async function(id){
+    if (!confirm('¿Eliminar esta publicación?')) return;
+    try{
+      await deletePublicacion(id);
+      const card = document.querySelector(`.post-card[data-id="${id}"]`);
+      if (card) card.remove();
+    }catch(e){ alert('No se pudo eliminar'); }
+  };
+
+  window.toggleComentariosIG = async function(id){
+    const wrap = document.getElementById(`comments-${id}`);
+    if (!wrap) return;
+    const isOpen = wrap.style.display !== 'none';
+    if (isOpen) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    wrap.innerHTML = '<div style="padding:.5rem 0;color:var(--t3);font-size:.85rem">Cargando comentarios…</div>';
+    try{
+      const comentarios = await getComentarios(id);
+      wrap.innerHTML = (comentarios.length === 0
+        ? '<div style="color:var(--t3);padding:.5rem 0;font-size:.85rem">Sé el primero en comentar.</div>'
+        : comentarios.map(c => `
+            <div class="post-comment"><strong>${escapeHtml(c.usuarioUsername)}</strong>${escapeHtml(c.contenido)}</div>
+          `).join('')
+      ) + `
+        <form class="post-comment-form" onsubmit="enviarComentario(event,${id})">
+          <input type="text" placeholder="Añade un comentario..." maxlength="500" required>
+          <button type="submit">Publicar</button>
+        </form>`;
+    }catch(e){
+      wrap.innerHTML = '<div style="color:var(--coral);padding:.5rem 0;font-size:.85rem">Error al cargar.</div>';
+    }
+  };
+
+  window.enviarComentario = async function(ev, id){
+    ev.preventDefault();
+    const input = ev.target.querySelector('input');
+    const txt = input.value.trim();
+    if (!txt) return;
+    try{
+      await createComentario(id, txt);
+      input.value = '';
+      toggleComentariosIG(id); toggleComentariosIG(id); // re-render
+    }catch(e){ alert('No se pudo comentar'); }
+  };
+
+  // ── Crear publicación ────────────────────────────────────────
+  window.publicar = async function(){
+    const mediaUrl = document.getElementById('pubMediaUrl').value.trim();
+    const contenido = document.getElementById('pubContenido').value.trim();
+    if (!contenido && !mediaUrl) { alert('Añade al menos un texto o una URL de medio'); return; }
+
+    const btn = document.getElementById('pubSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Publicando…';
+    try{
+      const esVideo = /\.(mp4|webm|mov)(\?|$)/i.test(mediaUrl);
+      const payload = {
+        contenido: contenido || '📸',
+        imagenUrl: esVideo ? null : (mediaUrl || null),
+        videoUrl:  esVideo ? mediaUrl : null,
+        lugarInmersion:    nullIfEmpty(document.getElementById('pubLugar').value),
+        profundidadMaxima: numOrNull(document.getElementById('pubProf').value),
+        temperaturaAgua:   numOrNull(document.getElementById('pubTemp').value),
+        visibilidad:       numOrNull(document.getElementById('pubVis').value),
+        especiesVistas:    nullIfEmpty(document.getElementById('pubEspecies').value),
+      };
+      await createPublicacion(payload);
+      closeModal('modalPublicacion');
+      clearForm('modalPublicacion');
+      await cargarFeed();
+    }catch(e){
+      alert('No se pudo publicar: ' + (e.message || ''));
+    }finally{
+      btn.disabled = false; btn.textContent = 'Publicar';
+    }
+  };
+
+  window.publicarHistoria = async function(){
+    const mediaUrl = document.getElementById('histMediaUrl').value.trim();
+    if (!mediaUrl) { alert('Necesitas una URL de foto o video'); return; }
+
+    const btn = document.getElementById('histSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Publicando…';
+    try{
+      await fetchAPI('/historias', {
+        method:'POST',
+        body: JSON.stringify({
+          mediaUrl,
+          mediaType: document.getElementById('histTipo').value,
+          texto: document.getElementById('histTexto').value.trim() || null
+        })
+      });
+      closeModal('modalHistoria');
+      clearForm('modalHistoria');
+      await cargarStories();
+    }catch(e){
+      alert('No se pudo publicar la historia: ' + (e.message || ''));
+    }finally{
+      btn.disabled = false; btn.textContent = 'Publicar historia';
+    }
+  };
+
+  // ── Helpers ──────────────────────────────────────────────────
+  window.openModal  = id => document.getElementById(id)?.classList.add('open');
+  window.closeModal = id => document.getElementById(id)?.classList.remove('open');
+
+  function clearForm(modalId){
+    document.querySelectorAll(`#${modalId} input, #${modalId} textarea, #${modalId} select`).forEach(el => {
+      if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
+    });
+    const prev = document.getElementById(modalId === 'modalPublicacion' ? 'pubPreview' : 'histPreview');
+    if (prev) prev.innerHTML = '<div class="media-preview-empty">La vista previa aparecerá aquí</div>';
+  }
+
+  window.previewMedia = function(which){
+    const url = document.getElementById(which==='pub' ? 'pubMediaUrl' : 'histMediaUrl').value.trim();
+    const prev = document.getElementById(which==='pub' ? 'pubPreview' : 'histPreview');
+    if (!url) { prev.innerHTML = '<div class="media-preview-empty">La vista previa aparecerá aquí</div>'; return; }
+    const esVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url) ||
+                    (which === 'hist' && document.getElementById('histTipo').value === 'VIDEO');
+    prev.innerHTML = esVideo
+      ? `<video src="${escapeAttr(url)}" controls muted playsinline></video>`
+      : `<img src="${escapeAttr(url)}" alt="" onerror="this.parentNode.innerHTML='<div class=\\'media-preview-empty\\'>No se pudo cargar la imagen</div>'">`;
+  };
+
+  function nullIfEmpty(v){ const t = (v||'').trim(); return t ? t : null; }
+  function numOrNull(v){ if (!v) return null; const n = parseFloat(v); return isNaN(n) ? null : n; }
+
+  function tiempoRelativo(iso){
+    if (!iso) return '';
+    const ahora = new Date();
+    const f = new Date(iso);
+    const s = Math.floor((ahora - f)/1000);
+    if (s < 60) return 'hace un momento';
+    if (s < 3600) return `hace ${Math.floor(s/60)} min`;
+    if (s < 86400) return `hace ${Math.floor(s/3600)} h`;
+    if (s < 2592000) return `hace ${Math.floor(s/86400)} d`;
+    return f.toLocaleDateString('es-ES');
+  }
+
+  function escapeHtml(t){
+    return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function escapeAttr(t){
+    return (t||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+})();
 </script>
-<script src="/js/animations.js"></script>
 </body>
 </html>

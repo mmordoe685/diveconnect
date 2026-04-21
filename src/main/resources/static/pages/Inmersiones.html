@@ -468,6 +468,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/nav.js"></script>
+<script src="/js/payment.js"></script>
 <script>
   requireAuth(); initNav();
 
@@ -723,35 +724,25 @@
         body: JSON.stringify({ inmersionId: inmersionActual.id, numeroPersonas: num })
       });
 
-      // 2. Intentar iniciar pago con Stripe
-      btn.textContent = 'Redirigiendo al pago...';
-      const checkout = await fetchAPI(`/payments/checkout/${reserva.id}`, { method: 'POST' });
-
-      if (checkout && checkout.enabled === false) {
-        // Stripe no configurado: ir a "Mis reservas" donde podrán usar el botón de pago demo
-        cerrarModal();
-        showAlert(
-          `Reserva creada (modo demo — Stripe no configurado). Ve a "Mis Reservas" para simular el pago.`,
-          'info'
-        );
-        setTimeout(() => { window.location.href = '/pages/reservas.html'; }, 1500);
-        return;
-      }
-
-      if (checkout && checkout.url) {
-        // Stripe real: redirigir al Checkout
-        cerrarModal();
-        window.location.href = checkout.url;
-        return;
-      }
-
-      // Fallback: mostrar confirmación simple
+      // 2. Abrir modal de pago con tarjeta (no redirige)
       cerrarModal();
-      showAlert(
-        `Reserva confirmada. Total: ${(inmersionActual.precio * num).toFixed(2)}\u20AC. Consulta el estado en Mis Reservas.`,
-        'success'
-      );
-      setTimeout(() => cargarInmersiones(), 1500);
+      const total = (inmersionActual.precio || 0) * num;
+      if (typeof abrirModalPago !== 'function') {
+        showAlert(
+          `Reserva creada. Ve a "Mis Reservas" para completar el pago.`, 'info'
+        );
+        setTimeout(() => { window.location.href = '/pages/reservas.html'; }, 1200);
+        return;
+      }
+      abrirModalPago({
+        reservaId: reserva.id,
+        total,
+        concepto: inmersionActual.titulo || 'Inmersión DiveConnect',
+        onSuccess: () => {
+          showAlert('¡Reserva confirmada y pagada!', 'success');
+          setTimeout(() => { window.location.href = '/pages/reservas.html'; }, 1400);
+        }
+      });
     } catch (err) {
       document.getElementById('alertModal').innerHTML =
         `<div class="alert alert-error">${escapeHtml(err.message || 'Error al realizar la reserva')}</div>`;

@@ -394,6 +394,7 @@
 <script src="/js/api.js"></script>
 <script src="/js/auth.js"></script>
 <script src="/js/nav.js"></script>
+<script src="/js/payment.js"></script>
 <script>
   requireAuth(); initNav();
 
@@ -502,7 +503,7 @@
       const delay     = Math.min(idx * 50, 400);
 
       return `
-        <div class="reserva-card ${r.estado}" data-reveal data-delay="${delay}">
+        <div class="reserva-card ${r.estado}" data-reveal data-delay="${delay}" data-reserva="${r.id}" data-total="${r.precioTotal ?? 0}">
           <div class="card-body">
             <div class="card-top">
               <div class="card-top-left">
@@ -554,31 +555,28 @@
     }).join('');
   }
 
-  /* ── Pagar reserva con Stripe ───────────────────────── */
+  /* ── Pagar reserva con modal de tarjeta (Stripe-style) ─── */
   async function pagarReserva(reservaId) {
-    try {
-      const resp = await fetchAPI(`/payments/checkout/${reservaId}`, { method: 'POST' });
-      if (!resp) return;
-
-      // Modo demo (Stripe no configurado) -> llamar directamente a verify
-      if (resp.enabled === false) {
-        const ok = confirm('Stripe no está configurado (modo demo). ¿Confirmar el pago de forma simulada?');
-        if (!ok) return;
-        await fetchAPI(`/payments/verify/${reservaId}`, { method: 'POST' });
-        showAlert('¡Pago simulado con éxito! Reserva confirmada.', 'success');
-        await cargarReservas();
-        return;
-      }
-
-      // Stripe real: redirigir al Checkout
-      if (resp.url) {
-        window.location.href = resp.url;
-      } else {
-        showAlert('No se pudo iniciar el pago. Inténtalo de nuevo.', 'error');
-      }
-    } catch (err) {
-      showAlert('Error al iniciar el pago: ' + err.message, 'error');
+    // Recuperar datos de la reserva para mostrar el total y el concepto
+    const card = document.querySelector(`[data-reserva="${reservaId}"]`);
+    let total = 0, concepto = 'Reserva DiveConnect';
+    if (card) {
+      total = parseFloat(card.dataset.total || '0') || 0;
+      concepto = card.querySelector('.reserva-titulo')?.textContent?.trim() || concepto;
     }
+    if (typeof abrirModalPago !== 'function') {
+      showAlert('El módulo de pago no está cargado.', 'error');
+      return;
+    }
+    abrirModalPago({
+      reservaId,
+      total,
+      concepto,
+      onSuccess: async () => {
+        showAlert('¡Pago completado! Tu reserva está confirmada.', 'success');
+        await cargarReservas();
+      }
+    });
   }
 
   /* ── Verificar vuelta desde Stripe ──────────────────── */

@@ -3,6 +3,12 @@
 // ============================================================
 
 async function getFeed(page = 0, size = 10) {
+    // Feed global: todas las publicaciones de todos los usuarios (orden cronológico inverso)
+    return await fetchAPI(`/publicaciones?page=${page}&size=${size}`);
+}
+
+async function getFeedSeguidos(page = 0, size = 10) {
+    // Feed personalizado de usuarios seguidos (para pestaña "Siguiendo")
     return await fetchAPI(`/publicaciones/feed?page=${page}&size=${size}`);
 }
 
