@@ -35,4 +35,16 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Transactional
     @Query(value = "DELETE FROM seguidores", nativeQuery = true)
     void clearSeguidores();
+
+    /**
+     * Inserta una relación de seguidor usando INSERT IGNORE para evitar duplicados.
+     * Se usa en DataInitializer para cargar follows sin sufrir el bug de merge
+     * de @ManyToMany con entidades detached.
+     */
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT IGNORE INTO seguidores (seguidor_id, seguido_id) VALUES (:seguidorId, :seguidoId)",
+           nativeQuery = true)
+    void addSeguidor(@Param("seguidorId") Long seguidorId,
+                     @Param("seguidoId")  Long seguidoId);
 }
