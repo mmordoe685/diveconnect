@@ -49,15 +49,34 @@ public class ReservaService {
         reserva.setNumeroPersonas(request.getNumeroPersonas());
         reserva.setPrecioTotal(precioTotal);
         reserva.setObservaciones(request.getObservaciones());
+        // La empresa no necesita aprobar: queda pendiente sólo hasta que se complete el pago
         reserva.setEstado(EstadoReserva.PENDIENTE);
+        reserva.setPaymentStatus("UNPAID");
 
         Reserva savedReserva = reservaRepository.save(reserva);
 
-        // Actualizar plazas disponibles
+        // Actualizar plazas disponibles (se reservan al crear; si no se paga se liberan al cancelar)
         inmersion.setPlazasDisponibles(inmersion.getPlazasDisponibles() - request.getNumeroPersonas());
         inmersionRepository.save(inmersion);
 
         return convertirAResponse(savedReserva);
+    }
+
+    /**
+     * Marca la reserva como PAGADA y la confirma automáticamente.
+     * Si no hay plazas (cosa que no debería pasar porque ya se descontaron
+     * al crear), se rechaza y se marca como fallo.
+     */
+    @Transactional
+    public ReservaResponse marcarComoPagada(Long reservaId, String paymentIntentId) {
+        Reserva reserva = reservaRepository.findById(reservaId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reserva no encontrada"));
+
+        reserva.setPaymentStatus("PAID");
+        reserva.setStripePaymentIntentId(paymentIntentId);
+        // Auto-confirmar — la empresa no aprueba manualmente
+        reserva.setEstado(EstadoReserva.CONFIRMADA);
+        return convertirAResponse(reservaRepository.save(reserva));
     }
 
     @Transactional(readOnly = true)
@@ -141,6 +160,8 @@ public class ReservaService {
         response.setObservaciones(reserva.getObservaciones());
         response.setFechaReserva(reserva.getFechaReserva());
         response.setUltimaModificacion(reserva.getUltimaModificacion());
+        response.setPaymentStatus(reserva.getPaymentStatus());
+        response.setStripeSessionId(reserva.getStripeSessionId());
         
         if (reserva.getUsuario() != null) {
             response.setUsuarioId(reserva.getUsuario().getId());

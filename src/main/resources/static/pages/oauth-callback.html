@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciando sesión — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .oauth-screen {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #FFFBF5, #e0f7fa);
+      padding: 2rem;
+    }
+    .oauth-card {
+      background: white;
+      border-radius: 16px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      max-width: 440px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.08);
+    }
+    .oauth-spinner {
+      width: 52px; height: 52px;
+      border: 4px solid #E0F4F0;
+      border-top-color: #00D4AA;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1.25rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .oauth-card h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.65rem;
+      color: #0F172A;
+      margin-bottom: .5rem;
+    }
+    .oauth-card p {
+      color: #64748B;
+      font-size: .92rem;
+      margin-bottom: .4rem;
+    }
+    .oauth-card code {
+      background: #F1F5F9;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: .8rem;
+      color: #0F172A;
+    }
+  </style>
+</head>
+<body>
+  <div class="oauth-screen">
+    <div class="oauth-card">
+      <div class="oauth-spinner"></div>
+      <h1>Accediendo con Google</h1>
+      <p id="statusText">Validando credenciales…</p>
+      <p id="userInfo" style="margin-top:.6rem"></p>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token    = params.get('token');
+    const username = params.get('username');
+    const email    = params.get('email');
+    const tipo     = params.get('tipo');
+
+    const statusEl = document.getElementById('statusText');
+    const infoEl   = document.getElementById('userInfo');
+
+    if (!token || !username) {
+      statusEl.textContent = 'No se recibió un token válido. Redirigiendo al login…';
+      statusEl.style.color = '#FF6B6B';
+      setTimeout(() => { window.location.href = '/pages/login.html?oauth_error=no_token'; }, 1500);
+    } else {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify({
+        username,
+        email,
+        tipoUsuario: tipo || 'USUARIO_COMUN'
+      }));
+
+      statusEl.textContent = '¡Bienvenido!';
+      infoEl.innerHTML = '<code>' + username + '</code>';
+      setTimeout(() => { window.location.href = '/pages/feed.html'; }, 800);
+    }
+  </script>
+</body>
+</html>

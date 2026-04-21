@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mapa de Inmersiones — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+
+  <!-- Leaflet (OpenStreetMap) -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin=""></script>
+
+  <style>
+    .mapa-container {
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      padding: 0 1rem;
+    }
+
+    .mapa-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .mapa-header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      color: var(--t1);
+      letter-spacing: -0.02em;
+    }
+    .mapa-header p {
+      color: var(--text-2);
+      font-size: .9rem;
+    }
+
+    .mapa-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .mapa-layout { grid-template-columns: 1fr; }
+      .mapa-sidebar { order: -1; }
+    }
+
+    #mapa {
+      height: 640px;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, .08);
+      border: 1px solid var(--border);
+      z-index: 1;
+    }
+
+    .mapa-sidebar {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      max-height: 640px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-tabs button {
+      flex: 1;
+      padding: .85rem .5rem;
+      border: none;
+      background: transparent;
+      color: var(--text-2);
+      font-weight: 600;
+      font-size: .82rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+    }
+    .sidebar-tabs button.active {
+      color: var(--seafoam);
+      border-bottom-color: var(--seafoam);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .punto-item {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background .2s;
+    }
+    .punto-item:hover { background: var(--glass); }
+
+    .punto-item h4 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: .25rem;
+    }
+    .punto-item .coords {
+      font-size: .7rem;
+      color: var(--text-3, #9ca3af);
+      font-family: monospace;
+    }
+    .punto-item .desc {
+      font-size: .8rem;
+      color: var(--text-2);
+      margin-top: .3rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Popup del marker */
+    .leaflet-popup-content-wrapper {
+      border-radius: 12px !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,.15) !important;
+    }
+    .leaflet-popup-content {
+      margin: 12px 14px !important;
+      font-family: 'Nunito Sans', sans-serif;
+    }
+
+    .popup-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.05rem;
+      color: var(--t1);
+      margin-bottom: .3rem;
+    }
+    .popup-meta {
+      font-size: .75rem;
+      color: var(--text-2);
+      margin-bottom: .5rem;
+    }
+    .popup-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .3rem;
+      margin-bottom: .5rem;
+    }
+    .popup-chips span {
+      background: rgba(0, 212, 170, .12);
+      color: var(--seafoam-dark, #006E5F);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: .7rem;
+      font-weight: 600;
+    }
+    .popup-link {
+      display: inline-block;
+      margin-top: .25rem;
+      color: var(--seafoam);
+      font-weight: 600;
+      font-size: .8rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── Panel de detalle (overlay) ───────────────────────── */
+    .detalle-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .55);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .detalle-overlay.open { display: flex; animation: fadeIn .3s; }
+
+    @keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+
+    .detalle-modal {
+      background: var(--white);
+      border-radius: var(--r-lg);
+      max-width: 820px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 48px rgba(0,0,0,.25);
+      animation: slideUp .4s;
+    }
+
+    @keyframes slideUp { from { transform: translateY(24px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+
+    .detalle-modal header {
+      padding: 1.5rem 1.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .detalle-modal header h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: var(--t1);
+    }
+    .detalle-modal header .close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-2);
+      font-size: 1.5rem;
+      padding: 4px 8px;
+    }
+
+    .detalle-body { padding: 1.25rem 1.75rem; }
+
+    .detalle-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: .75rem;
+      margin: 1rem 0;
+    }
+
+    .info-tile {
+      background: linear-gradient(135deg, rgba(0,212,170,.08), rgba(91,94,166,.04));
+      border: 1px solid rgba(0,212,170,.15);
+      border-radius: 10px;
+      padding: .75rem .85rem;
+    }
+    .info-tile .label {
+      font-size: .68rem;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      font-weight: 600;
+    }
+    .info-tile .value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--t1);
+      margin-top: 2px;
+    }
+
+    .weather-card {
+      background: linear-gradient(135deg, #5B5EA6, #00D4AA);
+      color: white;
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      margin: 1rem 0;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+      align-items: center;
+    }
+    .weather-icon {
+      font-size: 2.4rem;
+    }
+    .weather-temp {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+    .weather-desc {
+      font-size: .85rem;
+      opacity: .9;
+    }
+    .weather-extra {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: .5rem;
+      font-size: .78rem;
+      opacity: .92;
+    }
+
+    .fotos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: .6rem;
+      margin: 1rem 0;
+    }
+    .foto-card {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      aspect-ratio: 4 / 3;
+    }
+    .foto-card img { width: 100%; height: 100%; object-fit: cover; }
+    .foto-card .overlay-tag {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.75));
+      color: white;
+      padding: .4rem .6rem;
+      font-size: .7rem;
+      font-weight: 600;
+    }
+
+    /* ── FAB para empresas ─────────────────────────────── */
+    .fab-add {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background: var(--coral, #FF6B6B);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 58px;
+      height: 58px;
+      box-shadow: 0 4px 20px rgba(255, 107, 107, .4);
+      cursor: pointer;
+      z-index: 500;
+      display: grid;
+      place-items: center;
+      transition: transform .2s;
+    }
+    .fab-add:hover { transform: scale(1.1) rotate(90deg); }
+  </style>
+</head>
+<body>
+
+<header class="navbar" id="mainNavbar"></header>
+
+<div class="mapa-container">
+
+  <div class="mapa-header">
+    <div>
+      <h1>Mapa interactivo de inmersiones</h1>
+      <p>Descubre los puntos submarinos documentados por los centros de buceo de toda España.</p>
+    </div>
+    <div style="font-size:.78rem;color:var(--text-2)">
+      <span id="puntosCount">0</span> puntos · Datos abiertos OpenStreetMap
+    </div>
+  </div>
+
+  <div class="mapa-layout">
+
+    <!-- Mapa Leaflet -->
+    <div style="position:relative">
+      <div id="mapa"></div>
+      <!-- FAB sólo visible para empresas -->
+      <button id="fabAdd" class="fab-add hidden" onclick="abrirModalCrear()" title="Añadir punto del mapa">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+
+    <!-- Lista lateral -->
+    <aside class="mapa-sidebar">
+      <div class="sidebar-tabs">
+        <button class="active" id="tabTodos" onclick="cambiarTab('todos')">Todos los puntos</button>
+        <button id="tabMis" onclick="cambiarTab('mis')">Mis puntos</button>
+      </div>
+      <div class="sidebar-content" id="sidebarList">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<!-- ════ Modal detalle de punto ════ -->
+<div class="detalle-overlay" id="detalleOverlay" onclick="if (event.target===this) cerrarDetalle()">
+  <div class="detalle-modal" id="detalleModal"></div>
+</div>
+
+<!-- ════ Modal crear punto (sólo empresas) ════ -->
+<div class="detalle-overlay" id="crearOverlay" onclick="if (event.target===this) cerrarCrear()">
+  <div class="detalle-modal" style="max-width:620px">
+    <header>
+      <h2>Añadir punto del mapa</h2>
+      <button class="close" onclick="cerrarCrear()">×</button>
+    </header>
+    <form id="crearForm" class="detalle-body">
+      <div class="form-group">
+        <label class="form-label">Título</label>
+        <input class="form-input" id="c_titulo" required maxlength="150" placeholder="Ej: Cabo de Creus — Nocturna">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-input" id="c_desc" rows="3" maxlength="1500" placeholder="¿Qué se ha visto, cuándo, y por qué vale la pena?"></textarea>
+      </div>
+
+      <p style="font-size:.8rem;color:var(--text-2);margin-bottom:.5rem">
+        Haz click en el mapa para seleccionar la ubicación, o introduce las coordenadas manualmente.
+      </p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div class="form-group">
+          <label class="form-label">Latitud</label>
+          <input class="form-input" id="c_lat" type="number" step="0.0001" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Longitud</label>
+          <input class="form-input" id="c_lon" type="number" step="0.0001" required>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem">
+        <div class="form-group">
+          <label class="form-label">Prof. (m)</label>
+          <input class="form-input" id="c_prof" type="number" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Temp. agua (°C)</label>
+          <input class="form-input" id="c_temp" type="number" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Presión (bar)</label>
+          <input class="form-input" id="c_pres" type="number" step="0.01">
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.6rem">
+        <div class="form-group">
+          <label class="form-label">Corriente</label>
+          <input class="form-input" id="c_corriente" placeholder="Ej: Suave, Moderada">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Visibilidad (m)</label>
+          <input class="form-input" id="c_visib" type="number" step="0.1">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Especies vistas</label>
+        <input class="form-input" id="c_especies" placeholder="Ej: Mero, pulpo, morena">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Fecha observación</label>
+        <input class="form-input" id="c_fecha" type="datetime-local">
+      </div>
+
+      <div id="c_fotos_wrap">
+        <label class="form-label">Fotos (URLs)</label>
+        <div id="c_fotos_list"></div>
+        <button type="button" class="btn btn-ghost btn-sm" onclick="anadirFotoInput()">+ Añadir foto</button>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem">
+        <button type="button" class="btn btn-ghost" onclick="cerrarCrear()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Publicar punto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
+<script>
+  initNav();
+
+  // ══════════ STATE ══════════
+  let map;
+  let markers = [];
+  let todosPuntos = [];
+  let tabActual = 'todos';
+  const me = getCurrentUser();
+  const esEmpresa = me && (me.tipoUsuario === 'USUARIO_EMPRESA' || me.tipoUsuario === 'ADMINISTRADOR');
+
+  // ══════════ INIT LEAFLET ══════════
+  function initMap() {
+    map = L.map('mapa').setView([40.0, 0.5], 6); // centrado en España
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+    // Para empresas: click en mapa pre-rellena coords del formulario
+    if (esEmpresa) {
+      map.on('click', (e) => {
+        const overlay = document.getElementById('crearOverlay');
+        if (overlay.classList.contains('open')) {
+          document.getElementById('c_lat').value = e.latlng.lat.toFixed(5);
+          document.getElementById('c_lon').value = e.latlng.lng.toFixed(5);
+        }
+      });
+    }
+  }
+
+  function iconoPunto() {
+    // SVG encoded como data URL — diamante coral con ring
+    return L.divIcon({
+      className: 'custom-marker',
+      html: `<div style="
+        width: 32px; height: 32px;
+        background: linear-gradient(135deg, #FF6B6B, #F5A623);
+        border: 3px solid white;
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 3px 10px rgba(0,0,0,.25);
+        display: grid; place-items: center;
+      "><span style="transform:rotate(45deg);font-size:14px">🤿</span></div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -30]
+    });
+  }
+
+  function renderMarkers(puntos) {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+
+    puntos.forEach(p => {
+      const marker = L.marker([p.latitud, p.longitud], { icon: iconoPunto() });
+      const popup = `
+        <div class="popup-title">${escapeHtml(p.titulo)}</div>
+        <div class="popup-meta">Por ${escapeHtml(p.autorEmpresa || p.autorUsername || 'Centro')}</div>
+        <div class="popup-chips">
+          ${p.profundidadMetros ? `<span>▼ ${p.profundidadMetros}m</span>` : ''}
+          ${p.temperaturaAgua   ? `<span>🌡 ${p.temperaturaAgua}°C</span>` : ''}
+          ${p.visibilidadMetros ? `<span>👁 ${p.visibilidadMetros}m</span>` : ''}
+        </div>
+        <a class="popup-link" onclick="abrirDetalle(${p.id})">Ver detalles →</a>
+      `;
+      marker.bindPopup(popup);
+      marker.addTo(map);
+      markers.push(marker);
+    });
+
+    document.getElementById('puntosCount').textContent = puntos.length;
+  }
+
+  function renderSidebar(puntos) {
+    const c = document.getElementById('sidebarList');
+    if (!puntos || puntos.length === 0) {
+      c.innerHTML = `<div style="padding:2rem 1rem;text-align:center;color:var(--text-2);font-size:.85rem">
+        ${tabActual === 'mis' ? 'Aún no has creado ningún punto.' : 'No hay puntos registrados aún.'}
+      </div>`;
+      return;
+    }
+    c.innerHTML = puntos.map(p => `
+      <div class="punto-item" onclick="enfocarPunto(${p.latitud}, ${p.longitud}, ${p.id})">
+        <h4>${escapeHtml(p.titulo)}</h4>
+        <div class="coords">${p.latitud.toFixed(4)}, ${p.longitud.toFixed(4)}</div>
+        ${p.descripcion ? `<div class="desc">${escapeHtml(p.descripcion)}</div>` : ''}
+      </div>`).join('');
+  }
+
+  function enfocarPunto(lat, lon, id) {
+    map.setView([lat, lon], 13);
+    const m = markers.find(mk => mk.getLatLng().lat === lat && mk.getLatLng().lng === lon);
+    if (m) m.openPopup();
+    else abrirDetalle(id);
+  }
+
+  // ══════════ CARGA ══════════
+  async function cargarPuntos() {
+    try {
+      const puntos = await fetchAPI('/puntos-mapa');
+      todosPuntos = puntos || [];
+      mostrarSegunTab();
+    } catch (e) {
+      console.error(e);
+      document.getElementById('sidebarList').innerHTML =
+        '<div style="padding:2rem;text-align:center;color:var(--coral)">Error al cargar puntos.</div>';
+    }
+  }
+
+  function mostrarSegunTab() {
+    let lista = todosPuntos;
+    if (tabActual === 'mis' && me) {
+      lista = todosPuntos.filter(p => p.autorId === me.id);
+    }
+    renderMarkers(lista);
+    renderSidebar(lista);
+  }
+
+  function cambiarTab(t) {
+    tabActual = t;
+    document.getElementById('tabTodos').classList.toggle('active', t === 'todos');
+    document.getElementById('tabMis').classList.toggle('active', t === 'mis');
+    mostrarSegunTab();
+  }
+
+  // ══════════ DETALLE ══════════
+  async function abrirDetalle(id) {
+    const overlay = document.getElementById('detalleOverlay');
+    const modal = document.getElementById('detalleModal');
+    modal.innerHTML = '<div class="loading" style="padding:3rem"><div class="spinner"></div></div>';
+    overlay.classList.add('open');
+
+    try {
+      const [p, weather] = await Promise.all([
+        fetchAPI(`/puntos-mapa/${id}`),
+        (async () => {
+          try {
+            return await fetch(`/api/weather?lat=${encodeURIComponent(todosPuntos.find(x => x.id === id).latitud)}&lon=${encodeURIComponent(todosPuntos.find(x => x.id === id).longitud)}`).then(r => r.json());
+          } catch { return null; }
+        })()
+      ]);
+
+      const puedeBorrar = me && (me.id === p.autorId || me.tipoUsuario === 'ADMINISTRADOR');
+
+      modal.innerHTML = `
+        <header>
+          <div>
+            <h2>${escapeHtml(p.titulo)}</h2>
+            <div style="font-size:.8rem;color:var(--text-2);margin-top:.3rem">
+              Por ${escapeHtml(p.autorEmpresa || p.autorUsername)}
+              ${p.fechaObservacion ? ' · ' + formatFecha(p.fechaObservacion) : ''}
+            </div>
+          </div>
+          <button class="close" onclick="cerrarDetalle()">×</button>
+        </header>
+        <div class="detalle-body">
+          ${p.descripcion ? `<p style="color:var(--text-1);line-height:1.5;margin-bottom:1rem">${escapeHtml(p.descripcion)}</p>` : ''}
+
+          <div class="detalle-info-grid">
+            ${p.profundidadMetros ? `<div class="info-tile"><div class="label">Profundidad</div><div class="value">${p.profundidadMetros}m</div></div>` : ''}
+            ${p.temperaturaAgua   ? `<div class="info-tile"><div class="label">Temperatura agua</div><div class="value">${p.temperaturaAgua}°C</div></div>` : ''}
+            ${p.presionBar        ? `<div class="info-tile"><div class="label">Presión</div><div class="value">${p.presionBar} bar</div></div>` : ''}
+            ${p.visibilidadMetros ? `<div class="info-tile"><div class="label">Visibilidad</div><div class="value">${p.visibilidadMetros}m</div></div>` : ''}
+            ${p.corriente         ? `<div class="info-tile"><div class="label">Corriente</div><div class="value">${escapeHtml(p.corriente)}</div></div>` : ''}
+          </div>
+
+          ${p.especiesVistas ? `<p style="font-size:.9rem"><strong>Especies vistas:</strong> ${escapeHtml(p.especiesVistas)}</p>` : ''}
+
+          ${weather ? renderWeatherCard(weather) : ''}
+
+          ${p.fotos && p.fotos.length > 0 ? `
+            <h3 style="margin-top:1rem;font-size:1rem;color:var(--t1)">Galería</h3>
+            <div class="fotos-grid">
+              ${p.fotos.map(f => `
+                <div class="foto-card">
+                  <img src="${escapeHtml(f.url)}" alt="${escapeHtml(f.especieAvistada || '')}" loading="lazy">
+                  ${f.especieAvistada ? `<div class="overlay-tag">${escapeHtml(f.especieAvistada)}</div>` : ''}
+                </div>`).join('')}
+            </div>` : ''}
+
+          ${puedeBorrar ? `
+            <div style="text-align:right;margin-top:1.25rem">
+              <button class="btn btn-danger btn-sm" onclick="borrarPunto(${p.id})">Eliminar punto</button>
+            </div>` : ''}
+        </div>
+      `;
+    } catch (e) {
+      modal.innerHTML = `<div class="detalle-body" style="color:var(--coral)">Error: ${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  // Mapea el código de icono de OpenWeatherMap a emoji
+  function iconoParaCondicion(condicion, iconCode) {
+    const map = {
+      '01d': '☀️', '01n': '🌙',
+      '02d': '⛅', '02n': '☁️',
+      '03d': '☁️', '03n': '☁️',
+      '04d': '☁️', '04n': '☁️',
+      '09d': '🌧️', '09n': '🌧️',
+      '10d': '🌦️', '10n': '🌧️',
+      '11d': '⛈️', '11n': '⛈️',
+      '13d': '❄️', '13n': '❄️',
+      '50d': '🌫️', '50n': '🌫️'
+    };
+    return map[iconCode] || '🌤️';
+  }
+
+  function renderWeatherCard(w) {
+    if (!w) return '';
+    const icon = iconoParaCondicion(w.condicion, w.icono);
+    const temp = w.temperatura !== undefined ? Math.round(w.temperatura) : '--';
+    const desc = w.descripcion || 'sin datos';
+    const viento = w.viento !== undefined ? w.viento + ' m/s' : '—';
+    const humedad = w.humedad !== undefined ? w.humedad + '%' : '—';
+    const esDemo = w.source === 'mock';
+    const demoBadge = esDemo ? ' <span style="background:rgba(255,255,255,.25);padding:2px 6px;border-radius:4px;font-size:.65rem">DEMO</span>' : '';
+
+    return `
+      <h3 style="margin-top:1.25rem;font-size:1rem;color:var(--t1)">Tiempo actual en la zona</h3>
+      <div class="weather-card">
+        <div class="weather-icon">${icon}</div>
+        <div>
+          <div class="weather-temp">${temp}°C${demoBadge}</div>
+          <div class="weather-desc">${escapeHtml(desc)}</div>
+          <div class="weather-extra">
+            <span>💨 Viento: ${viento}</span>
+            <span>💧 Humedad: ${humedad}</span>
+            ${w.presion ? `<span>📊 ${w.presion} hPa</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function cerrarDetalle() {
+    document.getElementById('detalleOverlay').classList.remove('open');
+  }
+
+  async function borrarPunto(id) {
+    if (!confirm('¿Eliminar este punto del mapa?')) return;
+    try {
+      await fetchAPI(`/puntos-mapa/${id}`, { method: 'DELETE' });
+      showAlert('Punto eliminado', 'success');
+      cerrarDetalle();
+      await cargarPuntos();
+    } catch (e) {
+      showAlert('Error al eliminar: ' + e.message, 'error');
+    }
+  }
+
+  // ══════════ CREAR PUNTO ══════════
+  function abrirModalCrear() {
+    document.getElementById('crearOverlay').classList.add('open');
+    document.getElementById('c_fotos_list').innerHTML = '';
+    anadirFotoInput();
+  }
+  function cerrarCrear() {
+    document.getElementById('crearOverlay').classList.remove('open');
+    document.getElementById('crearForm').reset();
+  }
+
+  let fotoIdx = 0;
+  function anadirFotoInput() {
+    fotoIdx++;
+    const wrap = document.getElementById('c_fotos_list');
+    const row = document.createElement('div');
+    row.style = 'display:grid;grid-template-columns:2fr 1fr 32px;gap:.4rem;margin-bottom:.4rem;align-items:start';
+    row.innerHTML = `
+      <input class="form-input" placeholder="URL foto" data-fotourl="${fotoIdx}">
+      <input class="form-input" placeholder="Especie" data-fotoespecie="${fotoIdx}">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="this.parentElement.remove()">×</button>`;
+    wrap.appendChild(row);
+  }
+
+  document.getElementById('crearForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const fotos = [];
+    document.querySelectorAll('[data-fotourl]').forEach(inp => {
+      const url = inp.value.trim();
+      if (url) {
+        const idx = inp.getAttribute('data-fotourl');
+        const especie = document.querySelector(`[data-fotoespecie="${idx}"]`)?.value.trim() || null;
+        fotos.push({ url, especieAvistada: especie });
+      }
+    });
+
+    const fechaObs = document.getElementById('c_fecha').value;
+    const body = {
+      titulo: document.getElementById('c_titulo').value.trim(),
+      descripcion: document.getElementById('c_desc').value.trim() || null,
+      latitud: parseFloat(document.getElementById('c_lat').value),
+      longitud: parseFloat(document.getElementById('c_lon').value),
+      profundidadMetros: parseFloat(document.getElementById('c_prof').value) || null,
+      temperaturaAgua: parseFloat(document.getElementById('c_temp').value) || null,
+      presionBar: parseFloat(document.getElementById('c_pres').value) || null,
+      corriente: document.getElementById('c_corriente').value.trim() || null,
+      visibilidadMetros: parseFloat(document.getElementById('c_visib').value) || null,
+      especiesVistas: document.getElementById('c_especies').value.trim() || null,
+      fechaObservacion: fechaObs || null,
+      fotos: fotos
+    };
+
+    try {
+      await fetchAPI('/puntos-mapa', { method: 'POST', body: JSON.stringify(body) });
+      showAlert('Punto añadido al mapa', 'success');
+      cerrarCrear();
+      await cargarPuntos();
+    } catch (err) {
+      showAlert('Error: ' + err.message, 'error');
+    }
+  });
+
+  // ══════════ BOOT ══════════
+  initMap();
+  if (esEmpresa) {
+    document.getElementById('fabAdd').classList.remove('hidden');
+  } else {
+    document.getElementById('tabMis').style.display = 'none';
+  }
+  cargarPuntos();
+</script>
+<script src="/js/animations.js"></script>
+</body>
+</html>

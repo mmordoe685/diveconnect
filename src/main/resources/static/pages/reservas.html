@@ -529,16 +529,77 @@
 
           <div class="card-footer">
             ${r.precioTotal != null
-              ? `<div class="reserva-precio">${r.precioTotal.toFixed(2)}&nbsp;&euro;<span>total</span></div>`
+              ? `<div class="reserva-precio">${r.precioTotal.toFixed(2)}&nbsp;&euro;<span>total</span>
+                   ${r.paymentStatus === 'PAID'
+                      ? '<span style="background:rgba(34,197,94,.12);color:#22C55E;padding:2px 8px;border-radius:6px;font-size:.7rem;margin-left:.5rem;font-weight:700">PAGADO</span>'
+                      : r.paymentStatus === 'UNPAID' && r.estado !== 'CANCELADA'
+                        ? '<span style="background:rgba(255,209,102,.12);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:.7rem;margin-left:.5rem;font-weight:700">PENDIENTE DE PAGO</span>'
+                        : ''}
+                 </div>`
               : '<div></div>'}
-            ${puedeCancel
-              ? `<button class="btn btn-danger btn-sm" onclick="pedirCancelacion(${r.id})">
-                   Cancelar reserva
-                 </button>`
-              : ''}
+            <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+              ${r.paymentStatus === 'UNPAID' && (r.estado === 'PENDIENTE') && r.estado !== 'CANCELADA'
+                ? `<button class="btn btn-primary btn-sm" onclick="pagarReserva(${r.id})">
+                     💳 Pagar ahora
+                   </button>`
+                : ''}
+              ${puedeCancel
+                ? `<button class="btn btn-danger btn-sm" onclick="pedirCancelacion(${r.id})">
+                     Cancelar reserva
+                   </button>`
+                : ''}
+            </div>
           </div>
         </div>`;
     }).join('');
+  }
+
+  /* ── Pagar reserva con Stripe ───────────────────────── */
+  async function pagarReserva(reservaId) {
+    try {
+      const resp = await fetchAPI(`/payments/checkout/${reservaId}`, { method: 'POST' });
+      if (!resp) return;
+
+      // Modo demo (Stripe no configurado) -> llamar directamente a verify
+      if (resp.enabled === false) {
+        const ok = confirm('Stripe no está configurado (modo demo). ¿Confirmar el pago de forma simulada?');
+        if (!ok) return;
+        await fetchAPI(`/payments/verify/${reservaId}`, { method: 'POST' });
+        showAlert('¡Pago simulado con éxito! Reserva confirmada.', 'success');
+        await cargarReservas();
+        return;
+      }
+
+      // Stripe real: redirigir al Checkout
+      if (resp.url) {
+        window.location.href = resp.url;
+      } else {
+        showAlert('No se pudo iniciar el pago. Inténtalo de nuevo.', 'error');
+      }
+    } catch (err) {
+      showAlert('Error al iniciar el pago: ' + err.message, 'error');
+    }
+  }
+
+  /* ── Verificar vuelta desde Stripe ──────────────────── */
+  async function manejarVueltaStripe() {
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('payment');
+    const rid = params.get('reserva');
+
+    if (status === 'success' && rid) {
+      try {
+        await fetchAPI(`/payments/verify/${rid}`, { method: 'POST' });
+        showAlert('¡Pago completado! Tu reserva está confirmada.', 'success');
+      } catch (e) {
+        showAlert('El pago podría no haberse procesado: ' + e.message, 'error');
+      }
+      // Limpiar URL
+      history.replaceState({}, document.title, window.location.pathname);
+    } else if (status === 'cancelled') {
+      showAlert('Pago cancelado. Puedes reintentarlo cuando quieras.', 'info');
+      history.replaceState({}, document.title, window.location.pathname);
+    }
   }
 
   /* ── Modal helpers ───────────────────────────────────── */
@@ -580,7 +641,10 @@
     if (e.key === 'Escape') cerrarModal();
   });
 
-  cargarReservas();
+  (async () => {
+    await manejarVueltaStripe();
+    await cargarReservas();
+  })();
 </script>
 <script src="/js/animations.js"></script>
 </body>

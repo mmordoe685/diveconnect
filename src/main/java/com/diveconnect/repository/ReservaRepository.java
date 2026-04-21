@@ -10,25 +10,29 @@ import com.diveconnect.entity.Reserva;
 import com.diveconnect.entity.Usuario;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-    
+
     // Reservas de un usuario
     List<Reserva> findByUsuarioOrderByFechaReservaDesc(Usuario usuario);
-    
+
     // Reservas de un centro
     List<Reserva> findByCentroBuceoOrderByFechaReservaDesc(CentroBuceo centroBuceo);
-    
+
     // Reservas de una inmersión específica
     List<Reserva> findByInmersion(Inmersion inmersion);
-    
+
     // Buscar por estado
     List<Reserva> findByEstado(EstadoReserva estado);
-    
+
     // Reservas de un usuario con estado específico
     List<Reserva> findByUsuarioAndEstado(Usuario usuario, EstadoReserva estado);
-    
+
     // Contar reservas confirmadas de una inmersión
     Long countByInmersionAndEstado(Inmersion inmersion, EstadoReserva estado);
+
+    // Pagos Stripe
+    Optional<Reserva> findByStripeSessionId(String stripeSessionId);
 }

@@ -7,6 +7,7 @@
 const NAV_LINKS = {
   USUARIO_COMUN: [
     { href: '/pages/feed.html',        label: 'Feed' },
+    { href: '/pages/mapa.html',        label: 'Mapa' },
     { href: '/pages/Inmersiones.html', label: 'Inmersiones' },
     { href: '/pages/centros.html',     label: 'Centros' },
     { href: '/pages/reservas.html',    label: 'Mis Reservas' },
@@ -14,6 +15,7 @@ const NAV_LINKS = {
   ],
   USUARIO_EMPRESA: [
     { href: '/pages/feed.html',                       label: 'Feed' },
+    { href: '/pages/mapa.html',                       label: 'Mapa' },
     { href: '/pages/empresa/dashboard.html',          label: 'Panel' },
     { href: '/pages/empresa/mi-centro.html',          label: 'Mi Centro' },
     { href: '/pages/empresa/mis-inmersiones.html',    label: 'Inmersiones' },
@@ -26,6 +28,7 @@ const NAV_LINKS = {
     { href: '/pages/admin/centros.html',     label: 'Centros' },
     { href: '/pages/admin/inmersiones.html', label: 'Inmersiones' },
     { href: '/pages/admin/reservas.html',    label: 'Reservas' },
+    { href: '/pages/mapa.html',              label: 'Mapa' },
     { href: '/pages/feed.html',              label: 'Feed' },
     { href: '/pages/Perfil.html',            label: 'Perfil' },
   ],
@@ -101,6 +104,7 @@ function _renderPublicNav(navbar) {
       </a>
       <nav class="navbar-menu">
         <a href="/index.html" class="nav-link">Inicio</a>
+        <a href="/pages/mapa.html" class="nav-link">Mapa</a>
         <a href="/pages/Inmersiones.html" class="nav-link">Inmersiones</a>
         <a href="/pages/centros.html" class="nav-link">Centros</a>
       </nav>
