@@ -22,13 +22,15 @@ import java.util.List;
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
-    private final UsuarioRepository     usuarioRepository;
-    private final PublicacionRepository publicacionRepository;
-    private final ComentarioRepository  comentarioRepository;
-    private final ReservaRepository     reservaRepository;
-    private final InmersionRepository   inmersionRepository;
-    private final CentroBuceoRepository centroBuceoRepository;
-    private final PasswordEncoder       passwordEncoder;
+    private final UsuarioRepository       usuarioRepository;
+    private final PublicacionRepository   publicacionRepository;
+    private final ComentarioRepository    comentarioRepository;
+    private final ReservaRepository       reservaRepository;
+    private final InmersionRepository     inmersionRepository;
+    private final CentroBuceoRepository   centroBuceoRepository;
+    private final PuntoMapaRepository     puntoMapaRepository;
+    private final FotoPuntoMapaRepository fotoPuntoMapaRepository;
+    private final PasswordEncoder         passwordEncoder;
 
     @Override
     public void run(String... args) {
@@ -36,13 +38,15 @@ public class DataInitializer implements CommandLineRunner {
             && usuarioRepository.existsByUsername("buceador")
             && usuarioRepository.existsByUsername("oceandive");
 
-        if (usuariosExisten && reservaRepository.count() > 0) {
+        if (usuariosExisten && reservaRepository.count() > 0 && puntoMapaRepository.count() > 0) {
             log.info("=== DataInitializer: datos ya existen, saltando ===");
             return;
         }
 
         if (usuariosExisten && reservaRepository.count() == 0) {
             log.info("=== DataInitializer: usuarios existen pero faltan reservas, recreando todo ===");
+        } else if (usuariosExisten && puntoMapaRepository.count() == 0) {
+            log.info("=== DataInitializer: usuarios existen pero faltan puntos de mapa, recreando todo ===");
         } else {
             log.info("=== DataInitializer: creando datos de demostración ===");
         }
@@ -58,6 +62,8 @@ public class DataInitializer implements CommandLineRunner {
         comentarioRepository.deleteAll();
         reservaRepository.deleteAll();
         publicacionRepository.deleteAll();
+        fotoPuntoMapaRepository.deleteAll();
+        puntoMapaRepository.deleteAll();
         inmersionRepository.deleteAll();
         centroBuceoRepository.deleteAll();
         usuarioRepository.clearSeguidores();
@@ -286,6 +292,69 @@ public class DataInitializer implements CommandLineRunner {
         crearReserva(pablo,   ib4, 3, EstadoReserva.CONFIRMADA);
         crearReserva(lucia,   ii4, 1, EstadoReserva.PENDIENTE);
 
+        // ── PUNTOS DEL MAPA (solo empresas crean puntos) ───────────────────────
+        // Ocean Dive — Islas Medas
+        crearPuntoMapa(uOcean, io1, "Islas Medas — La Vaca",
+            "Uno de los puntos más icónicos del Mediterráneo español. Los buceadores avistan meros, barracudas, pulpos y rayas.",
+            42.043, 3.222, 22.5, 22.0, 2.5, "Suave de oeste a este", 25.0,
+            "Mero gigante, banco de barracudas, pulpo común, morena, corvina",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1559825481-12a05cc00344?w=800&q=80", "Mero gigante", "Mero avistado a 20m"),
+                new FotoSeed("https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800&q=80", "Banco de barracudas", "Formación densa de ~50 individuos")
+            ));
+
+        crearPuntoMapa(uOcean, io2, "Cabo de Creus — Nocturna",
+            "Buceo nocturno en el punto más oriental de la Península. La vida marina cambia por completo cuando cae la noche.",
+            42.319, 3.317, 18.0, 20.0, 1.8, "Moderada, variable", 15.0,
+            "Pulpos nocturnos, cangrejos ermitaños, morenas, langostas",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1571149793834-7e9d67a9d7f8?w=800&q=80", "Pulpo común", "Cazando de noche con linterna")
+            ));
+
+        crearPuntoMapa(uOcean, io3, "Pecio La Vaca",
+            "Naufragio del carguero La Vaca hundido en 1917. Arrecife artificial colonizado por corales y esponjas.",
+            41.735, 2.943, 28.0, 18.0, 2.8, "Suave", 20.0,
+            "Congrios, morenas, mero, corales amarillos, esponjas",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1559077398-db54a1e5d9b9?w=800&q=80", "Pecio entero", "Vista general del pecio desde la proa"),
+                new FotoSeed("https://images.unsplash.com/photo-1617854818583-09e7f077a156?w=800&q=80", "Coral amarillo", "Colonización sobre casco oxidado")
+            ));
+
+        // Blue World Diving — Alicante
+        crearPuntoMapa(uBlue, ib1, "Reserva de Tabarca",
+            "Primera reserva marina de España. Praderas de posidonia oceánica y tortugas bobas habitan estas aguas protegidas.",
+            38.163, -0.477, 20.0, 21.0, 2.0, "Sin corriente", 18.0,
+            "Tortuga boba, posidonia oceánica, sargos, doncellas, salpas",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1582967788606-a171c1080cb0?w=800&q=80", "Tortuga boba", "Hembra adulta alimentándose")
+            ));
+
+        crearPuntoMapa(uBlue, ib3, "Cova Tallada — Jávea",
+            "Cueva marina con estalactitas submarinas y claraboyas naturales que dejan pasar la luz.",
+            38.745, 0.237, 15.0, 19.0, 1.5, "Suave", 15.0,
+            "Estalactitas submarinas, moray, congrios, langostas, pintarrojas",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1682687982167-d7fb3ed8541d?w=800&q=80", "Estalactitas", "Haces de luz penetrando en la cueva")
+            ));
+
+        // Island Dive Center — Ibiza y Formentera
+        crearPuntoMapa(uIsland, ii1, "Ses Margalides",
+            "Islotes del norte de Ibiza. Visibilidad excepcional (hasta 40m) y formaciones rocosas coloridas.",
+            39.076, 1.302, 30.0, 23.0, 3.0, "Suave", 38.0,
+            "Morena gigante, pez escorpión, nudibranquios, mero, pulpos",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1576513657268-8e2173b1e0a5?w=800&q=80", "Morena gigante", "Asomada en roca — 1.5m"),
+                new FotoSeed("https://images.unsplash.com/photo-1540820658951-0dd4a3463252?w=800&q=80", "Nudibranquio", "Especie Flabellina affinis")
+            ));
+
+        crearPuntoMapa(uIsland, ii3, "Posidonia de Formentera",
+            "Pradera de posidonia oceánica Patrimonio UNESCO. Aguas turquesas cristalinas y biodiversidad excepcional.",
+            38.703, 1.452, 12.0, 24.0, 1.2, "Sin corriente", 35.0,
+            "Posidonia oceánica, sargos, castañuelas, pulpo, mero",
+            List.of(
+                new FotoSeed("https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80", "Pradera de posidonia", "Luz cenital atravesando las praderas")
+            ));
+
         // ── SEGUIDORES ────────────────────────────────────────────────────────
         seguir(carlos,  javier);
         seguir(carlos,  marina);
@@ -401,5 +470,42 @@ public class DataInitializer implements CommandLineRunner {
     private void seguir(Usuario seguidor, Usuario seguido) {
         seguidor.getSiguiendo().add(seguido);
         usuarioRepository.save(seguidor);
+    }
+
+    /** Estructura auxiliar para sembrar fotos sin tener que instanciar la entidad. */
+    private record FotoSeed(String url, String especie, String descripcion) {}
+
+    private void crearPuntoMapa(Usuario autor, Inmersion inmersion,
+                                 String titulo, String desc,
+                                 double lat, double lon,
+                                 double profundidad, double tempAgua, double presion,
+                                 String corriente, double visibilidad,
+                                 String especies, List<FotoSeed> fotos) {
+        PuntoMapa p = new PuntoMapa();
+        p.setAutor(autor);
+        p.setInmersion(inmersion);
+        p.setTitulo(titulo);
+        p.setDescripcion(desc);
+        p.setLatitud(lat);
+        p.setLongitud(lon);
+        p.setProfundidadMetros(profundidad);
+        p.setTemperaturaAgua(tempAgua);
+        p.setPresionBar(presion);
+        p.setCorriente(corriente);
+        p.setVisibilidadMetros(visibilidad);
+        p.setEspeciesVistas(especies);
+        p.setFechaObservacion(LocalDateTime.now().minusDays((long)(Math.random() * 30) + 1));
+        p.setActivo(true);
+        PuntoMapa guardado = puntoMapaRepository.save(p);
+
+        for (FotoSeed seed : fotos) {
+            FotoPuntoMapa f = new FotoPuntoMapa();
+            f.setPuntoMapa(guardado);
+            f.setUrl(seed.url());
+            f.setEspecieAvistada(seed.especie());
+            f.setDescripcion(seed.descripcion());
+            f.setFechaHora(guardado.getFechaObservacion());
+            fotoPuntoMapaRepository.save(f);
+        }
     }
 }

@@ -14,6 +14,10 @@ public class ReservaResponse {
     private String observaciones;
     private LocalDateTime fechaReserva;
     private LocalDateTime ultimaModificacion;
+
+    // Pago
+    private String paymentStatus; // UNPAID, PAID, FAILED
+    private String stripeSessionId;
     
     // Datos del usuario
     private Long usuarioId;

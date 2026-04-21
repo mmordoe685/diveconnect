@@ -450,10 +450,15 @@
       <strong id="totalPrecio">&mdash;</strong>
     </div>
 
+    <div style="background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:8px;padding:.6rem .8rem;font-size:.78rem;color:var(--text-2);margin:.5rem 0 .75rem">
+      💳 Al confirmar serás redirigido a Stripe para completar el pago de forma segura.
+      No necesitamos que la empresa lo apruebe — si hay plazas, tu reserva queda confirmada.
+    </div>
+
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
       <button class="btn btn-primary" style="flex:2" id="confirmarBtn"
-              onclick="confirmarReserva()">Confirmar reserva</button>
+              onclick="confirmarReserva()">Reservar y pagar</button>
     </div>
 
   </div>
@@ -712,10 +717,35 @@
     btn.textContent = 'Procesando...';
 
     try {
-      await fetchAPI('/reservas', {
+      // 1. Crear reserva (queda en estado PENDIENTE / UNPAID)
+      const reserva = await fetchAPI('/reservas', {
         method: 'POST',
         body: JSON.stringify({ inmersionId: inmersionActual.id, numeroPersonas: num })
       });
+
+      // 2. Intentar iniciar pago con Stripe
+      btn.textContent = 'Redirigiendo al pago...';
+      const checkout = await fetchAPI(`/payments/checkout/${reserva.id}`, { method: 'POST' });
+
+      if (checkout && checkout.enabled === false) {
+        // Stripe no configurado: ir a "Mis reservas" donde podrán usar el botón de pago demo
+        cerrarModal();
+        showAlert(
+          `Reserva creada (modo demo — Stripe no configurado). Ve a "Mis Reservas" para simular el pago.`,
+          'info'
+        );
+        setTimeout(() => { window.location.href = '/pages/reservas.html'; }, 1500);
+        return;
+      }
+
+      if (checkout && checkout.url) {
+        // Stripe real: redirigir al Checkout
+        cerrarModal();
+        window.location.href = checkout.url;
+        return;
+      }
+
+      // Fallback: mostrar confirmación simple
       cerrarModal();
       showAlert(
         `Reserva confirmada. Total: ${(inmersionActual.precio * num).toFixed(2)}\u20AC. Consulta el estado en Mis Reservas.`,

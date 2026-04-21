@@ -33,6 +33,16 @@ public class Reserva {
     @Column(length = 500)
     private String observaciones;
 
+    // ── Campos de pago (Stripe) ─────────────────────────
+    @Column(name = "stripe_session_id", length = 200)
+    private String stripeSessionId;
+
+    @Column(name = "stripe_payment_intent_id", length = 200)
+    private String stripePaymentIntentId;
+
+    @Column(name = "payment_status", length = 30)
+    private String paymentStatus; // UNPAID, PAID, FAILED
+
     @CreationTimestamp
     @Column(name = "fecha_reserva", updatable = false)
     private LocalDateTime fechaReserva;

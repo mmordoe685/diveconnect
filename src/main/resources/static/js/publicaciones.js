@@ -141,12 +141,19 @@ async function handleDeletePublicacion(publicacionId) {
 async function toggleComentarios(publicacionId) {
     const section = document.getElementById(`comentarios-${publicacionId}`);
     if (!section) return;
-    section.classList.toggle('hidden');
-    if (!section.classList.contains('hidden')) {
-        try {
-            renderComentarios(publicacionId, await getComentarios(publicacionId));
-        } catch (err) {
-            showAlert('Error al cargar comentarios', 'error');
+    // Soporta dos estilos: 'hidden' (páginas legacy) y 'open' (feed Instagram)
+    const usaOpen = section.classList.contains('ig-comment-area');
+    if (usaOpen) {
+        section.classList.toggle('open');
+        if (section.classList.contains('open')) {
+            try { renderComentarios(publicacionId, await getComentarios(publicacionId)); }
+            catch { showAlert('Error al cargar comentarios', 'error'); }
+        }
+    } else {
+        section.classList.toggle('hidden');
+        if (!section.classList.contains('hidden')) {
+            try { renderComentarios(publicacionId, await getComentarios(publicacionId)); }
+            catch { showAlert('Error al cargar comentarios', 'error'); }
         }
     }
 }

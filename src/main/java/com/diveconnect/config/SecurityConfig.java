@@ -1,8 +1,10 @@
 package com.diveconnect.config;
 
+import com.diveconnect.security.GoogleOAuth2SuccessHandler;
 import com.diveconnect.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +26,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final GoogleOAuth2SuccessHandler googleOAuth2SuccessHandler;
+
+    @Value("${app.google-oauth-enabled:false}")
+    private boolean googleOAuthEnabled;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -34,14 +40,12 @@ public class SecurityConfig {
             )
             // ── Manejadores de error con cuerpo JSON ────────────────────
             .exceptionHandling(ex -> ex
-                // 401 — sin autenticación (token ausente o inválido)
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json;charset=UTF-8");
                     response.getWriter().write(
                         "{\"status\":401,\"message\":\"No autorizado. Por favor inicia sesión.\"}");
                 })
-                // 403 — autenticado pero sin permiso
                 .accessDeniedHandler((request, response, accessDeniedException) -> {
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
                     response.setContentType("application/json;charset=UTF-8");
@@ -62,21 +66,28 @@ public class SecurityConfig {
                 // ── Auth pública ─────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
 
+                // ── OAuth2 (Google) ──────────────────────────────────────
+                .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
+
                 // ── Admin (sólo ADMINISTRADOR) ───────────────────────────
                 .requestMatchers("/api/admin/**").hasRole("ADMINISTRADOR")
 
                 // ── Endpoints públicos de catálogo ───────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/centros-buceo/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/inmersiones/disponibles").permitAll()
-                // literal antes del patrón genérico /{id}
                 .requestMatchers(HttpMethod.GET,  "/api/inmersiones/mis-inmersiones").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/inmersiones/**").permitAll()
 
+                // ── Mapa: lectura pública, escritura autenticada ─────────
+                .requestMatchers(HttpMethod.GET, "/api/puntos-mapa/**").permitAll()
+
+                // ── Tiempo atmosférico (consulta pública) ────────────────
+                .requestMatchers(HttpMethod.GET, "/api/weather").permitAll()
+
+                // ── Stripe config pública (publishable key) ──────────────
+                .requestMatchers(HttpMethod.GET, "/api/payments/config").permitAll()
+
                 // ── Endpoints de usuario ─────────────────────────────────
-                // IMPORTANTE: las rutas LITERALES deben declararse ANTES que
-                // el patrón genérico /{id}, de lo contrario Spring Security
-                // empareja /perfil como si fuera un {id} y aplica permitAll,
-                // dejando Authentication = null en el controlador.
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/perfil").authenticated()
                 .requestMatchers(HttpMethod.PUT,  "/api/usuarios/perfil").authenticated()
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/buscar").authenticated()
@@ -87,6 +98,17 @@ public class SecurityConfig {
                 // ── Todo lo demás requiere JWT válido ────────────────────
                 .anyRequest().authenticated()
             );
+
+        // OAuth2 Login sólo se habilita si está configurado con credenciales reales
+        if (googleOAuthEnabled) {
+            http.oauth2Login(oauth2 -> oauth2
+                .successHandler(googleOAuth2SuccessHandler)
+                .failureHandler((request, response, exception) -> {
+                    response.sendRedirect("/pages/login.html?oauth_error=" +
+                        java.net.URLEncoder.encode(exception.getMessage(), "UTF-8"));
+                })
+            );
+        }
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
