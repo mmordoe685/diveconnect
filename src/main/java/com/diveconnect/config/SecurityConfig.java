@@ -87,6 +87,17 @@ public class SecurityConfig {
                 // ── Stripe config pública (publishable key) ──────────────
                 .requestMatchers(HttpMethod.GET, "/api/payments/config").permitAll()
 
+                // ── PayPal config pública (client-id) ────────────────────
+                .requestMatchers(HttpMethod.GET, "/api/paypal/config").permitAll()
+                .requestMatchers("/api/paypal/**").authenticated()
+
+                // ── Búsqueda universal (lectura pública) ─────────────────
+                .requestMatchers(HttpMethod.GET, "/api/search/**").permitAll()
+
+                // ── Notificaciones y seguimiento (autenticado) ───────────
+                .requestMatchers("/api/notificaciones/**").authenticated()
+                .requestMatchers("/api/seguimiento/**").authenticated()
+
                 // ── Endpoints de usuario ─────────────────────────────────
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/perfil").authenticated()
                 .requestMatchers(HttpMethod.PUT,  "/api/usuarios/perfil").authenticated()

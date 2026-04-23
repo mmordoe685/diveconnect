@@ -214,8 +214,8 @@
     <div class="loading" style="color:var(--text-2)"><div class="spinner"></div></div>
   </div>
 
-  <!-- ── Edit Form ── -->
-  <div class="edit-card">
+  <!-- ── Edit Form (solo en perfil propio) ── -->
+  <div class="edit-card" id="editCard">
     <div class="edit-card-header">
       <div class="edit-card-icon">✏️</div>
       <div class="edit-card-title">Editar perfil</div>
@@ -241,11 +241,11 @@
   </div>
 
   <!-- ── Publications ── -->
-  <div class="section-label" style="margin-top:.25rem">Mis publicaciones</div>
+  <div class="section-label" style="margin-top:.25rem" id="publicacionesLabel">Mis publicaciones</div>
   <div id="misPublicaciones"><div class="loading"><div class="spinner"></div></div></div>
 
-  <!-- ── Reservations ── -->
-  <div class="section-label" style="margin-top:1.75rem">Reservas recientes</div>
+  <!-- ── Reservations (solo en perfil propio) ── -->
+  <div class="section-label" style="margin-top:1.75rem" id="reservasLabel">Reservas recientes</div>
   <div id="misReservas"><div class="loading"><div class="spinner"></div></div></div>
 
 </div>
@@ -257,11 +257,22 @@
 <script>
   requireAuth(); initNav();
 
+  // ── Determina si viene ?id=... en la URL y si es otro usuario ─────
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramId = urlParams.get('id');
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const verOtroUsuario = paramId && parseInt(paramId, 10) !== parseInt(currentUser.id, 10);
+  const idAVer = verOtroUsuario ? parseInt(paramId, 10) : null;
+  let perfilVisible = null; // usuario cargado (propio u otro)
+
   async function cargarPerfil() {
     const hero = document.getElementById('perfilHero');
     try {
-      const user = await fetchAPI('/usuarios/perfil');
-      localStorage.setItem('user', JSON.stringify(user));
+      const user = verOtroUsuario
+        ? await fetchAPI('/usuarios/' + idAVer)
+        : await fetchAPI('/usuarios/perfil');
+      if (!verOtroUsuario) localStorage.setItem('user', JSON.stringify(user));
+      perfilVisible = user;
 
       const inicial = (user.username || '?').charAt(0).toUpperCase();
       const avatarHtml = user.fotoPerfil
@@ -275,17 +286,27 @@
         ADMINISTRADOR:  'Administrador'
       }[user.tipoUsuario] || 'Buceador';
 
+      // Nombre público (empresas priorizan nombreEmpresa)
+      const nombrePublico = user.nombreEmpresa ? escapeHtml(user.nombreEmpresa) : ('@' + escapeHtml(user.username));
+
+      // Slot para el botón "Seguir" — sólo si viene otro usuario
+      const followBtnHtml = verOtroUsuario
+        ? `<button id="followBtn" class="btn-follow seguir" type="button" style="margin-top:.75rem">Cargando…</button>`
+        : '';
+
       hero.innerHTML = `
         <div class="perfil-top">
           ${avatarHtml}
           <div class="perfil-info">
-            <div class="perfil-username">@${escapeHtml(user.username)}</div>
+            <div class="perfil-username">${nombrePublico}</div>
             <div class="perfil-tags">
               <span class="perfil-tag">${tipoLabel}</span>
               ${user.nivelCertificacion ? `<span class="perfil-tag">${escapeHtml(user.nivelCertificacion)}</span>` : ''}
             </div>
-            ${user.email ? `<div class="perfil-email">${escapeHtml(user.email)}</div>` : ''}
+            ${user.email && !verOtroUsuario ? `<div class="perfil-email">${escapeHtml(user.email)}</div>` : ''}
             ${user.biografia ? `<p class="perfil-bio">${escapeHtml(user.biografia)}</p>` : ''}
+            ${user.descripcionEmpresa ? `<p class="perfil-bio">${escapeHtml(user.descripcionEmpresa)}</p>` : ''}
+            ${followBtnHtml}
           </div>
         </div>
         <div class="perfil-stats">
@@ -298,7 +319,7 @@
             <div class="perfil-stat-label">Seguidores</div>
           </div>
           <div class="perfil-stat">
-            <div class="perfil-stat-num">${user.numeroSeguidos || 0}</div>
+            <div class="perfil-stat-num">${user.numeroSeguidos || user.numeroSiguiendo || 0}</div>
             <div class="perfil-stat-label">Siguiendo</div>
           </div>
           <div class="perfil-stat">
@@ -307,24 +328,99 @@
           </div>
         </div>`;
 
-      document.getElementById('biografia').value      = user.biografia          || '';
-      document.getElementById('nivel').value          = user.nivelCertificacion || '';
-      document.getElementById('numInmersiones').value = user.numeroInmersiones  || 0;
+      if (verOtroUsuario) {
+        // Ocultar edit form y reservas — mostramos sólo publicaciones públicas
+        document.getElementById('editCard').style.display = 'none';
+        document.getElementById('reservasLabel').style.display = 'none';
+        document.getElementById('misReservas').style.display = 'none';
+        document.getElementById('publicacionesLabel').textContent = `Publicaciones de ${nombrePublico}`;
+        // Cablear botón follow con 3 estados
+        await wireFollowButton(user.id);
+      } else {
+        document.getElementById('biografia').value      = user.biografia          || '';
+        document.getElementById('nivel').value          = user.nivelCertificacion || '';
+        document.getElementById('numInmersiones').value = user.numeroInmersiones  || 0;
+      }
     } catch (err) {
       hero.innerHTML = `<p style="color:var(--text-2);padding:1rem">
         Error al cargar el perfil: ${escapeHtml(err.message)}</p>`;
     }
   }
 
+  // ── Follow button con 3 estados ─────────────────────────────────────
+  async function wireFollowButton(userId) {
+    const btn = document.getElementById('followBtn');
+    if (!btn) return;
+    try {
+      const estado = await fetchAPI('/seguimiento/estado/' + userId);
+      aplicarEstadoFollow(btn, estado && estado.estado);
+    } catch {
+      aplicarEstadoFollow(btn, 'NO_SIGUE');
+    }
+    btn.addEventListener('click', async () => {
+      const estadoActual = btn.dataset.estado || 'NO_SIGUE';
+      btn.disabled = true;
+      const textoOriginal = btn.textContent;
+      btn.textContent = '…';
+      try {
+        if (estadoActual === 'SIGUIENDO') {
+          const res = await fetchAPI('/seguimiento/dejar/' + userId, { method: 'DELETE' });
+          aplicarEstadoFollow(btn, res && res.estado);
+          showAlert('Has dejado de seguir', 'info');
+        } else if (estadoActual === 'NO_SIGUE' || estadoActual === 'SOLICITADO') {
+          // SOLICITADO también re-solicita (idempotente a nivel de servicio)
+          const res = await fetchAPI('/seguimiento/solicitar/' + userId, { method: 'POST' });
+          aplicarEstadoFollow(btn, res && res.estado);
+          if (res.estado === 'SIGUIENDO') showAlert('¡Ahora le sigues!', 'success');
+          else if (res.estado === 'SOLICITADO') showAlert('Solicitud enviada', 'info');
+        }
+      } catch (err) {
+        btn.textContent = textoOriginal;
+        showAlert(err.message || 'Error', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+  }
+
+  function aplicarEstadoFollow(btn, estado) {
+    estado = estado || 'NO_SIGUE';
+    btn.dataset.estado = estado;
+    btn.className = 'btn-follow';
+    switch (estado) {
+      case 'SIGUIENDO':
+        btn.classList.add('siguiendo');
+        btn.textContent = 'Siguiendo';
+        break;
+      case 'SOLICITADO':
+        btn.classList.add('solicitado');
+        btn.textContent = 'Solicitado';
+        break;
+      case 'PROPIO':
+        btn.style.display = 'none';
+        break;
+      default:
+        btn.classList.add('seguir');
+        btn.textContent = 'Seguir';
+    }
+    btn.style.marginTop = '.75rem';
+  }
+
   async function cargarMisPublicaciones() {
     const container = document.getElementById('misPublicaciones');
     try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user.id) { container.innerHTML = ''; return; }
-      const lista = await fetchAPI(`/publicaciones/usuario/${user.id}`);
+      let usuarioId;
+      if (verOtroUsuario) {
+        usuarioId = idAVer;
+      } else {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        usuarioId = user.id;
+      }
+      if (!usuarioId) { container.innerHTML = ''; return; }
+      const lista = await fetchAPI(`/publicaciones/usuario/${usuarioId}`);
       if (!lista || lista.length === 0) {
         container.innerHTML = `<div class="card" style="text-align:center;color:var(--text-2);padding:2rem">
-          No has publicado nada todavía. <a href="/pages/feed.html" style="color:var(--turquoise)">Ir al feed</a></div>`;
+          ${verOtroUsuario ? 'Este usuario aún no tiene publicaciones.' : `No has publicado nada todavía. <a href="/pages/feed.html" style="color:var(--turquoise)">Ir al feed</a>`}</div>`;
       } else {
         container.innerHTML = lista.map(p => renderPublicacion(p)).join('');
       }
@@ -376,30 +472,32 @@
     }
   }
 
-  document.getElementById('editForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = e.submitter || document.querySelector('#editForm button[type="submit"]');
-    const txt = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Guardando...';
-    try {
-      await fetchAPI('/usuarios/perfil', {
-        method: 'PUT',
-        body: JSON.stringify({
-          biografia:          document.getElementById('biografia').value.trim() || null,
-          nivelCertificacion: document.getElementById('nivel').value.trim() || null,
-          numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value, 10) || 0
-        })
-      });
-      showAlert('Perfil actualizado correctamente.', 'success');
-      await cargarPerfil();
-    } catch (err) {
-      showAlert(err.message || 'Error al guardar.', 'error');
-    } finally { btn.disabled = false; btn.textContent = txt; }
-  });
+  if (!verOtroUsuario) {
+    document.getElementById('editForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.submitter || document.querySelector('#editForm button[type="submit"]');
+      const txt = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Guardando...';
+      try {
+        await fetchAPI('/usuarios/perfil', {
+          method: 'PUT',
+          body: JSON.stringify({
+            biografia:          document.getElementById('biografia').value.trim() || null,
+            nivelCertificacion: document.getElementById('nivel').value.trim() || null,
+            numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value, 10) || 0
+          })
+        });
+        showAlert('Perfil actualizado correctamente.', 'success');
+        await cargarPerfil();
+      } catch (err) {
+        showAlert(err.message || 'Error al guardar.', 'error');
+      } finally { btn.disabled = false; btn.textContent = txt; }
+    });
+  }
 
   cargarPerfil();
   cargarMisPublicaciones();
-  cargarMisReservas();
+  if (!verOtroUsuario) cargarMisReservas();
 </script>
 <script src="/js/animations.js"></script>
 </body>
