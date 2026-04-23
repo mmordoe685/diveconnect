@@ -43,6 +43,13 @@ public class Reserva {
     @Column(name = "payment_status", length = 30)
     private String paymentStatus; // UNPAID, PAID, FAILED
 
+    // ── Campos de pago PayPal ───────────────────────────
+    @Column(name = "paypal_order_id", length = 100)
+    private String paypalOrderId;
+
+    @Column(name = "paypal_capture_id", length = 100)
+    private String paypalCaptureId;
+
     @CreationTimestamp
     @Column(name = "fecha_reserva", updatable = false)
     private LocalDateTime fechaReserva;

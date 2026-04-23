@@ -65,6 +65,9 @@
 
   let _modalEl = null;
   let _currentResolve = null;
+  let _paypalCfg = null;            // { enabled, clientId, mode, currency }
+  let _paypalSdkLoaded = false;     // true una vez inyectado el <script>
+  let _paypalRendered = false;      // true si ya se llamó a paypal.Buttons().render
 
   function ensureStyles() {
     if (document.getElementById('payStyles')) return;
@@ -114,50 +117,67 @@
       </div>
 
       <div class="pay-methods">
-        <button class="pay-method-pill active">
+        <button class="pay-method-pill active" data-method="card" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 11h20"/></svg>
           Tarjeta
         </button>
-        <button class="pay-method-pill" title="Próximamente" disabled style="opacity:.55;cursor:not-allowed">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
-          PayPal
+        ${_paypalCfg && _paypalCfg.enabled
+          ? `<button class="pay-method-pill" data-method="paypal" type="button">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
+               PayPal
+             </button>`
+          : `<button class="pay-method-pill" title="Configura PAYPAL_CLIENT_ID para habilitar PayPal real" disabled style="opacity:.55;cursor:not-allowed">
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
+               PayPal
+             </button>`}
+      </div>
+
+      <!-- Bloque tarjeta -->
+      <div id="payCardBlock">
+        <div class="pay-field">
+          <label class="dv-label">Titular de la tarjeta</label>
+          <input id="payName" class="dv-input" placeholder="Nombre y apellidos" autocomplete="cc-name" value="">
+        </div>
+
+        <div class="pay-field">
+          <label class="dv-label">Número de tarjeta</label>
+          <input id="payCardNumber" class="dv-input" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" maxlength="23">
+          <span class="pay-field-brand" id="payBrandIcon">💳</span>
+        </div>
+        <div class="pay-err" id="payErrNumber">Número de tarjeta no válido</div>
+
+        <div class="pay-row">
+          <div class="pay-field">
+            <label class="dv-label">Caducidad (MM/AA)</label>
+            <input id="payExpiry" class="dv-input" placeholder="MM/AA" inputmode="numeric" autocomplete="cc-exp" maxlength="5">
+            <div class="pay-err" id="payErrExpiry">Fecha no válida</div>
+          </div>
+          <div class="pay-field">
+            <label class="dv-label">CVC</label>
+            <input id="payCvc" class="dv-input" placeholder="123" inputmode="numeric" autocomplete="cc-csc" maxlength="4">
+            <div class="pay-err" id="payErrCvc">3–4 dígitos</div>
+          </div>
+        </div>
+
+        <button class="dv-btn-pay" id="payConfirmBtn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-3px;margin-right:.35rem"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>
+          Pagar ${totalFmt} €
         </button>
       </div>
 
-      <div class="pay-field">
-        <label class="dv-label">Titular de la tarjeta</label>
-        <input id="payName" class="dv-input" placeholder="Nombre y apellidos" autocomplete="cc-name" value="">
+      <!-- Bloque PayPal -->
+      <div id="payPaypalBlock" style="display:none">
+        <div id="paypalButtonContainer" style="min-height:70px"></div>
+        <div id="paypalStatus" style="font-size:.78rem;color:var(--t2);margin-top:.5rem;text-align:center"></div>
       </div>
-
-      <div class="pay-field">
-        <label class="dv-label">Número de tarjeta</label>
-        <input id="payCardNumber" class="dv-input" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" maxlength="23">
-        <span class="pay-field-brand" id="payBrandIcon">💳</span>
-      </div>
-      <div class="pay-err" id="payErrNumber">Número de tarjeta no válido</div>
-
-      <div class="pay-row">
-        <div class="pay-field">
-          <label class="dv-label">Caducidad (MM/AA)</label>
-          <input id="payExpiry" class="dv-input" placeholder="MM/AA" inputmode="numeric" autocomplete="cc-exp" maxlength="5">
-          <div class="pay-err" id="payErrExpiry">Fecha no válida</div>
-        </div>
-        <div class="pay-field">
-          <label class="dv-label">CVC</label>
-          <input id="payCvc" class="dv-input" placeholder="123" inputmode="numeric" autocomplete="cc-csc" maxlength="4">
-          <div class="pay-err" id="payErrCvc">3–4 dígitos</div>
-        </div>
-      </div>
-
-      <button class="dv-btn-pay" id="payConfirmBtn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-3px;margin-right:.35rem"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>
-        Pagar ${totalFmt} €
-      </button>
 
       <div class="pay-secure">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Conexión segura simulada para este TFG. Puedes usar la tarjeta de prueba
-          <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, cualquier fecha futura y cualquier CVC.
+          ${_paypalCfg && _paypalCfg.enabled
+            ? `Pagos reales con <strong>PayPal ${escapeHtml(_paypalCfg.mode || 'sandbox')}</strong>. Alternativamente usa la tarjeta de prueba
+               <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, fecha futura y cualquier CVC.`
+            : `Conexión segura simulada para este TFG. Puedes usar la tarjeta de prueba
+               <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, cualquier fecha futura y cualquier CVC.`}
       </div>
     `;
   }
@@ -265,6 +285,90 @@
     });
 
     btn.onclick = () => procesarPago(total);
+
+    // Wire cambio de método (pestañas Tarjeta / PayPal)
+    document.querySelectorAll('.pay-method-pill').forEach(pill => {
+      if (pill.disabled) return;
+      pill.addEventListener('click', () => cambiarMetodo(pill.dataset.method, total));
+    });
+  }
+
+  function cambiarMetodo(metodo, total) {
+    document.querySelectorAll('.pay-method-pill').forEach(p => p.classList.toggle('active', p.dataset.method === metodo));
+    const cardB = document.getElementById('payCardBlock');
+    const payB  = document.getElementById('payPaypalBlock');
+    if (!cardB || !payB) return;
+    if (metodo === 'paypal') {
+      cardB.style.display = 'none';
+      payB.style.display = 'block';
+      renderPaypalButtons(total);
+    } else {
+      cardB.style.display = 'block';
+      payB.style.display = 'none';
+    }
+  }
+
+  // ── PayPal SDK (dinámico) ─────────────────────────────────────
+  function cargarSdkPayPal(clientId, currency) {
+    if (_paypalSdkLoaded && window.paypal) return Promise.resolve(window.paypal);
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=${encodeURIComponent(currency || 'EUR')}&intent=capture`;
+      script.async = true;
+      script.onload = () => { _paypalSdkLoaded = true; resolve(window.paypal); };
+      script.onerror = () => reject(new Error('No se pudo cargar el SDK de PayPal'));
+      document.head.appendChild(script);
+    });
+  }
+
+  async function renderPaypalButtons(total) {
+    if (!_paypalCfg || !_paypalCfg.enabled) return;
+    const container = document.getElementById('paypalButtonContainer');
+    const statusEl  = document.getElementById('paypalStatus');
+    if (!container) return;
+    if (_paypalRendered) return; // sólo una vez por apertura del modal
+
+    statusEl.textContent = 'Cargando PayPal…';
+    try {
+      const paypal = await cargarSdkPayPal(_paypalCfg.clientId, _paypalCfg.currency || 'EUR');
+      statusEl.textContent = '';
+
+      paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'pill', label: 'pay' },
+        createOrder: async () => {
+          const resp = await fetchAPI(`/paypal/create-order/${_currentReserva.reservaId}`, { method: 'POST' });
+          if (!resp || !resp.orderId) throw new Error('No se pudo crear la orden PayPal');
+          return resp.orderId;
+        },
+        onApprove: async (data) => {
+          const body = document.getElementById('payBody');
+          body.innerHTML = renderProcessing();
+          try {
+            const resp = await fetchAPI(`/paypal/capture-order/${_currentReserva.reservaId}?orderId=${encodeURIComponent(data.orderID)}`, {
+              method: 'POST'
+            });
+            if (resp && resp.status && resp.status.toUpperCase() === 'COMPLETED') {
+              body.innerHTML = renderSuccess(total);
+              if (typeof _currentReserva.onSuccess === 'function') {
+                setTimeout(() => _currentReserva.onSuccess(resp), 50);
+              }
+            } else {
+              body.innerHTML = renderError('PayPal no completó el pago.');
+            }
+          } catch (err) {
+            body.innerHTML = renderError(err.message || 'Error al capturar la orden');
+          }
+        },
+        onCancel: () => { statusEl.textContent = 'Pago cancelado'; },
+        onError: (err) => {
+          console.error('PayPal error:', err);
+          statusEl.textContent = 'Error al comunicar con PayPal. Inténtalo de nuevo.';
+        }
+      }).render('#paypalButtonContainer');
+      _paypalRendered = true;
+    } catch (e) {
+      statusEl.textContent = e.message || 'No se pudo inicializar PayPal';
+    }
   }
 
   function toggleErr(id, show) {
@@ -311,9 +415,21 @@
 
   let _currentReserva = {};
 
-  window.abrirModalPago = function ({ reservaId, total, concepto, onSuccess }) {
+  async function fetchPaypalConfig() {
+    try {
+      const r = await fetch('/api/paypal/config', { headers: { 'Content-Type': 'application/json' } });
+      if (!r.ok) return { enabled: false };
+      return await r.json();
+    } catch { return { enabled: false }; }
+  }
+
+  window.abrirModalPago = async function ({ reservaId, total, concepto, onSuccess }) {
     _currentReserva = { reservaId, total, concepto, onSuccess };
+    _paypalRendered = false;
     const wrap = ensureModal();
+    // Renderiza inmediatamente con lo que sepamos (posiblemente null → sólo tarjeta).
+    // Luego refresca si PayPal se activa en el servidor.
+    if (!_paypalCfg) _paypalCfg = await fetchPaypalConfig();
     document.getElementById('payBody').innerHTML = renderForm({ total, concepto });
     wrap.classList.add('open');
     wireForm(total);

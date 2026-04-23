@@ -22,16 +22,18 @@ import java.util.List;
 @Slf4j
 public class DataInitializer implements CommandLineRunner {
 
-    private final UsuarioRepository       usuarioRepository;
-    private final PublicacionRepository   publicacionRepository;
-    private final ComentarioRepository    comentarioRepository;
-    private final ReservaRepository       reservaRepository;
-    private final InmersionRepository     inmersionRepository;
-    private final CentroBuceoRepository   centroBuceoRepository;
-    private final PuntoMapaRepository     puntoMapaRepository;
-    private final FotoPuntoMapaRepository fotoPuntoMapaRepository;
-    private final HistoriaRepository      historiaRepository;
-    private final PasswordEncoder         passwordEncoder;
+    private final UsuarioRepository               usuarioRepository;
+    private final PublicacionRepository           publicacionRepository;
+    private final ComentarioRepository            comentarioRepository;
+    private final ReservaRepository               reservaRepository;
+    private final InmersionRepository             inmersionRepository;
+    private final CentroBuceoRepository           centroBuceoRepository;
+    private final PuntoMapaRepository             puntoMapaRepository;
+    private final FotoPuntoMapaRepository         fotoPuntoMapaRepository;
+    private final HistoriaRepository              historiaRepository;
+    private final NotificacionRepository          notificacionRepository;
+    private final SolicitudSeguimientoRepository  solicitudSeguimientoRepository;
+    private final PasswordEncoder                 passwordEncoder;
 
     @Override
     public void run(String... args) {
@@ -41,7 +43,8 @@ public class DataInitializer implements CommandLineRunner {
 
         if (usuariosExisten && reservaRepository.count() > 0
             && puntoMapaRepository.count() > 0
-            && historiaRepository.count() > 0) {
+            && historiaRepository.count() > 0
+            && notificacionRepository.count() > 0) {
             log.info("=== DataInitializer: datos ya existen, saltando ===");
             return;
         }
@@ -52,6 +55,8 @@ public class DataInitializer implements CommandLineRunner {
             log.info("=== DataInitializer: usuarios existen pero faltan puntos de mapa, recreando todo ===");
         } else if (usuariosExisten && historiaRepository.count() == 0) {
             log.info("=== DataInitializer: usuarios existen pero faltan historias, recreando todo ===");
+        } else if (usuariosExisten && notificacionRepository.count() == 0) {
+            log.info("=== DataInitializer: usuarios existen pero faltan notificaciones, recreando todo ===");
         } else {
             log.info("=== DataInitializer: creando datos de demostración ===");
         }
@@ -64,6 +69,8 @@ public class DataInitializer implements CommandLineRunner {
 
     @Transactional
     public void borrarTodo() {
+        notificacionRepository.deleteAll();
+        solicitudSeguimientoRepository.deleteAll();
         comentarioRepository.deleteAll();
         reservaRepository.deleteAll();
         publicacionRepository.deleteAll();
@@ -414,6 +421,39 @@ public class DataInitializer implements CommandLineRunner {
         seguir(pablo,   uOcean);
         seguir(lucia,   marina);
         seguir(lucia,   uIsland);
+
+        // ── SOLICITUDES DE SEGUIMIENTO PENDIENTES (demo) ──────────────────────
+        // pablo quiere seguir a sofia (usuario común → necesita aprobación)
+        crearSolicitudPendiente(pablo, sofia);
+        // lucia quiere seguir a javier (usuario común → necesita aprobación)
+        crearSolicitudPendiente(lucia, javier);
+
+        // ── NOTIFICACIONES DEMO ───────────────────────────────────────────────
+        // Notificaciones "nuevo seguidor" (no accionables, informativas)
+        crearNotificacion(javier, carlos, TipoNotificacion.NUEVO_SEGUIDOR, carlos.getId(),
+                "@" + carlos.getUsername() + " ha comenzado a seguirte", false, false);
+        crearNotificacion(marina, carlos, TipoNotificacion.NUEVO_SEGUIDOR, carlos.getId(),
+                "@" + carlos.getUsername() + " ha comenzado a seguirte", false, false);
+        crearNotificacion(sofia, javier, TipoNotificacion.NUEVO_SEGUIDOR, javier.getId(),
+                "@" + javier.getUsername() + " ha comenzado a seguirte", false, true);
+        crearNotificacion(lucia, sofia, TipoNotificacion.NUEVO_SEGUIDOR, sofia.getId(),
+                "@" + sofia.getUsername() + " ha comenzado a seguirte", false, false);
+
+        // Notificaciones accionables de solicitud (sincronizadas con solicitudes pendientes)
+        crearNotificacion(sofia, pablo, TipoNotificacion.SOLICITUD_SEGUIMIENTO, pablo.getId(),
+                "@" + pablo.getUsername() + " quiere seguirte", true, false);
+        crearNotificacion(javier, lucia, TipoNotificacion.SOLICITUD_SEGUIMIENTO, lucia.getId(),
+                "@" + lucia.getUsername() + " quiere seguirte", true, false);
+
+        // Notificaciones de reserva recibida (para empresas)
+        crearNotificacion(uOcean, carlos, TipoNotificacion.RESERVA_RECIBIDA, 1L,
+                "Has recibido una nueva reserva de @" + carlos.getUsername(), false, false);
+        crearNotificacion(uBlue, marina, TipoNotificacion.RESERVA_RECIBIDA, 2L,
+                "Has recibido una nueva reserva de @" + marina.getUsername(), false, false);
+
+        // Notificación de reserva confirmada (para usuario)
+        crearNotificacion(carlos, null, TipoNotificacion.RESERVA_CONFIRMADA, 1L,
+                "Tu reserva ha sido confirmada", false, true);
     }
 
     // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -515,6 +555,33 @@ public class DataInitializer implements CommandLineRunner {
         // de @ManyToMany + entidades detached que reinsertaba todas las filas
         // previas de la colección (causando Duplicate Entry en seguidores.PRIMARY).
         usuarioRepository.addSeguidor(seguidor.getId(), seguido.getId());
+    }
+
+    /** Crea una solicitud de seguimiento en estado PENDIENTE (para demo). */
+    private void crearSolicitudPendiente(Usuario solicitante, Usuario destinatario) {
+        SolicitudSeguimiento s = new SolicitudSeguimiento();
+        s.setSolicitante(solicitante);
+        s.setDestinatario(destinatario);
+        s.setEstado(EstadoSolicitud.PENDIENTE);
+        s.setFechaCreacion(LocalDateTime.now().minusHours((long)(Math.random() * 10) + 1));
+        solicitudSeguimientoRepository.save(s);
+    }
+
+    /** Crea una notificación con control de leída para simular histórico. */
+    private void crearNotificacion(Usuario destinatario, Usuario emisor,
+                                    TipoNotificacion tipo, Long entidadId,
+                                    String mensaje, boolean accionable, boolean leida) {
+        Notificacion n = new Notificacion();
+        n.setDestinatario(destinatario);
+        n.setEmisor(emisor);
+        n.setTipo(tipo);
+        n.setEntidadRelacionadaId(entidadId);
+        n.setMensaje(mensaje);
+        n.setAccionable(accionable);
+        n.setResuelta(false);
+        n.setLeida(leida);
+        n.setFechaCreacion(LocalDateTime.now().minusHours((long)(Math.random() * 48) + 1));
+        notificacionRepository.save(n);
     }
 
     /**

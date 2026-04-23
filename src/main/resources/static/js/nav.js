@@ -91,9 +91,10 @@ function initNav() {
         <span class="topbar-logo-text">Dive<span>Connect</span></span>
       </a>
       <div class="topbar-actions">
-        <button class="topbar-icon-btn" aria-label="Notificaciones" title="Notificaciones">
+        <a class="topbar-icon-btn topbar-bell" href="/pages/notificaciones.html" aria-label="Notificaciones" title="Notificaciones">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
-        </button>
+          <span id="topbarBellBadge" class="topbar-bell-badge" hidden>0</span>
+        </a>
         <button class="topbar-icon-btn" aria-label="Salir" title="Cerrar sesión" onclick="logout()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>
         </button>
@@ -132,7 +133,38 @@ function initNav() {
 
   // Inyectar hoja de creación si aún no está
   if (!document.getElementById('createSheet')) _injectCreateSheet();
+
+  // Arrancar el polling de notificaciones no leídas
+  _startNotificationsPolling();
 }
+
+// ─── Badge de notificaciones ─────────────────────────────────────
+let _notifPollingTimer = null;
+async function _pollNotificationsBadge() {
+  try {
+    const data = await fetchAPI('/notificaciones/no-leidas/count');
+    const badge = document.getElementById('topbarBellBadge');
+    if (!badge) return;
+    const n = (data && typeof data.count === 'number') ? data.count : 0;
+    if (n > 0) {
+      badge.textContent = n > 99 ? '99+' : String(n);
+      badge.hidden = false;
+    } else {
+      badge.hidden = true;
+    }
+  } catch { /* silencioso — polling */ }
+}
+
+function _startNotificationsPolling() {
+  // Primera lectura inmediata
+  _pollNotificationsBadge();
+  // Luego cada 30 segundos
+  if (_notifPollingTimer) clearInterval(_notifPollingTimer);
+  _notifPollingTimer = setInterval(_pollNotificationsBadge, 30000);
+}
+
+/** Fuerza refresco tras ver/marcar leída una notificación. */
+function refreshNotificationsBadge() { _pollNotificationsBadge(); }
 
 function _guessActiveTab() {
   const p = window.location.pathname.toLowerCase();

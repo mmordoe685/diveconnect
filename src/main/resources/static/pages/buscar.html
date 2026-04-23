@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorar — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar" id="mainNavbar"></header>
+
+  <main class="search-wrap">
+    <section class="search-hero">
+      <h2>Explora DiveConnect</h2>
+      <p>Busca buceadores, centros y sitios. Si no hay coincidencias para un lugar, te mostramos las 5 inmersiones más cercanas.</p>
+
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="searchInput" type="search" placeholder="Nombre, centro, sitio, especie…" autocomplete="off" autofocus>
+        <button id="searchBtn">Buscar</button>
+      </div>
+
+      <button class="search-geo" id="searchGeoBtn" type="button" title="Ordenar por cercanía">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 6 7 13 7 13s7-7 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <span id="searchGeoLabel">Usar mi ubicación</span>
+      </button>
+    </section>
+
+    <div class="search-tabs" id="searchTabs">
+      <button class="search-tab active" data-tipo="todo">Todo</button>
+      <button class="search-tab" data-tipo="usuarios">Usuarios</button>
+      <button class="search-tab" data-tipo="empresas">Centros</button>
+      <button class="search-tab" data-tipo="inmersiones">Inmersiones</button>
+    </div>
+
+    <details class="search-filters-panel">
+      <summary style="cursor:pointer;color:var(--t2);font-size:.8rem;font-weight:700;padding:.25rem 0 .75rem">
+        Filtros avanzados (profundidad · precio · nivel)
+      </summary>
+      <div class="search-filters">
+        <label>Prof. mín (m)
+          <input type="number" id="fProfMin" min="0" step="1" placeholder="0">
+        </label>
+        <label>Prof. máx (m)
+          <input type="number" id="fProfMax" min="0" step="1" placeholder="60">
+        </label>
+        <label>Precio máx (€)
+          <input type="number" id="fPrecioMax" min="0" step="1" placeholder="200">
+        </label>
+        <label>Nivel
+          <select id="fNivel">
+            <option value="">Cualquiera</option>
+            <option>Sin certificación</option>
+            <option>Open Water</option>
+            <option>Advanced Open Water</option>
+            <option>Rescue Diver</option>
+            <option>Divemaster</option>
+          </select>
+        </label>
+      </div>
+    </details>
+
+    <div id="searchResults" class="search-results"></div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    // ══════════════════════════════════════════════════════════════════
+    // Búsqueda universal con filtros, tabs y proximidad
+    // ══════════════════════════════════════════════════════════════════
+    let tipoActivo = 'todo';
+    let userLat = null;
+    let userLon = null;
+    let debounceTimer = null;
+
+    const $ = id => document.getElementById(id);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      initNav();
+
+      // Tabs
+      document.querySelectorAll('.search-tab').forEach(t => {
+        t.addEventListener('click', () => {
+          document.querySelectorAll('.search-tab').forEach(x => x.classList.remove('active'));
+          t.classList.add('active');
+          tipoActivo = t.dataset.tipo;
+          buscar();
+        });
+      });
+
+      // Input con debounce
+      $('searchInput').addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(buscar, 350);
+      });
+      $('searchInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') { clearTimeout(debounceTimer); buscar(); }
+      });
+      $('searchBtn').addEventListener('click', () => { clearTimeout(debounceTimer); buscar(); });
+
+      ['fProfMin','fProfMax','fPrecioMax','fNivel'].forEach(id => {
+        $(id).addEventListener('change', buscar);
+      });
+
+      $('searchGeoBtn').addEventListener('click', solicitarUbicacion);
+
+      // Primera búsqueda vacía → muestra mezcla destacada
+      buscar();
+    });
+
+    // ── Geolocalización ───────────────────────────────────────────
+    function solicitarUbicacion() {
+      if (!navigator.geolocation) {
+        showAlert('Tu navegador no soporta geolocalización', 'error');
+        return;
+      }
+      $('searchGeoLabel').textContent = 'Obteniendo ubicación…';
+      navigator.geolocation.getCurrentPosition(
+        pos => {
+          userLat = pos.coords.latitude;
+          userLon = pos.coords.longitude;
+          $('searchGeoLabel').textContent = `✓ Ubicación activa (${userLat.toFixed(2)}, ${userLon.toFixed(2)})`;
+          buscar();
+        },
+        err => {
+          $('searchGeoLabel').textContent = 'Usar mi ubicación';
+          showAlert('No se pudo obtener tu ubicación: ' + err.message, 'error');
+        },
+        { timeout: 8000, enableHighAccuracy: false }
+      );
+    }
+
+    // ── Consulta al backend ───────────────────────────────────────
+    async function buscar() {
+      const q         = $('searchInput').value.trim();
+      const profMin   = $('fProfMin').value;
+      const profMax   = $('fProfMax').value;
+      const precioMax = $('fPrecioMax').value;
+      const nivel     = $('fNivel').value;
+
+      const params = new URLSearchParams();
+      if (q)         params.set('q', q);
+      if (tipoActivo && tipoActivo !== 'todo') params.set('tipo', tipoActivo);
+      if (userLat != null) params.set('lat', userLat);
+      if (userLon != null) params.set('lon', userLon);
+      if (profMin)   params.set('profMin', profMin);
+      if (profMax)   params.set('profMax', profMax);
+      if (precioMax) params.set('precioMax', precioMax);
+      if (nivel)     params.set('nivel', nivel);
+
+      const root = $('searchResults');
+      root.innerHTML = '<div class="search-empty">Buscando…</div>';
+
+      try {
+        const data = await fetchAPI('/search?' + params.toString());
+        if (!data) return;
+        render(data);
+      } catch (err) {
+        root.innerHTML = `<div class="search-empty"><strong>Error</strong>${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    // ── Render ─────────────────────────────────────────────────────
+    function render(data) {
+      const root = $('searchResults');
+      const sec = [];
+      const {usuarios = [], empresas = [], inmersiones = [], inmersionesPorProximidad} = data;
+
+      const totalHits = usuarios.length + empresas.length + inmersiones.length;
+      if (totalHits === 0) {
+        root.innerHTML = `
+          <div class="search-empty">
+            <strong>Sin resultados</strong>
+            Prueba con otras palabras o abre los filtros avanzados.
+          </div>`;
+        return;
+      }
+
+      if (usuarios.length) {
+        sec.push(`<h3 class="search-section-title">Usuarios</h3>`);
+        sec.push(usuarios.map(renderUsuario).join(''));
+      }
+      if (empresas.length) {
+        sec.push(`<h3 class="search-section-title">Centros de buceo</h3>`);
+        sec.push(empresas.map(renderEmpresa).join(''));
+      }
+      if (inmersiones.length) {
+        if (inmersionesPorProximidad) {
+          sec.push(`<div class="search-proximity-note">
+            📍 Sin coincidencias textuales — te mostramos las 5 inmersiones más cercanas.
+          </div>`);
+        }
+        sec.push(`<h3 class="search-section-title">Inmersiones</h3>`);
+        sec.push(inmersiones.map(renderInmersion).join(''));
+      }
+      root.innerHTML = sec.join('');
+
+      // Cableado de botones Seguir
+      root.querySelectorAll('[data-follow]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault(); e.stopPropagation();
+          onFollowClick(btn);
+        });
+      });
+    }
+
+    function renderUsuario(u) {
+      const foto = u.fotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.username)}&background=0077B6&color=fff&size=200`;
+      const nombre = u.nombreEmpresa || ('@' + u.username);
+      const sub = u.tipoUsuario === 'USUARIO_EMPRESA' ? 'Centro de buceo'
+               : (u.nivelCertificacion || 'Buceador');
+      return `
+        <a class="search-card" href="/pages/Perfil.html?id=${u.id}">
+          <div class="search-card-img round"><img src="${foto}" alt="${escapeHtml(nombre)}"></div>
+          <div class="search-card-body">
+            <div class="search-card-title">${escapeHtml(nombre)}</div>
+            <div class="search-card-sub">${escapeHtml(sub)}</div>
+          </div>
+          <div class="search-card-cta">
+            <button class="btn-follow seguir" data-follow data-usuario-id="${u.id}">Seguir</button>
+          </div>
+        </a>`;
+    }
+
+    function renderEmpresa(u) {
+      const foto = u.fotoPerfil || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.nombreEmpresa || u.username)}&background=0077B6&color=fff&size=200`;
+      const nombre = u.nombreEmpresa || u.username;
+      const sub = u.direccion || 'Centro de buceo';
+      return `
+        <a class="search-card" href="/pages/Perfil.html?id=${u.id}">
+          <div class="search-card-img"><img src="${foto}" alt="${escapeHtml(nombre)}"></div>
+          <div class="search-card-body">
+            <div class="search-card-title">${escapeHtml(nombre)}</div>
+            <div class="search-card-sub">${escapeHtml(sub)}</div>
+          </div>
+          <div class="search-card-cta">
+            <button class="btn-follow seguir" data-follow data-usuario-id="${u.id}">Seguir</button>
+          </div>
+        </a>`;
+    }
+
+    function renderInmersion(i) {
+      const img = i.imagenUrl || 'https://images.unsplash.com/photo-1559825481-12a05cc00344?w=400&q=80';
+      const chips = [];
+      if (i.profundidadMaxima != null) chips.push(`💧 ${i.profundidadMaxima}m`);
+      if (i.precio != null) chips.push(`💶 ${i.precio}€`);
+      if (i.nivelRequerido) chips.push(`🎓 ${escapeHtml(i.nivelRequerido)}`);
+      if (i.distanciaKm != null) chips.push(`📍 ${i.distanciaKm.toFixed(1)} km`);
+      return `
+        <a class="search-card" href="/pages/Inmersiones.html?id=${i.id}">
+          <div class="search-card-img"><img src="${img}" alt=""></div>
+          <div class="search-card-body">
+            <div class="search-card-title">${escapeHtml(i.titulo || '')}</div>
+            <div class="search-card-sub">${escapeHtml(i.ubicacion || i.centroBuceoNombre || '')}</div>
+            <div class="search-card-meta">${chips.map(c => `<span>${c}</span>`).join('')}</div>
+          </div>
+        </a>`;
+    }
+
+    // ── Seguir desde buscar ───────────────────────────────────────
+    async function onFollowClick(btn) {
+      const usuarioId = btn.dataset.usuarioId;
+      if (!usuarioId) return;
+      btn.disabled = true;
+      const originalText = btn.textContent;
+      btn.textContent = '…';
+      try {
+        const res = await fetchAPI('/seguimiento/solicitar/' + usuarioId, { method: 'POST' });
+        if (res && res.estado === 'SIGUIENDO') {
+          btn.textContent = 'Siguiendo';
+          btn.className = 'btn-follow siguiendo';
+          showAlert('¡Ahora le sigues!', 'success');
+        } else if (res && res.estado === 'SOLICITADO') {
+          btn.textContent = 'Solicitado';
+          btn.className = 'btn-follow solicitado';
+          showAlert('Solicitud enviada. Espera aprobación.', 'info');
+        } else {
+          btn.textContent = originalText;
+          btn.className = 'btn-follow seguir';
+        }
+      } catch (err) {
+        btn.textContent = originalText;
+        btn.className = 'btn-follow seguir';
+        showAlert(err.message || 'No se pudo enviar la solicitud', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

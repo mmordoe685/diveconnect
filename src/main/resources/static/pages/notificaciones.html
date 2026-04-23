@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notificaciones — DiveConnect</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar" id="mainNavbar"></header>
+
+  <main class="notif-wrap">
+    <div class="notif-header">
+      <h2>Notificaciones</h2>
+      <button class="notif-mark-all" id="markAllBtn" type="button">Marcar todas como leídas</button>
+    </div>
+
+    <div id="notifList" class="notif-list"></div>
+  </main>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!requireAuth()) return;
+      initNav();
+      cargar();
+      $('markAllBtn').addEventListener('click', marcarTodas);
+    });
+
+    async function cargar() {
+      const root = $('notifList');
+      root.innerHTML = '<div class="notif-empty">Cargando…</div>';
+      try {
+        const data = await fetchAPI('/notificaciones');
+        if (!data) return;
+        render(data);
+        if (typeof refreshNotificationsBadge === 'function') refreshNotificationsBadge();
+      } catch (err) {
+        root.innerHTML = `<div class="notif-empty"><strong>Error</strong>${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function render(list) {
+      const root = $('notifList');
+      if (!list || list.length === 0) {
+        root.innerHTML = `
+          <div class="notif-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+            <strong>Sin notificaciones por ahora</strong>
+            Cuando alguien interactúe contigo lo verás aquí.
+          </div>`;
+        return;
+      }
+      root.innerHTML = list.map(renderItem).join('');
+
+      // Wire acciones
+      root.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.preventDefault(); e.stopPropagation();
+          onAction(btn);
+        });
+      });
+      root.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', () => marcarLeida(el.dataset.notifId));
+      });
+    }
+
+    function renderItem(n) {
+      const foto = n.emisorFotoPerfil
+        || `https://ui-avatars.com/api/?name=${encodeURIComponent(n.emisorUsername || 'DC')}&background=5B5EA6&color=fff&size=80`;
+      const unread = n.leida ? '' : 'unread';
+      const accionesHtml = renderAcciones(n);
+      const verPerfil = n.emisorId ? `<a href="/pages/Perfil.html?id=${n.emisorId}" style="color:inherit;text-decoration:none">` : '<span>';
+      const cerrar = `</${n.emisorId ? 'a' : 'span'}>`;
+      return `
+        <div class="notif-item ${unread}" data-notif-id="${n.id}">
+          <button class="notif-close" data-action="eliminar" data-id="${n.id}" aria-label="Eliminar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+          ${verPerfil}
+          <div class="notif-avatar"><img src="${foto}" alt=""></div>
+          ${cerrar}
+          <div class="notif-body">
+            <div class="notif-msg">${escapeHtml(n.mensaje || '')}</div>
+            <div class="notif-time">${formatFecha(n.fechaCreacion)}${tagTipo(n.tipo)}</div>
+            ${accionesHtml}
+          </div>
+        </div>`;
+    }
+
+    function tagTipo(tipo) {
+      const mapa = {
+        'SOLICITUD_SEGUIMIENTO':   ' · Solicitud',
+        'SEGUIMIENTO_ACEPTADO':    ' · Solicitud aceptada',
+        'SEGUIMIENTO_RECHAZADO':   ' · Solicitud rechazada',
+        'NUEVO_SEGUIDOR':          ' · Nuevo seguidor',
+        'LIKE_PUBLICACION':        ' · Like',
+        'COMENTARIO_PUBLICACION':  ' · Comentario',
+        'RESERVA_CONFIRMADA':      ' · Reserva confirmada',
+        'RESERVA_RECIBIDA':        ' · Nueva reserva',
+        'MENCION':                 ' · Mención'
+      };
+      return mapa[tipo] || '';
+    }
+
+    function renderAcciones(n) {
+      if (!n.accionable || n.resuelta) return '';
+      if (n.tipo === 'SOLICITUD_SEGUIMIENTO' && n.entidadRelacionadaId) {
+        // entidadRelacionadaId para este tipo almacena el id del solicitante (= emisorId)
+        return `
+          <div class="notif-actions">
+            <button class="notif-btn accept" data-action="aceptar"  data-id="${n.id}" data-emisor="${n.emisorId}">Aceptar</button>
+            <button class="notif-btn reject" data-action="rechazar" data-id="${n.id}" data-emisor="${n.emisorId}">Rechazar</button>
+          </div>`;
+      }
+      return '';
+    }
+
+    async function onAction(btn) {
+      const action = btn.dataset.action;
+      const notifId = btn.dataset.id;
+      btn.disabled = true;
+
+      try {
+        if (action === 'eliminar') {
+          await fetchAPI('/notificaciones/' + notifId, { method: 'DELETE' });
+          cargar();
+          return;
+        }
+        if (action === 'aceptar' || action === 'rechazar') {
+          // Necesitamos el id de la SOLICITUD asociada. El backend mantiene una
+          // solicitud pendiente con el emisor — buscamos ese dato vía /estado.
+          const emisorId = btn.dataset.emisor;
+          // La notificación.accionable guarda entidadRelacionadaId = id solicitante.
+          // Para obtener el id de la solicitud pendiente, preguntamos al endpoint
+          // /api/seguimiento/estado/{emisorId}.
+          const estado = await fetchAPI('/seguimiento/estado/' + emisorId);
+          if (!estado || !estado.solicitudPendienteId) {
+            // Fallback: marcar leída y recargar
+            await fetchAPI('/notificaciones/' + notifId + '/leer', { method: 'POST' });
+            cargar();
+            return;
+          }
+          const solicitudId = estado.solicitudPendienteId;
+          const endpoint = action === 'aceptar'
+            ? '/seguimiento/aceptar/'  + solicitudId
+            : '/seguimiento/rechazar/' + solicitudId;
+          await fetchAPI(endpoint, { method: 'POST' });
+          showAlert(action === 'aceptar' ? 'Solicitud aceptada' : 'Solicitud rechazada',
+                    action === 'aceptar' ? 'success' : 'info');
+          cargar();
+        }
+      } catch (err) {
+        showAlert(err.message || 'Error al procesar la acción', 'error');
+        btn.disabled = false;
+      }
+    }
+
+    async function marcarLeida(id) {
+      try {
+        await fetchAPI('/notificaciones/' + id + '/leer', { method: 'POST' });
+        const el = document.querySelector(`.notif-item[data-notif-id="${id}"]`);
+        if (el) el.classList.remove('unread');
+        if (typeof refreshNotificationsBadge === 'function') refreshNotificationsBadge();
+      } catch { /* silencioso */ }
+    }
+
+    async function marcarTodas() {
+      try {
+        await fetchAPI('/notificaciones/leer-todas', { method: 'POST' });
+        document.querySelectorAll('.notif-item.unread').forEach(el => el.classList.remove('unread'));
+        if (typeof refreshNotificationsBadge === 'function') refreshNotificationsBadge();
+        showAlert('Todas marcadas como leídas', 'success');
+      } catch (err) {
+        showAlert(err.message || 'Error', 'error');
+      }
+    }
+  </script>
+</body>
+</html>
