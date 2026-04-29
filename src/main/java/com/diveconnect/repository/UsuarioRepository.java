@@ -38,8 +38,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     /**
      * Inserta una relación de seguidor usando INSERT IGNORE para evitar duplicados.
-     * Se usa en DataInitializer para cargar follows sin sufrir el bug de merge
-     * de @ManyToMany con entidades detached.
+     * Se usa en DataInitializer y SeguimientoService — esquiva el bug de equals/hashCode
+     * generado por Lombok @Data en entidad JPA, que rompe Set.contains/remove.
      */
     @Modifying
     @Transactional
@@ -47,4 +47,22 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
            nativeQuery = true)
     void addSeguidor(@Param("seguidorId") Long seguidorId,
                      @Param("seguidoId")  Long seguidoId);
+
+    /** Elimina la relación de seguimiento (idempotente). */
+    @Modifying
+    @Transactional
+    @Query(value = "DELETE FROM seguidores WHERE seguidor_id = :seguidorId AND seguido_id = :seguidoId",
+           nativeQuery = true)
+    void removeSeguidor(@Param("seguidorId") Long seguidorId,
+                        @Param("seguidoId")  Long seguidoId);
+
+    /** True si :seguidorId sigue actualmente a :seguidoId. */
+    @Query(value = "SELECT COUNT(*) FROM seguidores WHERE seguidor_id = :seguidorId AND seguido_id = :seguidoId",
+           nativeQuery = true)
+    long countSeguimiento(@Param("seguidorId") Long seguidorId,
+                          @Param("seguidoId")  Long seguidoId);
+
+    default boolean existsSeguimiento(Long seguidorId, Long seguidoId) {
+        return countSeguimiento(seguidorId, seguidoId) > 0;
+    }
 }

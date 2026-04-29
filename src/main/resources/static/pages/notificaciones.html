@@ -109,11 +109,13 @@
     function renderAcciones(n) {
       if (!n.accionable || n.resuelta) return '';
       if (n.tipo === 'SOLICITUD_SEGUIMIENTO' && n.entidadRelacionadaId) {
-        // entidadRelacionadaId para este tipo almacena el id del solicitante (= emisorId)
+        // entidadRelacionadaId para este tipo almacena el id de la SolicitudSeguimiento.
         return `
           <div class="notif-actions">
-            <button class="notif-btn accept" data-action="aceptar"  data-id="${n.id}" data-emisor="${n.emisorId}">Aceptar</button>
-            <button class="notif-btn reject" data-action="rechazar" data-id="${n.id}" data-emisor="${n.emisorId}">Rechazar</button>
+            <button class="notif-btn accept" data-action="aceptar"
+                    data-id="${n.id}" data-solicitud="${n.entidadRelacionadaId}">Aceptar</button>
+            <button class="notif-btn reject" data-action="rechazar"
+                    data-id="${n.id}" data-solicitud="${n.entidadRelacionadaId}">Rechazar</button>
           </div>`;
       }
       return '';
@@ -131,20 +133,13 @@
           return;
         }
         if (action === 'aceptar' || action === 'rechazar') {
-          // Necesitamos el id de la SOLICITUD asociada. El backend mantiene una
-          // solicitud pendiente con el emisor — buscamos ese dato vía /estado.
-          const emisorId = btn.dataset.emisor;
-          // La notificación.accionable guarda entidadRelacionadaId = id solicitante.
-          // Para obtener el id de la solicitud pendiente, preguntamos al endpoint
-          // /api/seguimiento/estado/{emisorId}.
-          const estado = await fetchAPI('/seguimiento/estado/' + emisorId);
-          if (!estado || !estado.solicitudPendienteId) {
-            // Fallback: marcar leída y recargar
+          // El id de la SolicitudSeguimiento llega en entidadRelacionadaId (data-solicitud).
+          const solicitudId = btn.dataset.solicitud;
+          if (!solicitudId) {
             await fetchAPI('/notificaciones/' + notifId + '/leer', { method: 'POST' });
             cargar();
             return;
           }
-          const solicitudId = estado.solicitudPendienteId;
           const endpoint = action === 'aceptar'
             ? '/seguimiento/aceptar/'  + solicitudId
             : '/seguimiento/rechazar/' + solicitudId;

@@ -529,20 +529,29 @@
           </div>
 
           <div class="card-footer">
-            ${r.precioTotal != null
-              ? `<div class="reserva-precio">${r.precioTotal.toFixed(2)}&nbsp;&euro;<span>total</span>
-                   ${r.paymentStatus === 'PAID'
-                      ? '<span style="background:rgba(34,197,94,.12);color:#22C55E;padding:2px 8px;border-radius:6px;font-size:.7rem;margin-left:.5rem;font-weight:700">PAGADO</span>'
-                      : r.paymentStatus === 'UNPAID' && r.estado !== 'CANCELADA'
-                        ? '<span style="background:rgba(255,209,102,.12);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:.7rem;margin-left:.5rem;font-weight:700">PENDIENTE DE PAGO</span>'
-                        : ''}
-                 </div>`
-              : '<div></div>'}
+            ${(() => {
+                // null → tratar como UNPAID (compatibilidad con datos seed)
+                const isUnpaid = r.paymentStatus === 'UNPAID' || r.paymentStatus == null;
+                const isPaid   = r.paymentStatus === 'PAID';
+                return r.precioTotal != null
+                  ? `<div class="reserva-precio">${r.precioTotal.toFixed(2)}&nbsp;&euro;<span>total</span>
+                       ${isPaid
+                          ? '<span style="background:rgba(34,197,94,.12);color:#22C55E;padding:2px 8px;border-radius:6px;font-size:.7rem;margin-left:.5rem;font-weight:700">PAGADO</span>'
+                          : (isUnpaid && r.estado !== 'CANCELADA' && r.estado !== 'COMPLETADA')
+                            ? '<span style="background:rgba(255,209,102,.12);color:var(--gold);padding:2px 8px;border-radius:6px;font-size:.7rem;margin-left:.5rem;font-weight:700">PENDIENTE DE PAGO</span>'
+                            : ''}
+                     </div>`
+                  : '<div></div>';
+              })()}
             <div style="display:flex;gap:.5rem;flex-wrap:wrap">
-              ${r.paymentStatus === 'UNPAID' && (r.estado === 'PENDIENTE') && r.estado !== 'CANCELADA'
-                ? `<button class="btn btn-primary btn-sm" onclick="pagarReserva(${r.id})">
-                     💳 Pagar ahora
-                   </button>`
+              ${(r.paymentStatus === 'UNPAID' || r.paymentStatus == null) && r.estado === 'PENDIENTE'
+                ? (Number(r.precioTotal || 0) <= 0
+                    ? `<button class="btn btn-primary btn-sm" onclick="pagarReserva(${r.id})">
+                         ✓ Confirmar gratis
+                       </button>`
+                    : `<button class="btn btn-primary btn-sm" onclick="pagarReserva(${r.id})">
+                         💳 Pagar ahora
+                       </button>`)
                 : ''}
               ${puedeCancel
                 ? `<button class="btn btn-danger btn-sm" onclick="pedirCancelacion(${r.id})">

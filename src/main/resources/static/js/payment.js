@@ -1,22 +1,38 @@
 /**
- * payment.js — Modal de pago con tarjeta estilo Stripe/PayPal.
+ * payment.js — Modal de pago multi-pasarela.
  *
  * Expone:
  *   abrirModalPago({ reservaId, total, concepto, onSuccess })
  *
- * Flujo (modo demo del TFG):
- *   1) Pide datos de tarjeta (número, caducidad, CVC, titular).
- *   2) Valida con Luhn, formato MM/AA y CVC 3–4 dígitos.
- *   3) Muestra estado "Procesando" durante ~2s para simular la pasarela.
- *   4) Llama al backend /api/payments/verify/{reservaId} (marca PAID en modo demo).
- *   5) Muestra un tick de confirmación y llama onSuccess().
+ * Soporta cuatro escenarios determinados por la configuración del backend:
  *
- * No se transmite ninguna tarjeta real al servidor: los datos se quedan en el
- * cliente y sólo se confirma la reserva. Esto es apto para un demo de TFG.
+ *   ┌───────────────────┬───────────────────────────────────────────────────┐
+ *   │ Estado backend    │ Comportamiento del modal                          │
+ *   ├───────────────────┼───────────────────────────────────────────────────┤
+ *   │ Stripe ON         │ Pestaña Tarjeta → POST /payments/checkout/{id}    │
+ *   │                   │ → redirección a Stripe Checkout (página oficial). │
+ *   │                   │ Al volver, /pages/reservas.html confirma.         │
+ *   ├───────────────────┼───────────────────────────────────────────────────┤
+ *   │ Stripe OFF        │ Pestaña Tarjeta → formulario propio con Luhn,     │
+ *   │                   │ formato MM/AA y CVC 3-4 dígitos. Tras validar     │
+ *   │                   │ llama a /payments/verify/{id} (modo demo TFG).    │
+ *   ├───────────────────┼───────────────────────────────────────────────────┤
+ *   │ PayPal ON         │ Pestaña PayPal → SDK oficial + create-order /     │
+ *   │                   │ capture-order contra PayPal sandbox o live.       │
+ *   ├───────────────────┼───────────────────────────────────────────────────┤
+ *   │ PayPal OFF        │ Pestaña PayPal deshabilitada con tooltip amable.  │
+ *   └───────────────────┴───────────────────────────────────────────────────┘
+ *
+ * Cuando el total es 0 (reservas gratis) se omite el modal por completo y la
+ * reserva se confirma directamente.
+ *
+ * El modal nunca envía datos reales de tarjeta al servidor: en modo demo se
+ * validan localmente y sólo se confirma la reserva. En modo Stripe ON la
+ * captura ocurre íntegramente en el dominio de Stripe.
  */
 
 (function () {
-  // Hoja de estilos específica del modal (complementa style.css)
+  // ── Estilos del modal ────────────────────────────────────────
   const STYLES = `
     .pay-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
     .pay-row.triple{grid-template-columns:2fr 1fr 1fr}
@@ -29,14 +45,21 @@
     .pay-summary-row{display:flex;justify-content:space-between;align-items:center}
     .pay-summary-label{color:var(--t2);font-size:.85rem}
     .pay-summary-total{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--navy)}
+    .pay-mode-badge{
+      display:inline-flex;align-items:center;gap:.3rem;
+      font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      padding:.18rem .55rem;border-radius:999px;
+      background:rgba(0,212,170,.12);color:#0c8a73;border:1px solid rgba(0,212,170,.22);
+      margin-left:.4rem;vertical-align:middle;
+    }
+    .pay-mode-badge.demo{background:rgba(255,209,102,.18);color:#9a7300;border-color:rgba(255,209,102,.4)}
+    .pay-mode-badge.live{background:rgba(34,197,94,.18);color:#15803d;border-color:rgba(34,197,94,.4)}
     .pay-secure{
-      display:flex;gap:.45rem;align-items:center;color:var(--t2);font-size:.72rem;
-      padding:.65rem;background:var(--alt);border-radius:10px;margin-top:.9rem;
+      display:flex;gap:.45rem;align-items:flex-start;color:var(--t2);font-size:.72rem;
+      padding:.65rem;background:var(--alt);border-radius:10px;margin-top:.9rem;line-height:1.45;
     }
-    .pay-secure svg{flex-shrink:0}
-    .pay-methods{
-      display:flex;gap:.35rem;margin-bottom:1rem;
-    }
+    .pay-secure svg{flex-shrink:0;margin-top:1px}
+    .pay-methods{display:flex;gap:.35rem;margin-bottom:1rem}
     .pay-method-pill{
       flex:1;padding:.5rem .6rem;border:1.5px solid var(--line);border-radius:10px;
       background:var(--bg-raise);font-weight:700;font-size:.78rem;cursor:pointer;
@@ -47,27 +70,55 @@
       border-color:var(--seafoam);color:var(--seafoam);
       box-shadow:inset 0 0 0 1.5px var(--seafoam);
     }
+    .pay-method-pill[disabled]{opacity:.55;cursor:not-allowed}
     .pay-err{
-      color:var(--coral);font-size:.78rem;margin-top:-.5rem;margin-bottom:.5rem;
-      display:none;
+      color:var(--coral);font-size:.78rem;margin-top:-.5rem;margin-bottom:.5rem;display:none;
     }
     .pay-err.show{display:block}
-    .pay-processing{
-      display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;
-    }
+    .pay-processing{display:flex;flex-direction:column;align-items:center;padding:2rem 1rem}
     .pay-spinner{
       width:46px;height:46px;border-radius:50%;
       border:4px solid var(--alt);border-top-color:var(--seafoam);
       animation:pay-spin .8s linear infinite;margin-bottom:1rem;
     }
     @keyframes pay-spin { to { transform:rotate(360deg); } }
+    .pay-stripe-btn{
+      display:flex;align-items:center;justify-content:center;gap:.4rem;
+      padding:.75rem;background:#635BFF;color:#fff;border:none;border-radius:10px;
+      font-weight:700;font-size:.92rem;cursor:pointer;width:100%;
+      transition:filter .15s var(--ease);
+    }
+    .pay-stripe-btn:hover:not(:disabled){filter:brightness(1.1)}
+    .pay-stripe-btn:disabled{opacity:.7;cursor:not-allowed}
+    .pay-stripe-info{
+      font-size:.75rem;color:var(--t2);text-align:center;margin-top:.7rem;
+    }
   `;
 
-  let _modalEl = null;
-  let _currentResolve = null;
-  let _paypalCfg = null;            // { enabled, clientId, mode, currency }
-  let _paypalSdkLoaded = false;     // true una vez inyectado el <script>
-  let _paypalRendered = false;      // true si ya se llamó a paypal.Buttons().render
+  // ── Estado interno ───────────────────────────────────────────
+  let _modalEl          = null;
+  let _paypalCfg        = null;   // { enabled, clientId, mode, currency }
+  let _stripeCfg        = null;   // { enabled, publishableKey }
+  let _paypalSdkLoaded  = false;
+  let _paypalRendered   = false;
+  let _currentReserva   = {};
+
+  // ── Helpers de fetch de configuración ────────────────────────
+  async function fetchPaypalConfig() {
+    try {
+      const r = await fetch('/api/paypal/config', { headers: { 'Content-Type': 'application/json' } });
+      if (!r.ok) return { enabled: false };
+      return await r.json();
+    } catch { return { enabled: false }; }
+  }
+
+  async function fetchStripeConfig() {
+    try {
+      const r = await fetch('/api/payments/config', { headers: { 'Content-Type': 'application/json' } });
+      if (!r.ok) return { enabled: false };
+      return await r.json();
+    } catch { return { enabled: false }; }
+  }
 
   function ensureStyles() {
     if (document.getElementById('payStyles')) return;
@@ -80,21 +131,18 @@
   function ensureModal() {
     if (_modalEl) return _modalEl;
     ensureStyles();
-
     const wrap = document.createElement('div');
     wrap.className = 'dv-modal-backdrop';
     wrap.id = 'payModal';
     wrap.innerHTML = `
       <div class="dv-modal" style="max-width:440px">
         <div class="dv-modal-head">
-          <h3>Pago seguro</h3>
+          <h3 id="payHeadTitle">Pago seguro</h3>
           <button onclick="cerrarModalPago()" aria-label="Cerrar">
             <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
-        <div class="dv-modal-body" id="payBody">
-          <!-- Se pinta en abrirModalPago -->
-        </div>
+        <div class="dv-modal-body" id="payBody"></div>
       </div>
     `;
     document.body.appendChild(wrap);
@@ -103,49 +151,51 @@
     return wrap;
   }
 
+  // ── Etiqueta de modo (Demo / Sandbox / Live) ─────────────────
+  function modeBadge() {
+    const stripe = _stripeCfg && _stripeCfg.enabled;
+    const paypal = _paypalCfg && _paypalCfg.enabled;
+    if (!stripe && !paypal) {
+      return '<span class="pay-mode-badge demo" title="Pasarela en modo TFG. No se cobra dinero real.">TFG · Demo</span>';
+    }
+    // Si hay Stripe en sandbox, marcamos sandbox; si hay PayPal en sandbox, también
+    const ppMode = paypal ? (_paypalCfg.mode || 'sandbox').toLowerCase() : null;
+    const isLive = ppMode === 'live';
+    return isLive
+      ? '<span class="pay-mode-badge live" title="Pasarela en modo producción.">Live</span>'
+      : '<span class="pay-mode-badge" title="Pasarela en modo sandbox (sin cargo real).">Sandbox</span>';
+  }
+
+  // ── Render principal del modal según el escenario ────────────
   function renderForm({ total, concepto }) {
-    const totalFmt = Number(total || 0).toFixed(2);
-    return `
-      <div class="pay-summary">
-        <div style="font-size:.75rem;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem">
-          ${escapeHtml(concepto || 'Pago')}
-        </div>
-        <div class="pay-summary-row">
-          <span class="pay-summary-label">Total a pagar</span>
-          <span class="pay-summary-total">${totalFmt} €</span>
-        </div>
-      </div>
+    const totalFmt   = Number(total || 0).toFixed(2);
+    const stripeOn   = !!(_stripeCfg && _stripeCfg.enabled);
+    const paypalOn   = !!(_paypalCfg && _paypalCfg.enabled);
+    const paypalMode = paypalOn ? escapeHtml(_paypalCfg.mode || 'sandbox') : '';
 
-      <div class="pay-methods">
-        <button class="pay-method-pill active" data-method="card" type="button">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 11h20"/></svg>
-          Tarjeta
+    // Bloque "Tarjeta": redirección a Stripe (real) o formulario local (demo)
+    const cardBlock = stripeOn ? `
+      <div id="payCardBlock">
+        <button class="pay-stripe-btn" id="payStripeBtn" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>
+          Pagar ${totalFmt} € con Stripe
         </button>
-        ${_paypalCfg && _paypalCfg.enabled
-          ? `<button class="pay-method-pill" data-method="paypal" type="button">
-               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
-               PayPal
-             </button>`
-          : `<button class="pay-method-pill" title="Configura PAYPAL_CLIENT_ID para habilitar PayPal real" disabled style="opacity:.55;cursor:not-allowed">
-               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
-               PayPal
-             </button>`}
+        <div class="pay-stripe-info">
+          Te llevaremos al checkout oficial de Stripe para introducir tu tarjeta de forma segura.
+        </div>
       </div>
-
-      <!-- Bloque tarjeta -->
+    ` : `
       <div id="payCardBlock">
         <div class="pay-field">
           <label class="dv-label">Titular de la tarjeta</label>
-          <input id="payName" class="dv-input" placeholder="Nombre y apellidos" autocomplete="cc-name" value="">
+          <input id="payName" class="dv-input" placeholder="Nombre y apellidos" autocomplete="cc-name">
         </div>
-
         <div class="pay-field">
           <label class="dv-label">Número de tarjeta</label>
           <input id="payCardNumber" class="dv-input" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" maxlength="23">
           <span class="pay-field-brand" id="payBrandIcon">💳</span>
         </div>
         <div class="pay-err" id="payErrNumber">Número de tarjeta no válido</div>
-
         <div class="pay-row">
           <div class="pay-field">
             <label class="dv-label">Caducidad (MM/AA)</label>
@@ -158,14 +208,58 @@
             <div class="pay-err" id="payErrCvc">3–4 dígitos</div>
           </div>
         </div>
-
         <button class="dv-btn-pay" id="payConfirmBtn" type="button">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="vertical-align:-3px;margin-right:.35rem"><rect x="3" y="10" width="18" height="11" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>
           Pagar ${totalFmt} €
         </button>
       </div>
+    `;
 
-      <!-- Bloque PayPal -->
+    // Pestaña PayPal
+    const paypalPill = paypalOn
+      ? `<button class="pay-method-pill" data-method="paypal" type="button">
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
+           PayPal
+         </button>`
+      : `<button class="pay-method-pill" type="button" disabled
+                title="PayPal no está disponible en esta instancia. Usa la opción Tarjeta.">
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M7.1 21H3.3c-.2 0-.4-.2-.3-.4L5.6 4.3c.2-1 1-1.7 2-1.7h6.7c3.2 0 5.4 1.6 4.6 5.2-.8 3.6-3.4 5.2-6.6 5.2H9.8c-.3 0-.6.2-.6.5L7.9 20.4c0 .3-.3.6-.7.6H7.1z"/></svg>
+           PayPal
+         </button>`;
+
+    // Mensaje informativo según escenario
+    let secureText;
+    if (stripeOn && paypalOn) {
+      secureText = `Pasarelas reales: <strong>Stripe</strong> y <strong>PayPal ${paypalMode}</strong>. Tu tarjeta nunca pasa por nuestros servidores.`;
+    } else if (stripeOn) {
+      secureText = `Pasarela real con <strong>Stripe Checkout</strong>. Tu tarjeta se introduce en el dominio cifrado de Stripe.`;
+    } else if (paypalOn) {
+      secureText = `Pasarela PayPal real (<strong>${paypalMode}</strong>). Para tarjeta usa la pestaña local: tarjeta de prueba <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, fecha futura y cualquier CVC.`;
+    } else {
+      secureText = `Pasarela en <strong>modo demo TFG</strong>. Puedes usar la tarjeta de prueba <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, cualquier fecha futura y cualquier CVC.`;
+    }
+
+    return `
+      <div class="pay-summary">
+        <div style="font-size:.75rem;color:var(--t2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.35rem">
+          ${escapeHtml(concepto || 'Pago')} ${modeBadge()}
+        </div>
+        <div class="pay-summary-row">
+          <span class="pay-summary-label">Total a pagar</span>
+          <span class="pay-summary-total">${totalFmt} €</span>
+        </div>
+      </div>
+
+      <div class="pay-methods">
+        <button class="pay-method-pill active" data-method="card" type="button">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 11h20"/></svg>
+          Tarjeta
+        </button>
+        ${paypalPill}
+      </div>
+
+      ${cardBlock}
+
       <div id="payPaypalBlock" style="display:none">
         <div id="paypalButtonContainer" style="min-height:70px"></div>
         <div id="paypalStatus" style="font-size:.78rem;color:var(--t2);margin-top:.5rem;text-align:center"></div>
@@ -173,21 +267,17 @@
 
       <div class="pay-secure">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          ${_paypalCfg && _paypalCfg.enabled
-            ? `Pagos reales con <strong>PayPal ${escapeHtml(_paypalCfg.mode || 'sandbox')}</strong>. Alternativamente usa la tarjeta de prueba
-               <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, fecha futura y cualquier CVC.`
-            : `Conexión segura simulada para este TFG. Puedes usar la tarjeta de prueba
-               <strong>4242&nbsp;4242&nbsp;4242&nbsp;4242</strong>, cualquier fecha futura y cualquier CVC.`}
+        <span>${secureText}</span>
       </div>
     `;
   }
 
-  function renderProcessing() {
+  function renderProcessing(msg) {
     return `
       <div class="pay-processing">
         <div class="pay-spinner"></div>
-        <h4 style="margin:0 0 .4rem;color:var(--navy)">Procesando pago…</h4>
-        <p style="margin:0;color:var(--t2);font-size:.85rem">Estamos contactando con tu banco.</p>
+        <h4 style="margin:0 0 .4rem;color:var(--navy)">${escapeHtml(msg || 'Procesando pago…')}</h4>
+        <p style="margin:0;color:var(--t2);font-size:.85rem">Un momento, estamos confirmando con la pasarela.</p>
       </div>
     `;
   }
@@ -205,18 +295,23 @@
     `;
   }
 
-  function renderError(msg) {
+  function renderError(msg, canRetry) {
     return `
       <div style="text-align:center;padding:1.5rem 1rem">
         <div style="font-size:2rem">❌</div>
-        <h4 style="margin:.5rem 0;color:var(--coral);font-family:'DM Serif Display',serif">Pago rechazado</h4>
-        <p style="margin:0;color:var(--t2);font-size:.88rem">${escapeHtml(msg || 'Inténtalo de nuevo.')}</p>
-        <button class="dv-btn-pay" style="margin-top:1.25rem" onclick="cerrarModalPago()">Cerrar</button>
+        <h4 style="margin:.5rem 0;color:var(--coral);font-family:'DM Serif Display',serif">Pago no completado</h4>
+        <p style="margin:0;color:var(--t2);font-size:.88rem">${escapeHtml(msg || 'Inténtalo de nuevo en unos segundos.')}</p>
+        <div style="display:flex;gap:.5rem;margin-top:1.25rem;justify-content:center">
+          ${canRetry
+            ? `<button class="dv-btn-pay" onclick="window.__payRetry && window.__payRetry()">Reintentar</button>`
+            : ''}
+          <button class="dv-btn-pay" style="background:var(--alt);color:var(--t1)" onclick="cerrarModalPago()">Cerrar</button>
+        </div>
       </div>
     `;
   }
 
-  // ── Algoritmo de Luhn para validar número de tarjeta
+  // ── Validaciones de tarjeta (modo demo) ──────────────────────
   function luhn(num) {
     const digits = (num || '').replace(/\D/g, '');
     if (digits.length < 12) return false;
@@ -231,17 +326,18 @@
 
   function detectBrand(num) {
     const n = (num || '').replace(/\D/g, '');
-    if (/^4/.test(n)) return { name: 'Visa', glyph: '💳' };
-    if (/^(5[1-5]|2[2-7])/.test(n)) return { name: 'Mastercard', glyph: '💳' };
-    if (/^3[47]/.test(n)) return { name: 'Amex', glyph: '💳' };
-    if (/^6(?:011|5)/.test(n)) return { name: 'Discover', glyph: '💳' };
-    return { name: '', glyph: '💳' };
+    if (/^4/.test(n)) return '💳';
+    if (/^(5[1-5]|2[2-7])/.test(n)) return '💳';
+    if (/^3[47]/.test(n)) return '💳';
+    if (/^6(?:011|5)/.test(n)) return '💳';
+    return '💳';
   }
 
   function formatCardNumber(v) {
     const digits = (v || '').replace(/\D/g, '').slice(0, 19);
     return digits.replace(/(.{4})/g, '$1 ').trim();
   }
+
   function formatExpiry(v) {
     const d = (v || '').replace(/\D/g, '').slice(0, 4);
     if (d.length <= 2) return d;
@@ -262,17 +358,37 @@
 
   function validarCvc(v) { return /^\d{3,4}$/.test((v || '').trim()); }
 
+  function toggleErr(id, show) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('show', show);
+  }
+
+  // ── Wiring del formulario ────────────────────────────────────
   function wireForm(total) {
-    const numEl = document.getElementById('payCardNumber');
-    const expEl = document.getElementById('payExpiry');
-    const cvcEl = document.getElementById('payCvc');
+    // Listener de tabs
+    document.querySelectorAll('.pay-method-pill').forEach(pill => {
+      if (pill.disabled) return;
+      pill.addEventListener('click', () => cambiarMetodo(pill.dataset.method, total));
+    });
+
+    // Botón Stripe (modo real) o formulario local (modo demo)
+    const stripeBtn = document.getElementById('payStripeBtn');
+    if (stripeBtn) {
+      stripeBtn.addEventListener('click', () => irAStripeCheckout(stripeBtn));
+      return;
+    }
+
+    // Modo demo: wiring del formulario de tarjeta
+    const numEl   = document.getElementById('payCardNumber');
+    const expEl   = document.getElementById('payExpiry');
+    const cvcEl   = document.getElementById('payCvc');
     const brandEl = document.getElementById('payBrandIcon');
-    const btn = document.getElementById('payConfirmBtn');
+    const btn     = document.getElementById('payConfirmBtn');
+    if (!numEl) return;
 
     numEl.addEventListener('input', () => {
       numEl.value = formatCardNumber(numEl.value);
-      const brand = detectBrand(numEl.value);
-      brandEl.textContent = brand.glyph;
+      brandEl.textContent = detectBrand(numEl.value);
       toggleErr('payErrNumber', numEl.value.replace(/\D/g,'').length >= 12 && !luhn(numEl.value));
     });
     expEl.addEventListener('input', () => {
@@ -283,14 +399,7 @@
       cvcEl.value = cvcEl.value.replace(/\D/g,'').slice(0,4);
       toggleErr('payErrCvc', cvcEl.value.length > 0 && !validarCvc(cvcEl.value));
     });
-
-    btn.onclick = () => procesarPago(total);
-
-    // Wire cambio de método (pestañas Tarjeta / PayPal)
-    document.querySelectorAll('.pay-method-pill').forEach(pill => {
-      if (pill.disabled) return;
-      pill.addEventListener('click', () => cambiarMetodo(pill.dataset.method, total));
-    });
+    btn.onclick = () => procesarPagoDemo(total);
   }
 
   function cambiarMetodo(metodo, total) {
@@ -308,14 +417,81 @@
     }
   }
 
-  // ── PayPal SDK (dinámico) ─────────────────────────────────────
+  // ── Modo Stripe: redirección a Checkout oficial ──────────────
+  async function irAStripeCheckout(btn) {
+    btn.disabled = true;
+    const body = document.getElementById('payBody');
+    body.innerHTML = renderProcessing('Conectando con Stripe…');
+    try {
+      const resp = await fetchAPI(`/payments/checkout/${_currentReserva.reservaId}`, { method: 'POST' });
+      if (resp && resp.url) {
+        window.location.href = resp.url;
+        return;
+      }
+      window.__payRetry = () => reabrirFormulario(_currentReserva.total, _currentReserva.concepto);
+      body.innerHTML = renderError(resp && resp.error ? resp.error : 'No pudimos crear la sesión de Stripe.', true);
+    } catch (err) {
+      window.__payRetry = () => reabrirFormulario(_currentReserva.total, _currentReserva.concepto);
+      body.innerHTML = renderError(err.message || 'Error de red contactando con Stripe.', true);
+    }
+  }
+
+  // ── Modo demo: validar y llamar /verify ──────────────────────
+  async function procesarPagoDemo(total) {
+    const numero = document.getElementById('payCardNumber').value;
+    const exp    = document.getElementById('payExpiry').value;
+    const cvc    = document.getElementById('payCvc').value;
+    const nombre = document.getElementById('payName').value.trim();
+
+    let ok = true;
+    if (!nombre) { showAlert('Indica el titular de la tarjeta', 'error'); ok = false; }
+    if (ok && !luhn(numero))           { toggleErr('payErrNumber', true); ok = false; }
+    if (ok && !validarExpiry(exp))     { toggleErr('payErrExpiry', true); ok = false; }
+    if (ok && !validarCvc(cvc))        { toggleErr('payErrCvc', true);    ok = false; }
+    if (!ok) return;
+
+    const btn = document.getElementById('payConfirmBtn');
+    if (btn) btn.disabled = true;
+
+    const body = document.getElementById('payBody');
+    body.innerHTML = renderProcessing();
+
+    // Pequeña pausa para sensación de "contactando con la pasarela"
+    await new Promise(r => setTimeout(r, 900));
+
+    try {
+      const resp = await fetchAPI(`/payments/verify/${_currentReserva.reservaId}`, { method: 'POST' });
+      if (!resp || (resp.status && resp.status !== 'PAID')) {
+        window.__payRetry = () => reabrirFormulario(_currentReserva.total, _currentReserva.concepto);
+        body.innerHTML = renderError('La pasarela rechazó el pago. Inténtalo de nuevo.', true);
+        return;
+      }
+      body.innerHTML = renderSuccess(total);
+      if (typeof _currentReserva.onSuccess === 'function') {
+        setTimeout(() => _currentReserva.onSuccess(resp), 50);
+      }
+    } catch (err) {
+      window.__payRetry = () => reabrirFormulario(_currentReserva.total, _currentReserva.concepto);
+      body.innerHTML = renderError(err.message || 'Error de red', true);
+    }
+  }
+
+  function reabrirFormulario(total, concepto) {
+    _paypalRendered = false;
+    const body = document.getElementById('payBody');
+    if (!body) return;
+    body.innerHTML = renderForm({ total, concepto });
+    wireForm(total);
+  }
+
+  // ── PayPal SDK ───────────────────────────────────────────────
   function cargarSdkPayPal(clientId, currency) {
     if (_paypalSdkLoaded && window.paypal) return Promise.resolve(window.paypal);
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(clientId)}&currency=${encodeURIComponent(currency || 'EUR')}&intent=capture`;
       script.async = true;
-      script.onload = () => { _paypalSdkLoaded = true; resolve(window.paypal); };
+      script.onload  = () => { _paypalSdkLoaded = true; resolve(window.paypal); };
       script.onerror = () => reject(new Error('No se pudo cargar el SDK de PayPal'));
       document.head.appendChild(script);
     });
@@ -326,13 +502,12 @@
     const container = document.getElementById('paypalButtonContainer');
     const statusEl  = document.getElementById('paypalStatus');
     if (!container) return;
-    if (_paypalRendered) return; // sólo una vez por apertura del modal
+    if (_paypalRendered) return;
 
     statusEl.textContent = 'Cargando PayPal…';
     try {
       const paypal = await cargarSdkPayPal(_paypalCfg.clientId, _paypalCfg.currency || 'EUR');
       statusEl.textContent = '';
-
       paypal.Buttons({
         style: { layout: 'vertical', color: 'gold', shape: 'pill', label: 'pay' },
         createOrder: async () => {
@@ -342,24 +517,26 @@
         },
         onApprove: async (data) => {
           const body = document.getElementById('payBody');
-          body.innerHTML = renderProcessing();
+          body.innerHTML = renderProcessing('Capturando pago en PayPal…');
           try {
-            const resp = await fetchAPI(`/paypal/capture-order/${_currentReserva.reservaId}?orderId=${encodeURIComponent(data.orderID)}`, {
-              method: 'POST'
-            });
+            const resp = await fetchAPI(
+              `/paypal/capture-order/${_currentReserva.reservaId}?orderId=${encodeURIComponent(data.orderID)}`,
+              { method: 'POST' });
             if (resp && resp.status && resp.status.toUpperCase() === 'COMPLETED') {
               body.innerHTML = renderSuccess(total);
               if (typeof _currentReserva.onSuccess === 'function') {
                 setTimeout(() => _currentReserva.onSuccess(resp), 50);
               }
             } else {
-              body.innerHTML = renderError('PayPal no completó el pago.');
+              window.__payRetry = () => reabrirFormulario(_currentReserva.total, _currentReserva.concepto);
+              body.innerHTML = renderError('PayPal no completó el pago.', true);
             }
           } catch (err) {
-            body.innerHTML = renderError(err.message || 'Error al capturar la orden');
+            window.__payRetry = () => reabrirFormulario(_currentReserva.total, _currentReserva.concepto);
+            body.innerHTML = renderError(err.message || 'Error capturando la orden PayPal', true);
           }
         },
-        onCancel: () => { statusEl.textContent = 'Pago cancelado'; },
+        onCancel: () => { statusEl.textContent = 'Pago PayPal cancelado.'; },
         onError: (err) => {
           console.error('PayPal error:', err);
           statusEl.textContent = 'Error al comunicar con PayPal. Inténtalo de nuevo.';
@@ -371,65 +548,39 @@
     }
   }
 
-  function toggleErr(id, show) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('show', show);
-  }
-
-  async function procesarPago(total) {
-    // Validación final
-    const numero = document.getElementById('payCardNumber').value;
-    const exp = document.getElementById('payExpiry').value;
-    const cvc = document.getElementById('payCvc').value;
-    const nombre = document.getElementById('payName').value.trim();
-
-    let ok = true;
-    if (!nombre) { alert('Indica el titular de la tarjeta'); ok = false; }
-    if (ok && !luhn(numero)) { toggleErr('payErrNumber', true); ok = false; }
-    if (ok && !validarExpiry(exp)) { toggleErr('payErrExpiry', true); ok = false; }
-    if (ok && !validarCvc(cvc)) { toggleErr('payErrCvc', true); ok = false; }
-    if (!ok) return;
-
-    const body = document.getElementById('payBody');
-    body.innerHTML = renderProcessing();
-
-    // Retardo "simulado" para sensación de pasarela real
-    await new Promise(r => setTimeout(r, 1800));
-
+  // ── Reservas gratuitas: confirmar sin abrir el modal ─────────
+  async function autoConfirmarGratis(reservaId, onSuccess) {
     try {
-      // Llama al backend; en modo demo esto marca PAID + CONFIRMADA.
-      // En modo real con Stripe configurado, retrieveSession validará y marcará.
-      const resp = await fetchAPI(`/payments/verify/${_currentReserva.reservaId}`, { method: 'POST' });
-      if (!resp || (resp.status && resp.status !== 'PAID')) {
-        body.innerHTML = renderError('No se pudo confirmar el pago.');
-        return;
-      }
-      body.innerHTML = renderSuccess(total);
-      if (typeof _currentReserva.onSuccess === 'function') {
-        setTimeout(() => _currentReserva.onSuccess(resp), 50);
+      const resp = await fetchAPI(`/payments/verify/${reservaId}`, { method: 'POST' });
+      if (typeof onSuccess === 'function') onSuccess(resp);
+      if (typeof showAlert === 'function') {
+        showAlert('Reserva gratuita confirmada.', 'success');
       }
     } catch (err) {
-      body.innerHTML = renderError(err.message || 'Error de red');
+      if (typeof showAlert === 'function') {
+        showAlert(err.message || 'No se pudo confirmar la reserva gratuita', 'error');
+      }
     }
   }
 
-  let _currentReserva = {};
-
-  async function fetchPaypalConfig() {
-    try {
-      const r = await fetch('/api/paypal/config', { headers: { 'Content-Type': 'application/json' } });
-      if (!r.ok) return { enabled: false };
-      return await r.json();
-    } catch { return { enabled: false }; }
-  }
-
+  // ── API pública ──────────────────────────────────────────────
   window.abrirModalPago = async function ({ reservaId, total, concepto, onSuccess }) {
     _currentReserva = { reservaId, total, concepto, onSuccess };
     _paypalRendered = false;
+
+    // Reservas con total 0 → confirmar directamente
+    if (Number(total || 0) <= 0) {
+      return autoConfirmarGratis(reservaId, onSuccess);
+    }
+
+    // Cargar configuración de las pasarelas en paralelo
+    if (!_paypalCfg || !_stripeCfg) {
+      const [pp, st] = await Promise.all([fetchPaypalConfig(), fetchStripeConfig()]);
+      _paypalCfg = pp;
+      _stripeCfg = st;
+    }
+
     const wrap = ensureModal();
-    // Renderiza inmediatamente con lo que sepamos (posiblemente null → sólo tarjeta).
-    // Luego refresca si PayPal se activa en el servidor.
-    if (!_paypalCfg) _paypalCfg = await fetchPaypalConfig();
     document.getElementById('payBody').innerHTML = renderForm({ total, concepto });
     wrap.classList.add('open');
     wireForm(total);
@@ -437,6 +588,7 @@
 
   window.cerrarModalPago = function () {
     if (_modalEl) _modalEl.classList.remove('open');
+    window.__payRetry = null;
   };
 
   function escapeHtml(t) {

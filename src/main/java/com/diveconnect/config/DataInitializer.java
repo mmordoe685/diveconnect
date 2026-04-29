@@ -540,6 +540,14 @@ public class DataInitializer implements CommandLineRunner {
         r.setNumeroPersonas(personas);
         r.setPrecioTotal(inmersion.getPrecio() * personas);
         r.setEstado(estado);
+        // Mantener consistencia con la pasarela: las reservas CONFIRMADA/COMPLETADA
+        // ya han pasado por la pasarela, así que están PAID. Las PENDIENTE están
+        // a la espera de pago (UNPAID). Las CANCELADA no se cobraron.
+        switch (estado) {
+            case CONFIRMADA, COMPLETADA -> r.setPaymentStatus("PAID");
+            case PENDIENTE              -> r.setPaymentStatus("UNPAID");
+            case CANCELADA              -> r.setPaymentStatus("UNPAID");
+        }
         reservaRepository.save(r);
 
         // Ajustar plazas disponibles

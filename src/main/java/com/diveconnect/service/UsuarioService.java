@@ -118,32 +118,32 @@ public class UsuarioService {
             throw new BadRequestException("No puedes seguirte a ti mismo");
         }
 
-        Usuario seguidor = usuarioRepository.findById(seguidorId)
+        // Verifica existencia (los lookups lanzan 404 si faltan)
+        usuarioRepository.findById(seguidorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario seguidor no encontrado"));
-        Usuario seguido = usuarioRepository.findById(seguidoId)
+        usuarioRepository.findById(seguidoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario a seguir no encontrado"));
 
-        if (seguidor.getSiguiendo().contains(seguido)) {
+        if (usuarioRepository.existsSeguimiento(seguidorId, seguidoId)) {
             throw new BadRequestException("Ya sigues a este usuario");
         }
 
-        seguidor.getSiguiendo().add(seguido);
-        usuarioRepository.save(seguidor);
+        // INSERT IGNORE nativo: evita el bug de equals/hashCode generado por @Data en JPA.
+        usuarioRepository.addSeguidor(seguidorId, seguidoId);
     }
 
     @Transactional
     public void dejarDeSeguir(Long seguidorId, Long seguidoId) {
-        Usuario seguidor = usuarioRepository.findById(seguidorId)
+        usuarioRepository.findById(seguidorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario seguidor no encontrado"));
-        Usuario seguido = usuarioRepository.findById(seguidoId)
+        usuarioRepository.findById(seguidoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        if (!seguidor.getSiguiendo().contains(seguido)) {
+        if (!usuarioRepository.existsSeguimiento(seguidorId, seguidoId)) {
             throw new BadRequestException("No sigues a este usuario");
         }
 
-        seguidor.getSiguiendo().remove(seguido);
-        usuarioRepository.save(seguidor);
+        usuarioRepository.removeSeguidor(seguidorId, seguidoId);
     }
 
     @Transactional(readOnly = true)

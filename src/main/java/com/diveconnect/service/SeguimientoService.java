@@ -47,7 +47,7 @@ public class SeguimientoService {
         if (solicitante.getId().equals(destinatario.getId())) {
             throw new BadRequestException("No puedes seguirte a ti mismo");
         }
-        if (solicitante.getSiguiendo().contains(destinatario)) {
+        if (usuarioRepository.existsSeguimiento(solicitante.getId(), destinatario.getId())) {
             throw new BadRequestException("Ya sigues a este usuario");
         }
 
@@ -137,11 +137,10 @@ public class SeguimientoService {
     public SeguimientoEstadoResponse dejarDeSeguir(String username, Long seguidoId) {
         Usuario seguidor = cargarPorUsername(username);
         Usuario seguido = cargarPorId(seguidoId);
-        if (!seguidor.getSiguiendo().contains(seguido)) {
+        if (!usuarioRepository.existsSeguimiento(seguidor.getId(), seguido.getId())) {
             throw new BadRequestException("No sigues a este usuario");
         }
-        seguidor.getSiguiendo().remove(seguido);
-        usuarioRepository.save(seguidor);
+        usuarioRepository.removeSeguidor(seguidor.getId(), seguido.getId());
         return estadoResponse("NO_SIGUE", null);
     }
 
@@ -153,7 +152,7 @@ public class SeguimientoService {
         if (actual.getId().equals(destino.getId())) {
             return estadoResponse("PROPIO", null);
         }
-        if (actual.getSiguiendo().contains(destino)) {
+        if (usuarioRepository.existsSeguimiento(actual.getId(), destino.getId())) {
             return estadoResponse("SIGUIENDO", null);
         }
         Optional<SolicitudSeguimiento> pend = solicitudRepository.findPendienteEntre(actual, destino);

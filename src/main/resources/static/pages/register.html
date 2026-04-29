@@ -83,14 +83,14 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
           <div class="form-group">
-            <label class="form-label">Contrasena</label>
+            <label class="form-label">Contraseña</label>
             <input id="password" class="form-input" type="password"
-                   placeholder="Min. 6 caracteres" required minlength="6" autocomplete="new-password">
+                   placeholder="Mín. 6 caracteres" required minlength="6" autocomplete="new-password">
           </div>
           <div class="form-group">
             <label class="form-label">Confirmar</label>
             <input id="confirmPassword" class="form-input" type="password"
-                   placeholder="Repite contrasena" required autocomplete="new-password">
+                   placeholder="Repite contraseña" required autocomplete="new-password">
           </div>
         </div>
 
@@ -151,7 +151,7 @@
     const confirm  = document.getElementById('confirmPassword').value;
 
     if (password !== confirm) {
-      showAlert('Las contrasenas no coinciden', 'error');
+      showAlert('Las contraseñas no coinciden', 'error');
       return;
     }
 
