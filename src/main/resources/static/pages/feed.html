@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Feed — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ocean-theme.css">
   <style>
     /* ═══════════════════════════════════════════════════════════
        Feed (Instagram-style + tematizado submarinismo)
@@ -224,13 +225,23 @@
       </button>
     </div>
     <div class="dv-modal-body">
-      <label class="dv-label">URL de foto o video</label>
-      <input id="pubMediaUrl" class="dv-input" placeholder="https://..." oninput="previewMedia('pub')">
-      <small style="color:var(--t3);font-size:.72rem;display:block;margin:.3rem 0 .7rem">
-        Ej. sube tu foto a imgur/unsplash y pega aquí la URL directa.
-      </small>
+      <label class="dv-label">Foto o video</label>
+      <div class="media-uploader" id="pubUploader">
+        <input id="pubFile" type="file" accept="image/*,video/*" capture="environment"
+               onchange="onFilePicked('pub', this)" style="display:none">
+        <button type="button" class="media-uploader-btn" onclick="document.getElementById('pubFile').click()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+          </svg>
+          <span id="pubFileBtnLabel">Elegir de galería o cámara</span>
+        </button>
+        <small style="color:var(--t3);font-size:.72rem;display:block;margin-top:.45rem">
+          También puedes pegar una URL si lo prefieres
+        </small>
+        <input id="pubMediaUrl" class="dv-input" placeholder="https://..." oninput="previewMedia('pub')" style="margin-top:.4rem">
+      </div>
 
-      <div class="media-preview" id="pubPreview">
+      <div class="media-preview" id="pubPreview" style="margin-top:.7rem">
         <div class="media-preview-empty">La vista previa aparecerá aquí</div>
       </div>
 
@@ -279,8 +290,19 @@
       </button>
     </div>
     <div class="dv-modal-body">
-      <label class="dv-label">URL de foto o video</label>
-      <input id="histMediaUrl" class="dv-input" placeholder="https://..." oninput="previewMedia('hist')">
+      <label class="dv-label">Foto o video</label>
+      <div class="media-uploader" id="histUploader">
+        <input id="histFile" type="file" accept="image/*,video/*" capture="environment"
+               onchange="onFilePicked('hist', this)" style="display:none">
+        <button type="button" class="media-uploader-btn" onclick="document.getElementById('histFile').click()">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/>
+          </svg>
+          <span id="histFileBtnLabel">Elegir de galería o cámara</span>
+        </button>
+        <small style="color:var(--t3);font-size:.72rem;display:block;margin-top:.45rem">También puedes pegar una URL</small>
+        <input id="histMediaUrl" class="dv-input" placeholder="https://..." oninput="previewMedia('hist')" style="margin-top:.4rem">
+      </div>
       <div class="dv-form-row" style="margin-top:.6rem">
         <div>
           <label class="dv-label">Tipo</label>
@@ -551,11 +573,16 @@
       `https://ui-avatars.com/api/?name=${encodeURIComponent(p.usuarioUsername)}&background=00D4AA&color=fff&size=200`;
 
     const chips = [];
-    if (p.lugarInmersion)    chips.push(`<span class="post-chip">📍 ${escapeHtml(p.lugarInmersion)}</span>`);
-    if (p.profundidadMaxima) chips.push(`<span class="post-chip">🤿 ${p.profundidadMaxima}m</span>`);
-    if (p.temperaturaAgua)   chips.push(`<span class="post-chip">🌡 ${p.temperaturaAgua}°C</span>`);
-    if (p.visibilidad)       chips.push(`<span class="post-chip">👁 ${p.visibilidad}m</span>`);
-    if (p.especiesVistas)    chips.push(`<span class="post-chip">🐠 ${escapeHtml(p.especiesVistas)}</span>`);
+    const SVG_PIN   = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    const SVG_DEPTH = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v18M5 13l7 7 7-7"/></svg>`;
+    const SVG_TEMP  = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>`;
+    const SVG_EYE   = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const SVG_FISH  = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c4-6 11-7 15-3 3 3 3 9 0 12-4 4-11 3-15-3"/><circle cx="16" cy="11" r=".8" fill="currentColor"/><path d="M3 12l-2-3M3 12l-2 3"/></svg>`;
+    if (p.lugarInmersion)    chips.push(`<span class="post-chip">${SVG_PIN}<span>${escapeHtml(p.lugarInmersion)}</span></span>`);
+    if (p.profundidadMaxima) chips.push(`<span class="post-chip">${SVG_DEPTH}<span>${p.profundidadMaxima} m</span></span>`);
+    if (p.temperaturaAgua)   chips.push(`<span class="post-chip">${SVG_TEMP}<span>${p.temperaturaAgua} °C</span></span>`);
+    if (p.visibilidad)       chips.push(`<span class="post-chip">${SVG_EYE}<span>${p.visibilidad} m vis.</span></span>`);
+    if (p.especiesVistas)    chips.push(`<span class="post-chip">${SVG_FISH}<span>${escapeHtml(p.especiesVistas)}</span></span>`);
 
     let mediaHtml;
     if (p.videoUrl) {
@@ -676,7 +703,7 @@
     try{
       const esVideo = /\.(mp4|webm|mov)(\?|$)/i.test(mediaUrl);
       const payload = {
-        contenido: contenido || '📸',
+        contenido: contenido || '',
         imagenUrl: esVideo ? null : (mediaUrl || null),
         videoUrl:  esVideo ? mediaUrl : null,
         lugarInmersion:    nullIfEmpty(document.getElementById('pubLugar').value),
@@ -744,6 +771,53 @@
       : `<img src="${escapeAttr(url)}" alt="" onerror="this.parentNode.innerHTML='<div class=\\'media-preview-empty\\'>No se pudo cargar la imagen</div>'">`;
   };
 
+  // ── Subida de archivo (galería/cámara) ──────────────────────
+  window.onFilePicked = async function(which, input){
+    if (!input.files || !input.files[0]) return;
+    const file  = input.files[0];
+    const label = document.getElementById(which==='pub' ? 'pubFileBtnLabel' : 'histFileBtnLabel');
+    const prev  = document.getElementById(which==='pub' ? 'pubPreview' : 'histPreview');
+    const urlIn = document.getElementById(which==='pub' ? 'pubMediaUrl' : 'histMediaUrl');
+
+    // Preview local inmediato (antes de que termine el upload)
+    const localUrl = URL.createObjectURL(file);
+    const esVideo = file.type.startsWith('video/');
+    prev.innerHTML = esVideo
+      ? `<video src="${localUrl}" controls muted playsinline></video>`
+      : `<img src="${localUrl}" alt="">`;
+    label.textContent = 'Subiendo… ' + file.name;
+
+    // Si es vídeo, marcar el tipo en el modal de historia
+    if (which === 'hist') {
+      const sel = document.getElementById('histTipo');
+      if (sel) sel.value = esVideo ? 'VIDEO' : 'FOTO';
+    }
+
+    // Upload multipart al backend
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const token = localStorage.getItem('token');
+      const r = await fetch('/api/uploads', {
+        method: 'POST',
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+        body: fd
+      });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({}));
+        throw new Error(err.message || ('Error ' + r.status));
+      }
+      const data = await r.json();
+      urlIn.value = data.url; // p.ej. /uploads/abc123.jpg
+      label.textContent = file.name + ' subido';
+    } catch (err) {
+      label.textContent = 'Elegir de galería o cámara';
+      prev.innerHTML = '<div class="media-preview-empty" style="color:var(--coral)">Error al subir: ' + escapeHtml(err.message) + '</div>';
+      urlIn.value = '';
+      input.value = '';
+    }
+  };
+
   function nullIfEmpty(v){ const t = (v||'').trim(); return t ? t : null; }
   function numOrNull(v){ if (!v) return null; const n = parseFloat(v); return isNaN(n) ? null : n; }
 
@@ -767,5 +841,6 @@
   }
 })();
 </script>
+  <script src="/js/ocean-effects.js" defer></script>
 </body>
 </html>

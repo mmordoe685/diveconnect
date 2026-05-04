@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Inmersiones — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ocean-theme.css">
   <style>
     /* ── Page hero ──────────────────────────────────────────────── */
     .page-hero {
@@ -451,8 +452,7 @@
     </div>
 
     <div style="background:rgba(0,212,170,.08);border:1px solid rgba(0,212,170,.2);border-radius:8px;padding:.6rem .8rem;font-size:.78rem;color:var(--text-2);margin:.5rem 0 .75rem">
-      💳 Al confirmar serás redirigido a Stripe para completar el pago de forma segura.
-      No necesitamos que la empresa lo apruebe — si hay plazas, tu reserva queda confirmada.
+      Al confirmar pasarás al pago seguro. Si hay plazas, tu reserva queda confirmada en cuanto se procese el cobro: el centro no necesita aprobarla manualmente.
     </div>
 
     <div class="modal-footer">
@@ -717,16 +717,21 @@
     btn.disabled    = true;
     btn.textContent = 'Procesando...';
 
+    // Capturar lo necesario ANTES de cerrar el modal (que pone inmersionActual = null)
+    const precioInmersion = inmersionActual.precio || 0;
+    const tituloInmersion = inmersionActual.titulo || 'Inmersión DiveConnect';
+    const idInmersion     = inmersionActual.id;
+
     try {
       // 1. Crear reserva (queda en estado PENDIENTE / UNPAID)
       const reserva = await fetchAPI('/reservas', {
         method: 'POST',
-        body: JSON.stringify({ inmersionId: inmersionActual.id, numeroPersonas: num })
+        body: JSON.stringify({ inmersionId: idInmersion, numeroPersonas: num })
       });
 
       // 2. Abrir modal de pago con tarjeta (no redirige)
       cerrarModal();
-      const total = (inmersionActual.precio || 0) * num;
+      const total = precioInmersion * num;
       if (typeof abrirModalPago !== 'function') {
         showAlert(
           `Reserva creada. Ve a "Mis Reservas" para completar el pago.`, 'info'
@@ -737,7 +742,7 @@
       abrirModalPago({
         reservaId: reserva.id,
         total,
-        concepto: inmersionActual.titulo || 'Inmersión DiveConnect',
+        concepto: tituloInmersion,
         onSuccess: () => {
           showAlert('¡Reserva confirmada y pagada!', 'success');
           setTimeout(() => { window.location.href = '/pages/reservas.html'; }, 1400);
@@ -760,5 +765,6 @@
   cargarInmersiones();
 </script>
 <script src="/js/animations.js"></script>
+  <script src="/js/ocean-effects.js" defer></script>
 </body>
 </html>

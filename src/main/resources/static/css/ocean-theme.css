@@ -1,0 +1,604 @@
+/* ─────────────────────────────────────────────────────────────────
+   ocean-theme.css — Capa de tema submarina sobre style.css.
+   Añade fondo animado (gradiente + rayos de luz + burbujas), glass-
+   morphism en tarjetas, micro-animaciones y refinos de tipografía.
+   No redefine tokens — solo encadena reglas que sobreescriben con
+   selectores específicos. Pensado para incluir DESPUÉS de style.css.
+   ───────────────────────────────────────────────────────────────── */
+
+:root {
+  --ocean-deep:        #0B1A2B;
+  --ocean-mid:         #0D2540;
+  --ocean-shallow:     #1B4965;
+  --ocean-surface:     #62B6CB;
+  --ocean-light:       #BEE9E8;
+  --ocean-foam:        #DCF3EE;
+  --ocean-cream:       #FFFBF5;
+  --ocean-glow:        #00D4AA;
+  --ocean-glow-soft:   rgba(0, 212, 170, .35);
+  --ocean-coral:       #FF6B6B;
+  --ocean-amber:       #F5A623;
+
+  --glass-bg:          rgba(255, 255, 255, .58);
+  --glass-bg-strong:   rgba(255, 255, 255, .78);
+  --glass-border:      rgba(255, 255, 255, .42);
+  --glass-shadow:      0 8px 32px rgba(11, 26, 43, .08),
+                       inset 0 1px 0 rgba(255, 255, 255, .65);
+  --glass-shadow-h:    0 18px 48px rgba(11, 26, 43, .14),
+                       inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+/* ── 1. Fondo subacuático animado ────────────────────────────── */
+
+body {
+  position: relative;
+  background:
+    radial-gradient(ellipse 140% 80% at 50% -20%, rgba(98, 182, 203, .55), transparent 55%),
+    radial-gradient(ellipse 100% 50% at 80% 110%, rgba(0, 212, 170, .22), transparent 60%),
+    radial-gradient(ellipse 90%  60% at 15% 90%, rgba(91, 94, 166, .14), transparent 60%),
+    linear-gradient(180deg,
+      var(--ocean-cream) 0%,
+      #EAF6F3 22%,
+      var(--ocean-foam) 50%,
+      #A7DDD7 78%,
+      #62B6CB 100%);
+  background-attachment: fixed;
+  background-size: 100% 100%;
+}
+
+/* Caustics flotando — más visibles y con movimiento perceptible */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 900px 500px at 18% 25%,  rgba(0, 212, 170, .14), transparent 65%),
+    radial-gradient(ellipse 600px 360px at 85% 70%,  rgba(98, 182, 203, .18), transparent 65%),
+    radial-gradient(ellipse 700px 420px at 60% 110%, rgba(91, 94, 166, .10), transparent 65%);
+  animation: ocean-caustic 22s ease-in-out infinite alternate;
+}
+
+@keyframes ocean-caustic {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-1.5%, 1%) scale(1.04); }
+  100% { transform: translate(1%, -1.5%) scale(1.02); }
+}
+
+/* Rayos de luz desde la superficie — intensos y desplazados */
+body::after {
+  content: '';
+  position: fixed;
+  top: -12vh; left: 0;
+  width: 100%; height: 130vh;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    linear-gradient(105deg,
+      transparent 36%,
+      rgba(255, 255, 255, .35) 40%,
+      rgba(255, 255, 255, .12) 44%,
+      transparent 48%),
+    linear-gradient(95deg,
+      transparent 56%,
+      rgba(255, 255, 255, .28) 60%,
+      transparent 64%),
+    linear-gradient(120deg,
+      transparent 70%,
+      rgba(190, 233, 232, .32) 74%,
+      transparent 78%),
+    linear-gradient(108deg,
+      transparent 82%,
+      rgba(255, 255, 255, .18) 85%,
+      transparent 89%);
+  filter: blur(1px);
+  animation: ocean-rays 14s ease-in-out infinite alternate;
+  mix-blend-mode: screen;
+}
+
+@keyframes ocean-rays {
+  0%   { transform: translateX(-3%) translateY(-2%); opacity: .55; }
+  50%  { opacity: .85; }
+  100% { transform: translateX(3%)  translateY(2%);  opacity: .65; }
+}
+
+/* Asegurar que el contenido vaya por encima de los pseudo-elementos */
+body > *,
+body > .container,
+body > main,
+body > header,
+body > footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* Contenedor para las burbujas inyectadas por ocean-effects.js */
+#oceanBubbles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ocean-bubble {
+  position: absolute;
+  bottom: -60px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%,
+    rgba(255, 255, 255, .85),
+    rgba(190, 233, 232, .35) 55%,
+    rgba(98, 182, 203, .2) 100%);
+  box-shadow:
+    inset -2px -3px 6px rgba(98, 182, 203, .25),
+    inset 2px 2px 4px rgba(255, 255, 255, .6),
+    0 2px 10px rgba(11, 26, 43, .06);
+  opacity: 0;
+  animation-name: ocean-rise;
+  animation-timing-function: cubic-bezier(.4, .1, .55, .9);
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+
+@keyframes ocean-rise {
+  0%   { transform: translate(0, 0)      scale(.9); opacity: 0; }
+  10%  { opacity: var(--bubble-opacity, .7); }
+  50%  { transform: translate(var(--bubble-drift, 18px), -55vh) scale(1); }
+  90%  { opacity: var(--bubble-opacity, .7); }
+  100% { transform: translate(calc(var(--bubble-drift, 18px) * -.6), -110vh) scale(1.05); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after, .ocean-bubble { animation: none !important; }
+}
+
+/* ── 2. Glassmorphism para tarjetas y paneles ─────────────────── */
+
+.post-card,
+.reserva-card,
+.notif-item,
+.inmersion-card,
+.dive-card,
+.user-card,
+.results-card,
+.dv-modal,
+.modal-box,
+.empty-state,
+.stats-bar,
+.empresa-card,
+.centro-card,
+.search-card,
+.profile-card,
+.profile-section,
+.feed-stories,
+.story-item,
+.auth-card {
+  background: var(--glass-bg) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+          backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  transition: transform .28s var(--ease-spring),
+              box-shadow .3s var(--ease),
+              border-color .3s var(--ease) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Halo aqua sutil al borde superior — efecto de reflejo de superficie */
+.post-card::after,
+.reserva-card::after,
+.notif-item::after,
+.inmersion-card::after,
+.dive-card::after,
+.empresa-card::after,
+.centro-card::after,
+.results-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0, 212, 170, .55) 50%,
+    transparent 100%);
+  opacity: 0;
+  transition: opacity .35s var(--ease);
+  pointer-events: none;
+}
+
+.post-card:hover::after,
+.reserva-card:hover::after,
+.notif-item:hover::after,
+.inmersion-card:hover::after,
+.dive-card:hover::after,
+.empresa-card:hover::after,
+.centro-card:hover::after,
+.results-card:hover::after {
+  opacity: 1;
+}
+
+.post-card:hover,
+.reserva-card:hover:not(.CANCELADA),
+.notif-item:hover,
+.inmersion-card:hover,
+.dive-card:hover,
+.user-card:hover,
+.empresa-card:hover,
+.centro-card:hover,
+.search-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--glass-shadow-h) !important;
+  border-color: rgba(0, 212, 170, .28) !important;
+}
+
+/* Topbar / Navbar con glass más fuerte */
+.navbar, .topbar, header.navbar, header.topbar, #mainNavbar {
+  background: rgba(255, 251, 245, .72) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+          backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, .55) !important;
+  box-shadow: 0 1px 0 rgba(0, 212, 170, .08), 0 4px 20px rgba(11, 26, 43, .04) !important;
+}
+
+/* Dock inferior con glass */
+.dock, .bottom-dock, [class*="dock-"] {
+  background: rgba(255, 251, 245, .82) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(200%);
+          backdrop-filter: blur(22px) saturate(200%);
+  border-top: 1px solid rgba(255, 255, 255, .55) !important;
+}
+
+.dock-item.active, .bottom-dock-item.active {
+  position: relative;
+}
+.dock-item.active::before, .bottom-dock-item.active::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  background: radial-gradient(circle, var(--ocean-glow-soft) 0%, transparent 70%);
+  z-index: -1;
+  animation: dock-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes dock-pulse {
+  0%, 100% { opacity: .6; transform: scale(.95); }
+  50%      { opacity: 1;  transform: scale(1.05); }
+}
+
+/* ── 3. Botón primario "ola" — shimmer al hover ───────────────── */
+
+.btn-primary, .dv-btn-pay, .filter-tab.active, button.btn-primary {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #00D4AA 0%, #2EC4B6 50%, #1B9AAA 100%) !important;
+  color: #FFFBF5 !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(0, 212, 170, .28), inset 0 1px 0 rgba(255, 255, 255, .35) !important;
+  transition: transform .18s var(--ease-spring), box-shadow .25s var(--ease), filter .25s var(--ease) !important;
+}
+
+.btn-primary::before, .dv-btn-pay::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -75%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255, 255, 255, .35) 50%,
+    transparent 100%);
+  transform: skewX(-20deg);
+  transition: left .65s var(--ease);
+}
+
+.btn-primary:hover::before, .dv-btn-pay:hover::before {
+  left: 130%;
+}
+
+.btn-primary:hover, .dv-btn-pay:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 10px 28px rgba(0, 212, 170, .42), inset 0 1px 0 rgba(255, 255, 255, .5) !important;
+  filter: brightness(1.06);
+}
+
+.btn-primary:active, .dv-btn-pay:active {
+  transform: translateY(0) scale(.97) !important;
+}
+
+/* ── 4. Headings — gradient animado en titulares grandes ──────── */
+
+h1, h2.dv-h2, .auth-title, .page-header h1, .hero-title {
+  background: linear-gradient(135deg,
+    #0B1A2B 0%,
+    #1B4965 30%,
+    #00D4AA 65%,
+    #1B9AAA 100%);
+  background-size: 220% 220%;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+  animation: heading-shimmer 8s ease-in-out infinite;
+}
+
+@keyframes heading-shimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* Acento subrayado animado en headings de página */
+.page-header h1 {
+  position: relative;
+  display: inline-block;
+  padding-bottom: .15em;
+}
+.page-header h1::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 3px; width: 64px;
+  background: linear-gradient(90deg, #00D4AA, transparent);
+  border-radius: 2px;
+  animation: heading-underline 1.6s var(--ease-spring) .1s both;
+}
+@keyframes heading-underline {
+  from { width: 0; opacity: 0; }
+  to   { width: 64px; opacity: 1; }
+}
+
+/* ── 5. Reveal on scroll (data-reveal) ────────────────────────── */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease-spring);
+}
+[data-reveal].in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── 6. Inputs con foco glow ─────────────────────────────────── */
+
+input.dv-input:focus,
+input.form-input:focus,
+textarea.dv-textarea:focus,
+select.dv-select:focus,
+select.form-input:focus {
+  border-color: var(--ocean-glow) !important;
+  box-shadow:
+    0 0 0 3px rgba(0, 212, 170, .15),
+    0 4px 12px rgba(0, 212, 170, .12) !important;
+  outline: none;
+}
+
+/* ── 7. Estado badges ───────────────────────────────────────── */
+
+.estado-badge, .badge, .pay-mode-badge {
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+}
+
+/* ── 8. Spinner refinado ──────────────────────────────────────── */
+
+.spinner, .pay-spinner {
+  border-top-color: var(--ocean-glow) !important;
+  filter: drop-shadow(0 0 8px rgba(0, 212, 170, .35));
+}
+
+/* ── 9. Imágenes con borde aqua sutil ────────────────────────── */
+
+.post-avatar, .notif-avatar img, .profile-avatar, .topbar-avatar {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .85),
+              0 0 0 4px rgba(0, 212, 170, .18),
+              0 4px 16px rgba(11, 26, 43, .12);
+}
+
+/* ── 10. Modal entrada con flotación ──────────────────────────── */
+
+.dv-modal-backdrop.open .dv-modal,
+.modal-overlay.active .modal-box,
+.modal-overlay.open .modal-box {
+  animation: ocean-modal-in .45s var(--ease-spring);
+}
+
+@keyframes ocean-modal-in {
+  0%   { opacity: 0; transform: translateY(28px) scale(.96); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.dv-modal-backdrop {
+  background: rgba(11, 26, 43, .35) !important;
+  -webkit-backdrop-filter: blur(8px);
+          backdrop-filter: blur(8px);
+}
+
+/* ── 11. Like-btn corazón con animación ───────────────────────── */
+
+.post-action-btn.like-btn.liked svg {
+  fill: var(--ocean-coral) !important;
+  stroke: var(--ocean-coral) !important;
+  animation: heart-pop .42s var(--ease-spring);
+  filter: drop-shadow(0 0 8px rgba(255, 107, 107, .55));
+}
+@keyframes heart-pop {
+  0%   { transform: scale(1); }
+  35%  { transform: scale(1.4); }
+  70%  { transform: scale(.92); }
+  100% { transform: scale(1); }
+}
+
+/* ── 12. Skeleton/loading ─────────────────────────────────────── */
+
+.loading::before {
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px;
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--ocean-glow);
+  box-shadow: 0 0 12px var(--ocean-glow-soft);
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(.7); opacity: .6; }
+  50%      { transform: scale(1.3); opacity: 1; }
+}
+
+/* ── 13. Scroll bar refinado ─────────────────────────────────── */
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--ocean-glow), var(--ocean-shallow)) !important;
+  border-radius: 4px;
+}
+
+/* Modo claro forzado: la temática submarina ya tiene su propia paleta
+   y el dark-mode automático rompía el contraste con el cream-background. */
+:root { color-scheme: light; }
+
+/* ── 15. Media uploader (galería/cámara) ─────────────────────── */
+
+.media-uploader {
+  display: flex;
+  flex-direction: column;
+}
+
+.media-uploader-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  width: 100%;
+  padding: .85rem 1rem;
+  border: 2px dashed rgba(0, 212, 170, .45);
+  border-radius: 14px;
+  background: rgba(0, 212, 170, .06);
+  color: var(--ocean-shallow);
+  font-weight: 700;
+  font-size: .9rem;
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease), transform .15s var(--ease-spring);
+}
+
+.media-uploader-btn:hover {
+  background: rgba(0, 212, 170, .12);
+  border-color: var(--ocean-glow);
+  transform: translateY(-1px);
+}
+
+.media-uploader-btn:active { transform: scale(.98); }
+.media-uploader-btn svg    { stroke: var(--ocean-glow); flex-shrink: 0; }
+
+/* ── 16. Responsive móvil ────────────────────────────────────── */
+
+@media (max-width: 720px) {
+  body {
+    /* Padding inferior para que el dock fixed no tape contenido */
+    padding-bottom: 76px;
+  }
+
+  /* Topbar más compacta en móvil */
+  .topbar, .navbar, header.topbar, header.navbar {
+    padding: .6rem .85rem !important;
+  }
+
+  /* Container fluído */
+  .container, main {
+    max-width: 100% !important;
+    padding-left: .85rem !important;
+    padding-right: .85rem !important;
+  }
+
+  /* Modales: full-screen y scroll interno */
+  .dv-modal-backdrop {
+    align-items: flex-end !important;  /* sheet desde abajo */
+    padding: 0 !important;
+  }
+  .dv-modal {
+    max-width: 100% !important;
+    width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 24px 24px 0 0 !important;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: ocean-sheet-up .42s var(--ease-spring) !important;
+  }
+  @keyframes ocean-sheet-up {
+    0%   { transform: translateY(100%); }
+    100% { transform: translateY(0); }
+  }
+
+  /* Modal de pago: misma sheet */
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+  .modal-box {
+    max-width: 100% !important;
+    width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+  }
+
+  /* Reducir gap excesivo en grids */
+  .stats-bar { grid-template-columns: 1fr 1fr !important; }
+
+  /* Tarjetas de inmersión fullscreen-ish */
+  .inmersiones-grid, .results-grid, [class*="grid"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Inputs táctiles más grandes (mín. 44px alto) */
+  .form-input, .dv-input, .dv-textarea, .dv-select, button.btn, .btn {
+    min-height: 44px;
+    font-size: 16px !important;  /* evita zoom de iOS al focus */
+  }
+
+  /* Filter tabs scroll horizontal en móvil */
+  .filter-bar, .pay-methods {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar,
+  .pay-methods::-webkit-scrollbar { display: none; }
+  .filter-tab, .pay-method-pill { flex-shrink: 0; }
+
+  /* Page hero: más compacto */
+  .page-hero, .page-header {
+    padding: 1.5rem 0 1rem !important;
+  }
+  .page-hero h1, .page-header h1 {
+    font-size: clamp(1.5rem, 6vw, 2rem) !important;
+  }
+
+  /* Burbujas un pelín más pequeñas y menos densas para no saturar */
+  #oceanBubbles .ocean-bubble:nth-child(n+15) { display: none; }
+
+  /* Story viewer ocupando toda la pantalla */
+  .story-viewer { padding: 0 !important; }
+
+  /* Mapa Leaflet altura cómoda */
+  #map, .leaflet-container { min-height: 60vh !important; }
+}
+
+/* Móviles muy pequeños */
+@media (max-width: 380px) {
+  .dock-item, .bottom-dock-item {
+    font-size: .65rem;
+  }
+  .stats-bar .stat-value { font-size: 1.3rem; }
+  .pay-summary-total     { font-size: 1.4rem !important; }
+}
+
+/* iOS safe area: dock no tapado por barra de navegación */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .dock, .bottom-dock, [class*="dock-"] {
+    padding-bottom: calc(.75rem + env(safe-area-inset-bottom)) !important;
+  }
+  body {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+}

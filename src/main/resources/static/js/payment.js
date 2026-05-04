@@ -193,7 +193,9 @@
         <div class="pay-field">
           <label class="dv-label">Número de tarjeta</label>
           <input id="payCardNumber" class="dv-input" placeholder="1234 5678 9012 3456" inputmode="numeric" autocomplete="cc-number" maxlength="23">
-          <span class="pay-field-brand" id="payBrandIcon">💳</span>
+          <span class="pay-field-brand" id="payBrandIcon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="14" fill="none" stroke="#62B6CB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2.5"/><path d="M2 11h20"/></svg>
+          </span>
         </div>
         <div class="pay-err" id="payErrNumber">Número de tarjeta no válido</div>
         <div class="pay-row">
@@ -298,7 +300,7 @@
   function renderError(msg, canRetry) {
     return `
       <div style="text-align:center;padding:1.5rem 1rem">
-        <div style="font-size:2rem">❌</div>
+        <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="var(--coral)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         <h4 style="margin:.5rem 0;color:var(--coral);font-family:'DM Serif Display',serif">Pago no completado</h4>
         <p style="margin:0;color:var(--t2);font-size:.88rem">${escapeHtml(msg || 'Inténtalo de nuevo en unos segundos.')}</p>
         <div style="display:flex;gap:.5rem;margin-top:1.25rem;justify-content:center">
@@ -324,13 +326,10 @@
     return sum % 10 === 0;
   }
 
-  function detectBrand(num) {
-    const n = (num || '').replace(/\D/g, '');
-    if (/^4/.test(n)) return '💳';
-    if (/^(5[1-5]|2[2-7])/.test(n)) return '💳';
-    if (/^3[47]/.test(n)) return '💳';
-    if (/^6(?:011|5)/.test(n)) return '💳';
-    return '💳';
+  // El indicador visual de marca se mantiene constante (sólo decorativo).
+  // No expone el detalle de la BIN al usuario y mantiene la UI limpia.
+  function detectBrand() {
+    return `<svg viewBox="0 0 24 24" width="22" height="14" fill="none" stroke="#62B6CB" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2.5"/><path d="M2 11h20"/></svg>`;
   }
 
   function formatCardNumber(v) {
@@ -388,7 +387,7 @@
 
     numEl.addEventListener('input', () => {
       numEl.value = formatCardNumber(numEl.value);
-      brandEl.textContent = detectBrand(numEl.value);
+      brandEl.innerHTML = detectBrand();
       toggleErr('payErrNumber', numEl.value.replace(/\D/g,'').length >= 12 && !luhn(numEl.value));
     });
     expEl.addEventListener('input', () => {

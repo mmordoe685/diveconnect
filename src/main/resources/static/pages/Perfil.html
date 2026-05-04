@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mi Perfil — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ocean-theme.css">
   <style>
     /* ── Profile Hero ───────────────────────────────────────── */
     .perfil-hero {
@@ -217,10 +218,34 @@
   <!-- ── Edit Form (solo en perfil propio) ── -->
   <div class="edit-card" id="editCard">
     <div class="edit-card-header">
-      <div class="edit-card-icon">✏️</div>
+      <div class="edit-card-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+      </div>
       <div class="edit-card-title">Editar perfil</div>
     </div>
     <form id="editForm">
+      <div class="form-group">
+        <label class="form-label">Foto de perfil</label>
+        <div class="media-uploader">
+          <input id="fotoPerfilFile" type="file" accept="image/*" capture="user"
+                 onchange="onProfilePhotoPicked(this)" style="display:none">
+          <button type="button" class="media-uploader-btn"
+                  onclick="document.getElementById('fotoPerfilFile').click()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <span id="fotoPerfilLabel">Cambiar foto desde galería o cámara</span>
+          </button>
+          <input id="fotoPerfilUrl" type="hidden">
+          <div id="fotoPerfilPreview" style="margin-top:.6rem;display:none">
+            <img id="fotoPerfilPreviewImg" src="" alt=""
+                 style="width:96px;height:96px;border-radius:50%;object-fit:cover;
+                        box-shadow:0 0 0 3px rgba(0,212,170,.25),0 8px 24px rgba(11,26,43,.18)">
+          </div>
+        </div>
+      </div>
       <div class="form-group">
         <label class="form-label">Biografía</label>
         <textarea id="biografia" class="form-input" rows="3"
@@ -473,6 +498,51 @@
   }
 
   if (!verOtroUsuario) {
+    // Pre-rellenar la URL actual para no perderla si no se cambia
+    document.addEventListener('DOMContentLoaded', () => {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      const urlField = document.getElementById('fotoPerfilUrl');
+      if (urlField && u.fotoPerfil) urlField.value = u.fotoPerfil;
+    });
+
+    // Subida de foto de perfil
+    window.onProfilePhotoPicked = async function(input) {
+      if (!input.files || !input.files[0]) return;
+      const file  = input.files[0];
+      const label = document.getElementById('fotoPerfilLabel');
+      const prev  = document.getElementById('fotoPerfilPreview');
+      const img   = document.getElementById('fotoPerfilPreviewImg');
+      const urlIn = document.getElementById('fotoPerfilUrl');
+
+      // Preview local mientras sube
+      img.src = URL.createObjectURL(file);
+      prev.style.display = 'block';
+      label.textContent = 'Subiendo… ' + file.name;
+
+      const fd = new FormData();
+      fd.append('file', file);
+      try {
+        const r = await fetch('/api/uploads', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+          body: fd
+        });
+        if (!r.ok) {
+          const err = await r.json().catch(() => ({}));
+          throw new Error(err.message || ('Error ' + r.status));
+        }
+        const data = await r.json();
+        urlIn.value = data.url;
+        label.textContent = file.name + ' subido';
+      } catch (err) {
+        label.textContent = 'Cambiar foto desde galería o cámara';
+        prev.style.display = 'none';
+        urlIn.value = JSON.parse(localStorage.getItem('user') || '{}').fotoPerfil || '';
+        input.value = '';
+        showAlert(err.message || 'Error al subir la foto', 'error');
+      }
+    };
+
     document.getElementById('editForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = e.submitter || document.querySelector('#editForm button[type="submit"]');
@@ -484,7 +554,8 @@
           body: JSON.stringify({
             biografia:          document.getElementById('biografia').value.trim() || null,
             nivelCertificacion: document.getElementById('nivel').value.trim() || null,
-            numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value, 10) || 0
+            numeroInmersiones:  parseInt(document.getElementById('numInmersiones').value, 10) || 0,
+            fotoPerfil:         document.getElementById('fotoPerfilUrl').value.trim() || null
           })
         });
         showAlert('Perfil actualizado correctamente.', 'success');
@@ -500,5 +571,6 @@
   if (!verOtroUsuario) cargarMisReservas();
 </script>
 <script src="/js/animations.js"></script>
+  <script src="/js/ocean-effects.js" defer></script>
 </body>
 </html>

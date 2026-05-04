@@ -140,10 +140,10 @@ public class InmersionService {
         response.setLongitud(inmersion.getLongitud());
         response.setEquipoIncluido(inmersion.getEquipoIncluido());
         response.setImagenUrl(inmersion.getImagenUrl());
-        response.setActiva(inmersion.getActivo()); // 🔥 importante
+        response.setActiva(inmersion.getActivo()); // importante
         response.setFechaCreacion(inmersion.getFechaCreacion());
 
-        if (inmersion.getCentroBuceo() != null) {
+        if (inmersion.getCentroBuceo()!= null) {
             response.setCentroBuceoId(inmersion.getCentroBuceo().getId());
             response.setCentroBuceoNombre(inmersion.getCentroBuceo().getNombre());
             response.setCentroBuceoCiudad(inmersion.getCentroBuceo().getCiudad());

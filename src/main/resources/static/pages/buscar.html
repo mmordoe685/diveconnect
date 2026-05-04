@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Explorar — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ocean-theme.css">
 </head>
 <body>
   <header class="topbar" id="mainNavbar"></header>
@@ -121,7 +122,7 @@
         pos => {
           userLat = pos.coords.latitude;
           userLon = pos.coords.longitude;
-          $('searchGeoLabel').textContent = `✓ Ubicación activa (${userLat.toFixed(2)}, ${userLon.toFixed(2)})`;
+          $('searchGeoLabel').textContent = `Ubicación activa (${userLat.toFixed(2)}, ${userLon.toFixed(2)})`;
           buscar();
         },
         err => {
@@ -189,7 +190,7 @@
       if (inmersiones.length) {
         if (inmersionesPorProximidad) {
           sec.push(`<div class="search-proximity-note">
-            📍 Sin coincidencias textuales — te mostramos las 5 inmersiones más cercanas.
+            Sin coincidencias para tu búsqueda. Te mostramos las cinco inmersiones más cercanas a tu ubicación.
           </div>`);
         }
         sec.push(`<h3 class="search-section-title">Inmersiones</h3>`);
@@ -257,10 +258,10 @@
     function renderInmersion(i) {
       const img = i.imagenUrl || SEARCH_IMG_FALLBACK;
       const chips = [];
-      if (i.profundidadMaxima != null) chips.push(`💧 ${i.profundidadMaxima}m`);
-      if (i.precio != null) chips.push(`💶 ${i.precio}€`);
-      if (i.nivelRequerido) chips.push(`🎓 ${escapeHtml(i.nivelRequerido)}`);
-      if (i.distanciaKm != null) chips.push(`📍 ${i.distanciaKm.toFixed(1)} km`);
+      if (i.profundidadMaxima != null) chips.push(`${i.profundidadMaxima} m de profundidad`);
+      if (i.precio != null) chips.push(`${i.precio} €`);
+      if (i.nivelRequerido) chips.push(escapeHtml(i.nivelRequerido));
+      if (i.distanciaKm != null) chips.push(`a ${i.distanciaKm.toFixed(1)} km`);
       return `
         <a class="search-card" href="/pages/Inmersiones.html?id=${i.id}">
           <div class="search-card-img"><img src="${img}" alt="" loading="lazy"
@@ -303,5 +304,6 @@
       }
     }
   </script>
+  <script src="/js/ocean-effects.js" defer></script>
 </body>
 </html>

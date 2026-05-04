@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mapa de Inmersiones — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ocean-theme.css">
 
   <!-- Leaflet (OpenStreetMap) -->
   <link rel="stylesheet"
@@ -504,7 +505,7 @@
         transform: rotate(-45deg);
         box-shadow: 0 3px 10px rgba(0,0,0,.25);
         display: grid; place-items: center;
-      "><span style="transform:rotate(45deg);font-size:14px">🤿</span></div>`,
+      "><span style="transform:rotate(45deg);width:14px;height:14px;display:grid;place-items:center"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/></svg></span></div>`,
       iconSize: [32, 32],
       iconAnchor: [16, 32],
       popupAnchor: [0, -30]
@@ -521,9 +522,9 @@
         <div class="popup-title">${escapeHtml(p.titulo)}</div>
         <div class="popup-meta">Por ${escapeHtml(p.autorEmpresa || p.autorUsername || 'Centro')}</div>
         <div class="popup-chips">
-          ${p.profundidadMetros ? `<span>▼ ${p.profundidadMetros}m</span>` : ''}
-          ${p.temperaturaAgua   ? `<span>🌡 ${p.temperaturaAgua}°C</span>` : ''}
-          ${p.visibilidadMetros ? `<span>👁 ${p.visibilidadMetros}m</span>` : ''}
+          ${p.profundidadMetros ? `<span>${p.profundidadMetros} m profundidad</span>` : ''}
+          ${p.temperaturaAgua   ? `<span>${p.temperaturaAgua} °C</span>` : ''}
+          ${p.visibilidadMetros ? `<span>${p.visibilidadMetros} m visibilidad</span>` : ''}
         </div>
         <a class="popup-link" onclick="abrirDetalle(${p.id})">Ver detalles →</a>
       `;
@@ -653,20 +654,26 @@
     }
   }
 
-  // Mapea el código de icono de OpenWeatherMap a emoji
+  // Devuelve un SVG inline para el código de icono de OpenWeatherMap.
+  // Usamos sólo cuatro siluetas (sol, luna, nube, gota) — suficientes para
+  // dar idea de la condición sin recurrir a emojis del sistema.
   function iconoParaCondicion(condicion, iconCode) {
+    const SUN  = '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#F5A623" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4" fill="#F5A623"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>';
+    const MOON = '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#5B5EA6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" fill="#5B5EA6" fill-opacity=".25"/></svg>';
+    const CLOUD= '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#62B6CB" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18a4 4 0 0 0 0-8 6 6 0 0 0-12 1 4 4 0 0 0 1 8z" fill="#BEE9E8"/></svg>';
+    const RAIN = '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 14a4 4 0 0 0 0-8 6 6 0 0 0-12 1 4 4 0 0 0 1 8" fill="#BEE9E8"/><path d="M9 19v2M13 19v2M17 19v2"/></svg>';
     const map = {
-      '01d': '☀️', '01n': '🌙',
-      '02d': '⛅', '02n': '☁️',
-      '03d': '☁️', '03n': '☁️',
-      '04d': '☁️', '04n': '☁️',
-      '09d': '🌧️', '09n': '🌧️',
-      '10d': '🌦️', '10n': '🌧️',
-      '11d': '⛈️', '11n': '⛈️',
-      '13d': '❄️', '13n': '❄️',
-      '50d': '🌫️', '50n': '🌫️'
+      '01d': SUN,   '01n': MOON,
+      '02d': CLOUD, '02n': CLOUD,
+      '03d': CLOUD, '03n': CLOUD,
+      '04d': CLOUD, '04n': CLOUD,
+      '09d': RAIN,  '09n': RAIN,
+      '10d': RAIN,  '10n': RAIN,
+      '11d': RAIN,  '11n': RAIN,
+      '13d': CLOUD, '13n': CLOUD,
+      '50d': CLOUD, '50n': CLOUD
     };
-    return map[iconCode] || '🌤️';
+    return map[iconCode] || CLOUD;
   }
 
   function renderWeatherCard(w) {
@@ -687,9 +694,9 @@
           <div class="weather-temp">${temp}°C${demoBadge}</div>
           <div class="weather-desc">${escapeHtml(desc)}</div>
           <div class="weather-extra">
-            <span>💨 Viento: ${viento}</span>
-            <span>💧 Humedad: ${humedad}</span>
-            ${w.presion ? `<span>📊 ${w.presion} hPa</span>` : ''}
+            <span>Viento: ${viento}</span>
+            <span>Humedad: ${humedad}</span>
+            ${w.presion ? `<span>${w.presion} hPa</span>` : ''}
           </div>
         </div>
       </div>`;
@@ -783,5 +790,6 @@
   cargarPuntos();
 </script>
 <script src="/js/animations.js"></script>
+  <script src="/js/ocean-effects.js" defer></script>
 </body>
 </html>

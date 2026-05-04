@@ -2,9 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mis Reservas — DiveConnect</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/ocean-theme.css">
   <style>
     /* ── Page layout ─────────────────────────────── */
     .reservas-page { padding: 2.25rem 0 4rem; }
@@ -547,10 +548,10 @@
               ${(r.paymentStatus === 'UNPAID' || r.paymentStatus == null) && r.estado === 'PENDIENTE'
                 ? (Number(r.precioTotal || 0) <= 0
                     ? `<button class="btn btn-primary btn-sm" onclick="pagarReserva(${r.id})">
-                         ✓ Confirmar gratis
+                         Confirmar reserva
                        </button>`
                     : `<button class="btn btn-primary btn-sm" onclick="pagarReserva(${r.id})">
-                         💳 Pagar ahora
+                         Pagar
                        </button>`)
                 : ''}
               ${puedeCancel
@@ -654,5 +655,6 @@
   })();
 </script>
 <script src="/js/animations.js"></script>
+  <script src="/js/ocean-effects.js" defer></script>
 </body>
 </html>

@@ -60,8 +60,12 @@ public class SecurityConfig {
                     "/", "/index.html",
                     "/css/**", "/js/**",
                     "/pages/**", "/images/**",
+                    "/uploads/**",
                     "/favicon.ico"
                 ).permitAll()
+
+                // ── Upload de archivos: requiere sesión ──────────────────
+                .requestMatchers(HttpMethod.POST, "/api/uploads").authenticated()
 
                 // ── Auth pública ─────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
