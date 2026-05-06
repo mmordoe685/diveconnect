@@ -1,0 +1,43 @@
+# ──────────────────────────────────────────────
+# .dockerignore — qué NO copiar al contexto Docker
+# Evita bloating innecesario de la build (rapidez)
+# ──────────────────────────────────────────────
+
+# Output de Maven (lo regenera el contenedor de build)
+target/
+
+# Archivos subidos por usuarios — deben ir en volumen, no en imagen
+uploads/
+
+# IDE / SO / git
+.git/
+.gitignore
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Documentación que no afecta a runtime
+docs/
+*.md
+!README.md
+
+# Logs y resultados de tests
+*.log
+tasks/
+
+# Archivos de configuración local
+.env
+.env.local
+.env.*.local
+
+# Workspaces de Claude (no aplica en CI)
+.claude/
+
+# Node (si en el futuro hay frontend buildable)
+node_modules/
+
+# Auto-tests
+test-output/
+*.iml

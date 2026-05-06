@@ -1,0 +1,83 @@
+# ──────────────────────────────────────────────────────────────
+# DiveConnect — Entorno local con Docker Compose
+#
+# Levanta dos servicios:
+#   - mysql: base de datos MySQL 8 con datos persistentes en volumen
+#   - app: la aplicación Spring Boot (build local del Dockerfile)
+#
+# Uso:
+#   docker compose up --build
+#
+# La app queda en http://localhost:8080
+# La BD queda en localhost:3307 (no 3306 para no chocar con un MySQL local)
+# ──────────────────────────────────────────────────────────────
+
+services:
+
+  mysql:
+    image: mysql:8.0
+    container_name: diveconnect-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: diveconnect_db
+      MYSQL_USER: diveconnect_user
+      MYSQL_PASSWORD: DiveConnect2025!
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/views.sql:/docker-entrypoint-initdb.d/02-views.sql:ro
+      - ./database/procedures.sql:/docker-entrypoint-initdb.d/03-procedures.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks:
+      - diveconnect-net
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: diveconnect-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      # Conexión a MySQL del compose
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/diveconnect_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: diveconnect_user
+      DB_PASSWORD: DiveConnect2025!
+
+      # JWT — cambiar en producción
+      JWT_SECRET: DiveConnect2025SecretKeyForJWTTokenGenerationMustBeLongEnoughToBeSecure
+
+      # Variables opcionales (vacías = modo demo)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY:-}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-}
+      PAYPAL_MODE: ${PAYPAL_MODE:-sandbox}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_OAUTH_ENABLED: ${GOOGLE_OAUTH_ENABLED:-false}
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8080}
+    volumes:
+      - app_uploads:/app/uploads
+    networks:
+      - diveconnect-net
+
+volumes:
+  mysql_data:
+  app_uploads:
+
+networks:
+  diveconnect-net:
+    driver: bridge

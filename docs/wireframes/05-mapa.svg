@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1100" font-family="-apple-system, sans-serif">
+  <title>DiveConnect - Wireframe Mapa (móvil)</title>
+  <desc>Wireframe del mapa interactivo Leaflet con puntos de buceo, vista móvil 375px.</desc>
+
+  <!-- Marco -->
+  <rect x="280" y="40" width="240" height="1020" rx="32" fill="#fff" stroke="#1A1A2E" stroke-width="3"/>
+  <rect x="370" y="62" width="60" height="6" rx="3" fill="#1A1A2E"/>
+
+  <!-- Topbar -->
+  <rect x="290" y="90" width="220" height="50" fill="#FFFBF5"/>
+  <line x1="290" y1="140" x2="510" y2="140" stroke="#E8E3DC"/>
+  <text x="320" y="120" font-size="14" font-weight="700" fill="#1A1A2E">DiveConnect</text>
+
+  <!-- Hero -->
+  <text x="305" y="170" font-size="14" font-weight="700" fill="#1A1A2E" font-family="Georgia, serif">Mapa interactivo</text>
+  <text x="305" y="190" font-size="9" fill="#4A5568">7 puntos · OpenStreetMap</text>
+
+  <!-- Mapa -->
+  <g transform="translate(300, 210)">
+    <rect x="0" y="0" width="200" height="320" rx="12" fill="#BEE9E8"/>
+    <!-- Tiles ficticias -->
+    <rect x="0" y="0" width="100" height="80" fill="#A7DDD7" opacity=".5"/>
+    <rect x="100" y="80" width="100" height="80" fill="#A7DDD7" opacity=".4"/>
+    <rect x="0" y="160" width="100" height="80" fill="#A7DDD7" opacity=".5"/>
+    <rect x="100" y="240" width="100" height="80" fill="#A7DDD7" opacity=".4"/>
+    <!-- Línea de costa simbólica -->
+    <path d="M0 200 Q60 180 120 210 T200 220" fill="none" stroke="#1B4965" stroke-width="2" opacity=".5"/>
+    <path d="M0 200 Q60 180 120 210 T200 220 L200 320 L0 320 Z" fill="#62B6CB" opacity=".25"/>
+
+    <!-- Marcadores -->
+    <g transform="translate(45, 90)">
+      <path d="M0 -16 Q-12 -8 -12 0 Q-12 12 0 20 Q12 12 12 0 Q12 -8 0 -16" fill="#FF6B6B"/>
+      <circle cx="0" cy="0" r="4" fill="#fff"/>
+    </g>
+    <g transform="translate(120, 70)">
+      <path d="M0 -16 Q-12 -8 -12 0 Q-12 12 0 20 Q12 12 12 0 Q12 -8 0 -16" fill="#F5A623"/>
+      <circle cx="0" cy="0" r="4" fill="#fff"/>
+    </g>
+    <g transform="translate(150, 140)">
+      <path d="M0 -16 Q-12 -8 -12 0 Q-12 12 0 20 Q12 12 12 0 Q12 -8 0 -16" fill="#FF6B6B"/>
+      <circle cx="0" cy="0" r="4" fill="#fff"/>
+    </g>
+    <g transform="translate(80, 200)">
+      <path d="M0 -16 Q-12 -8 -12 0 Q-12 12 0 20 Q12 12 12 0 Q12 -8 0 -16" fill="#F5A623"/>
+      <circle cx="0" cy="0" r="4" fill="#fff"/>
+    </g>
+
+    <!-- Controles del mapa -->
+    <rect x="6" y="6" width="22" height="22" rx="3" fill="#fff" stroke="#1A1A2E" stroke-width=".5"/>
+    <text x="17" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#1A1A2E">+</text>
+    <rect x="6" y="32" width="22" height="22" rx="3" fill="#fff" stroke="#1A1A2E" stroke-width=".5"/>
+    <line x1="11" y1="43" x2="23" y2="43" stroke="#1A1A2E" stroke-width="2"/>
+  </g>
+
+  <!-- Lista de puntos / sidebar -->
+  <text x="305" y="555" font-size="10" font-weight="700" fill="#1A1A2E">Todos los puntos</text>
+
+  <g transform="translate(300, 565)">
+    <rect x="0" y="0" width="200" height="62" rx="10" fill="#fff" stroke="#E8E3DC"/>
+    <text x="12" y="20" font-size="11" font-weight="700" fill="#1A1A2E">Posidonia de Formentera</text>
+    <text x="12" y="34" font-size="8" fill="#A0AEC0" font-family="Courier">38.7030, 1.4520</text>
+    <text x="12" y="52" font-size="9" fill="#4A5568">Pradera de posidonia. Patrimonio UNESCO.</text>
+  </g>
+
+  <g transform="translate(300, 640)">
+    <rect x="0" y="0" width="200" height="62" rx="10" fill="#fff" stroke="#E8E3DC"/>
+    <text x="12" y="20" font-size="11" font-weight="700" fill="#1A1A2E">Ses Margalides</text>
+    <text x="12" y="34" font-size="8" fill="#A0AEC0" font-family="Courier">38.9830, 1.2890</text>
+    <text x="12" y="52" font-size="9" fill="#4A5568">Cuevas y arcos submarinos.</text>
+  </g>
+
+  <g transform="translate(300, 715)">
+    <rect x="0" y="0" width="200" height="62" rx="10" fill="#fff" stroke="#E8E3DC"/>
+    <text x="12" y="20" font-size="11" font-weight="700" fill="#1A1A2E">Cabo de Creus</text>
+    <text x="12" y="34" font-size="8" fill="#A0AEC0" font-family="Courier">42.3196, 3.3187</text>
+    <text x="12" y="52" font-size="9" fill="#4A5568">Reserva natural · 18m profundidad.</text>
+  </g>
+
+  <text x="400" y="800" text-anchor="middle" font-size="9" fill="#A0AEC0">↓ continuar lista</text>
+
+  <!-- Bottom dock -->
+  <rect x="290" y="990" width="220" height="60" fill="#FFFBF5"/>
+  <line x1="290" y1="990" x2="510" y2="990" stroke="#E8E3DC"/>
+  <g transform="translate(310, 1010)">
+    <circle cx="11" cy="11" r="9" fill="none" stroke="#4A5568" stroke-width="1.5"/>
+    <text x="11" y="36" text-anchor="middle" font-size="8" fill="#4A5568">Inicio</text>
+    <circle cx="55" cy="11" r="9" fill="none" stroke="#4A5568" stroke-width="1.5"/>
+    <text x="55" y="36" text-anchor="middle" font-size="8" fill="#4A5568">Buscar</text>
+    <rect x="89" y="2" width="22" height="18" rx="6" fill="none" stroke="#4A5568" stroke-width="1.5"/>
+    <text x="100" y="36" text-anchor="middle" font-size="8" fill="#4A5568">Crear</text>
+    <rect x="135" y="2" width="22" height="18" rx="2" fill="#00D4AA" opacity=".3"/>
+    <text x="146" y="36" text-anchor="middle" font-size="8" fill="#00D4AA" font-weight="700">Mapa</text>
+    <circle cx="180" cy="11" r="9" fill="none" stroke="#4A5568" stroke-width="1.5"/>
+    <text x="180" y="36" text-anchor="middle" font-size="8" fill="#4A5568">Perfil</text>
+  </g>
+
+  <text x="400" y="1080" text-anchor="middle" font-size="10" fill="#A0AEC0">Wireframe 05 · Mapa Leaflet · Mobile 375px · DiveConnect</text>
+</svg>

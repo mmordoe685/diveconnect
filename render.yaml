@@ -1,0 +1,75 @@
+# ──────────────────────────────────────────────────────────────
+# render.yaml — Blueprint de despliegue para Render.com
+#
+# Cómo desplegar:
+#   1. Forkear el repo en GitHub.
+#   2. En render.com → "New +" → "Blueprint" → conectar este repo.
+#   3. Render detecta este fichero y crea automáticamente:
+#         - un servicio web (la app Spring Boot)
+#         - una base de datos MySQL gestionada
+#   4. Definir las variables de entorno marcadas con sync:false en
+#      el dashboard de Render (claves de Stripe / PayPal / Google).
+#   5. La app queda en https://diveconnect.onrender.com con SSL.
+#
+# Plan gratuito (Free):
+#   - 0,5 CPU + 512 MB RAM
+#   - el servicio "duerme" tras 15 min sin tráfico (cold start ~30 s)
+# ──────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: diveconnect
+    runtime: docker
+    plan: free
+    region: frankfurt              # más cercano a España
+    branch: master
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/paypal/config
+    autoDeploy: true               # redeploy en cada push a master
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: diveconnect-db
+          property: connectionString
+      - key: DB_USERNAME
+        fromDatabase:
+          name: diveconnect-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: diveconnect-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true        # Render genera uno aleatorio seguro
+      - key: FRONTEND_URL
+        value: https://diveconnect.onrender.com
+      # Las siguientes deben definirse manualmente en el dashboard.
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_MODE
+        value: sandbox
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_OAUTH_ENABLED
+        value: "false"
+      - key: OPENWEATHER_API_KEY
+        sync: false
+      - key: JAVA_OPTS
+        value: "-Xms256m -Xmx450m -XX:+UseG1GC"
+
+databases:
+  - name: diveconnect-db
+    plan: free
+    databaseName: diveconnect_db
+    user: diveconnect_user
+    region: frankfurt
+    ipAllowList: []                # sólo accesible desde la red interna de Render

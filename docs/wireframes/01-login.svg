@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" font-family="-apple-system, sans-serif">
+  <title>DiveConnect - Wireframe Login (móvil)</title>
+  <desc>Wireframe de la pantalla de inicio de sesión, vista móvil 375px.</desc>
+
+  <!-- Marco del dispositivo -->
+  <rect x="280" y="40" width="240" height="920" rx="32" fill="#fff" stroke="#1A1A2E" stroke-width="3"/>
+  <rect x="370" y="62" width="60" height="6" rx="3" fill="#1A1A2E"/>
+
+  <!-- Logo -->
+  <g transform="translate(330, 130)">
+    <circle cx="0" cy="0" r="28" fill="none" stroke="#00D4AA" stroke-width="3"/>
+    <path d="M-15 0 Q-7 -8 0 0 Q7 8 15 0" fill="none" stroke="#00D4AA" stroke-width="3" stroke-linecap="round"/>
+    <text x="50" y="6" font-size="22" font-weight="700" fill="#1A1A2E">DiveConnect</text>
+  </g>
+
+  <!-- Heading -->
+  <text x="400" y="220" text-anchor="middle" font-size="22" font-weight="700" fill="#1A1A2E" font-family="Georgia, serif">
+    Iniciar sesión
+  </text>
+  <text x="400" y="248" text-anchor="middle" font-size="12" fill="#4A5568">
+    Bienvenido de vuelta a la comunidad
+  </text>
+
+  <!-- Input usuario/email -->
+  <g transform="translate(310, 290)">
+    <text x="0" y="-8" font-size="11" fill="#4A5568" font-weight="600">Usuario o email</text>
+    <rect x="0" y="0" width="180" height="44" rx="8" fill="none" stroke="#E8E3DC" stroke-width="1.5"/>
+    <text x="14" y="28" font-size="13" fill="#A0AEC0">tu_usuario</text>
+  </g>
+
+  <!-- Input contraseña -->
+  <g transform="translate(310, 370)">
+    <text x="0" y="-8" font-size="11" fill="#4A5568" font-weight="600">Contraseña</text>
+    <rect x="0" y="0" width="180" height="44" rx="8" fill="none" stroke="#E8E3DC" stroke-width="1.5"/>
+    <text x="14" y="28" font-size="13" fill="#A0AEC0">••••••••</text>
+    <circle cx="160" cy="22" r="10" fill="none" stroke="#A0AEC0" stroke-width="1.5"/>
+    <line x1="155" y1="22" x2="165" y2="22" stroke="#A0AEC0" stroke-width="1.5"/>
+  </g>
+
+  <!-- Botón primario -->
+  <rect x="310" y="450" width="180" height="48" rx="10" fill="#00D4AA"/>
+  <text x="400" y="480" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">Acceder</text>
+
+  <!-- Divider -->
+  <g transform="translate(310, 530)">
+    <line x1="0" y1="10" x2="80" y2="10" stroke="#E8E3DC"/>
+    <text x="90" y="14" font-size="11" fill="#A0AEC0">o</text>
+    <line x1="100" y1="10" x2="180" y2="10" stroke="#E8E3DC"/>
+  </g>
+
+  <!-- Google sign-in -->
+  <rect x="310" y="560" width="180" height="44" rx="10" fill="#fff" stroke="#E8E3DC" stroke-width="1.5"/>
+  <circle cx="332" cy="582" r="9" fill="none" stroke="#A0AEC0" stroke-width="1.5"/>
+  <text x="395" y="587" text-anchor="middle" font-size="13" font-weight="600" fill="#1A1A2E">Continuar con Google</text>
+
+  <!-- Crear cuenta -->
+  <text x="400" y="650" text-anchor="middle" font-size="12" fill="#4A5568">¿No tienes cuenta?</text>
+  <text x="400" y="670" text-anchor="middle" font-size="12" font-weight="700" fill="#00D4AA" text-decoration="underline">Crear una cuenta gratis</text>
+
+  <!-- Footer / leyenda fuera del marco -->
+  <g transform="translate(50, 950)">
+    <rect x="0" y="0" width="14" height="14" rx="3" fill="#00D4AA"/>
+    <text x="20" y="11" font-size="11" fill="#1A1A2E">Color primario (#00D4AA)</text>
+
+    <rect x="200" y="0" width="14" height="14" rx="3" fill="#FFFBF5" stroke="#E8E3DC"/>
+    <text x="220" y="11" font-size="11" fill="#1A1A2E">Fondo cream (#FFFBF5)</text>
+
+    <rect x="380" y="0" width="14" height="14" rx="3" fill="#1A1A2E"/>
+    <text x="400" y="11" font-size="11" fill="#1A1A2E">Texto principal</text>
+  </g>
+
+  <text x="400" y="990" text-anchor="middle" font-size="10" fill="#A0AEC0">Wireframe 01 · Login · Mobile 375px · DiveConnect</text>
+</svg>

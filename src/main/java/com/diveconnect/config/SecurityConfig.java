@@ -64,6 +64,13 @@ public class SecurityConfig {
                     "/favicon.ico"
                 ).permitAll()
 
+                // ── Documentación de la API (Swagger) ───────────────────
+                .requestMatchers(
+                    "/swagger-ui.html", "/swagger-ui/**",
+                    "/v3/api-docs", "/v3/api-docs/**",
+                    "/swagger-resources/**", "/webjars/**"
+                ).permitAll()
+
                 // ── Upload de archivos: requiere sesión ──────────────────
                 .requestMatchers(HttpMethod.POST, "/api/uploads").authenticated()
 
