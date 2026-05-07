@@ -1,5 +1,6 @@
 package com.diveconnect.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -57,14 +58,12 @@ public interface InmersionRepository extends JpaRepository<Inmersion, Long> {
                    "  )) AS distanciaKm " +
                    "FROM inmersiones i " +
                    "WHERE i.activo = true AND i.latitud IS NOT NULL AND i.longitud IS NOT NULL " +
-                   "ORDER BY distanciaKm ASC " +
-                   "LIMIT :limite",
+                   "ORDER BY distanciaKm ASC",
            nativeQuery = true)
-    List<InmersionConDistancia> findMasCercanas(@Param("lat")    double lat,
-                                                @Param("lon")    double lon,
-                                                @Param("limite") int    limite);
+    List<InmersionConDistancia> findMasCercanas(@Param("lat") double lat,
+                                                @Param("lon") double lon,
+                                                Pageable pageable);
 
-    /** Proyección de {@link #findMasCercanas(double, double, int)}. */
     interface InmersionConDistancia {
         Long   getId();
         Double getDistanciaKm();

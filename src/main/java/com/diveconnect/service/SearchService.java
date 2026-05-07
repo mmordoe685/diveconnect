@@ -90,7 +90,8 @@ public class SearchService {
             // usamos proximidad como fallback útil.
             if (inmersiones.isEmpty() && lat != null && lon != null) {
                 List<InmersionRepository.InmersionConDistancia> cercanas =
-                        inmersionRepository.findMasCercanas(lat, lon, PROXIMIDAD_N);
+                        inmersionRepository.findMasCercanas(
+                                lat, lon, org.springframework.data.domain.PageRequest.of(0, PROXIMIDAD_N));
                 if (!cercanas.isEmpty()) {
                     Map<Long, Double> distancias = cercanas.stream()
                             .collect(Collectors.toMap(
