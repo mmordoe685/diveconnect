@@ -1,6 +1,3 @@
-// ============================================================
-// auth.js — Módulo de autenticación
-// ============================================================
 
 async function login(usernameOrEmail, password) {
     const data = await fetchAPI('/auth/login', {

@@ -22,8 +22,6 @@ public class NotificacionService {
     private final NotificacionRepository notificacionRepository;
     private final UsuarioRepository      usuarioRepository;
 
-    // ─── API de emisión (llamada desde otros services) ────────────────────────
-
     @Transactional
     public Notificacion crear(Usuario destinatario, Usuario emisor, TipoNotificacion tipo,
                               Long entidadRelacionadaId, String mensaje, boolean accionable) {
@@ -40,8 +38,6 @@ public class NotificacionService {
         n.setLeida(false);
         return notificacionRepository.save(n);
     }
-
-    // ─── API REST ─────────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<NotificacionResponse> listarDeUsuario(String username) {
@@ -87,11 +83,6 @@ public class NotificacionService {
         notificacionRepository.delete(n);
     }
 
-    /**
-     * Marca como RESUELTA + LEIDA toda notificación accionable pendiente del
-     * mismo destinatario y emisor y tipo (para ocultar el botón cuando ya se
-     * actuó sobre la solicitud).
-     */
     @Transactional
     public void marcarResueltoPorEmisorYTipo(Usuario destinatario, Usuario emisor,
                                              TipoNotificacion tipo) {
@@ -103,8 +94,6 @@ public class NotificacionService {
         }
         notificacionRepository.saveAll(pendientes);
     }
-
-    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private Usuario cargarUsuario(String username) {
         return usuarioRepository.findByUsername(username)

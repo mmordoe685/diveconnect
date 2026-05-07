@@ -7,10 +7,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Wrapper ligero sobre OpenWeatherMap. Si la API key no está configurada,
- * devuelve datos mock para que el frontend siga funcionando en demo.
- */
 @Service
 public class WeatherService {
 

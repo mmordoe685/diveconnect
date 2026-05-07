@@ -12,11 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Inicializa la base de datos con datos de demostración completos.
- * Contraseña para todos los usuarios: admin
- * Se ejecuta solo si los usuarios de prueba no existen aún.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -65,8 +60,6 @@ public class DataInitializer implements CommandLineRunner {
         log.info("=== DataInitializer: completado con éxito ===");
     }
 
-    // ─── Borrado ───────────────────────────────────────────────────────────────
-
     @Transactional
     public void borrarTodo() {
         notificacionRepository.deleteAll();
@@ -83,18 +76,14 @@ public class DataInitializer implements CommandLineRunner {
         usuarioRepository.deleteAll();
     }
 
-    // ─── Creación ──────────────────────────────────────────────────────────────
-
     private void poblar() {
         String pass = passwordEncoder.encode("admin");
 
-        // ── ADMINISTRADORES ──────────────────────────────────────────────────
         Usuario admin = crearAdmin("admin","admin@diveconnect.com",
             "Administrador principal de DiveConnect. Supervisa el correcto funcionamiento de la plataforma.", pass);
         Usuario superadmin = crearAdmin("superadmin","superadmin@diveconnect.com",
             "Super Administrador con acceso completo a todos los módulos de la plataforma.", pass);
 
-        // ── EMPRESAS ─────────────────────────────────────────────────────────
         Usuario uOcean = crearEmpresa("oceandive","oceandive@diveconnect.com",
             "Ocean Dive Center","Centro de buceo de referencia en la Costa Brava. +20 años de experiencia.",
             "Passeig del Mar, 45, Palamós","+34 972 100 200","https://oceandive.es", pass);
@@ -105,7 +94,6 @@ public class DataInitializer implements CommandLineRunner {
             "Island Dive Center","El centro de buceo premium de Ibiza. Descubre los fondos cristalinos del Mediterráneo.",
             "Carrer de la Mar, 8, Ibiza","+34 971 300 400","https://islanddive.es", pass);
 
-        // ── USUARIOS COMUNES ─────────────────────────────────────────────────
         Usuario carlos = crearComun("buceador","buceador@diveconnect.com",
             "Apasionado del buceo desde los 18 años. He explorado el Mediterráneo, el Mar Rojo y el Caribe. Cada inmersión es una aventura única",
             "Advanced Open Water", 87,"https://ui-avatars.com/api/?name=Carlos+M&background=0077B6&color=fff&size=200", pass);
@@ -125,7 +113,6 @@ public class DataInitializer implements CommandLineRunner {
             "Fotógrafa submarina con 7 años de experiencia. Mis fotos han aparecido en National Geographic España. El océano es mi estudio.",
             "Advanced Open Water", 67,"https://ui-avatars.com/api/?name=Lucia+F&background=0077B6&color=fff&size=200", pass);
 
-        // ── CENTROS DE BUCEO ─────────────────────────────────────────────────
         CentroBuceo centroOcean = crearCentro(uOcean,
             "Ocean Dive Center",
             "Centro de buceo de referencia en la Costa Brava. Somos centro PADI 5 Estrellas con más de 20 años de experiencia formando buceadores. Disponemos de las mejores embarcaciones y el equipo más moderno del mercado.",
@@ -150,7 +137,6 @@ public class DataInitializer implements CommandLineRunner {
             "PADI 5 Estrellas IDC, SSI Platinum",
             "https://images.unsplash.com/photo-1682687982501-1e58ab814714?w=800&q=80", 4.9);
 
-        // ── INMERSIONES ──────────────────────────────────────────────────────
         // Ocean Dive Center (4 inmersiones)
         Inmersion io1 = crearInmersion(centroOcean,"Islas Medas — Ruta de los Corales",
             "Una de las inmersiones más espectaculares del Mediterráneo. Exploraremos los fondos de las Islas Medas, Parque Natural Marino, donde habitan meros gigantes, pulpos, morenas y bancos de barracudas. Visibilidad garantizada de 20+ metros.",
@@ -238,7 +224,6 @@ public class DataInitializer implements CommandLineRunner {
             "Equipo premium + cena a bordo del catamarán incluida",
             "https://images.unsplash.com/photo-1682687220795-796d3f6638a3?w=800&q=80");
 
-        // ── PUBLICACIONES ─────────────────────────────────────────────────────
         crearPublicacion(carlos,
             "¡Increíble jornada hoy en las Islas Medas con Ocean Dive Center! Un mero de casi 30kg nos acompañó durante toda la inmersión. La visibilidad superaba los 25 metros y el agua estaba a 22°C. No me canso de este lugar",
             "Islas Medas, Girona", 22.5, 22.0, 25.0,"Mero gigante, banco de barracudas, pulpo común, morena");
@@ -291,7 +276,6 @@ public class DataInitializer implements CommandLineRunner {
             "Acabo de conseguir la certificación de Rescue Diver de PADI! Fue un curso intenso de 4 días pero increíblemente valioso. Ahora puedo ayudar en situaciones de emergencia bajo el agua. El próximo paso: Divemaster. El sueño de convertirme en instructora está cada vez más cerca",
             null, null, null, null, null);
 
-        // ── RESERVAS ─────────────────────────────────────────────────────────
         crearReserva(carlos, io1, 1, EstadoReserva.CONFIRMADA);
         crearReserva(marina, ib1, 2, EstadoReserva.CONFIRMADA);
         crearReserva(javier, ii1, 1, EstadoReserva.COMPLETADA);
@@ -305,7 +289,6 @@ public class DataInitializer implements CommandLineRunner {
         crearReserva(pablo, ib4, 3, EstadoReserva.CONFIRMADA);
         crearReserva(lucia, ii4, 1, EstadoReserva.PENDIENTE);
 
-        // ── PUNTOS DEL MAPA (solo empresas crean puntos) ───────────────────────
         // Ocean Dive — Islas Medas
         crearPuntoMapa(uOcean, io1,"Islas Medas — La Vaca",
             "Uno de los puntos más icónicos del Mediterráneo español. Los buceadores avistan meros, barracudas, pulpos y rayas.",
@@ -368,7 +351,6 @@ public class DataInitializer implements CommandLineRunner {
                 new FotoSeed("https://images.unsplash.com/photo-1518020382113-a7e8fc38eac9?w=800&q=80","Pradera de posidonia","Luz cenital atravesando las praderas")
             ));
 
-        // ── HISTORIAS (24h, foto/video) ───────────────────────────────────────
         crearHistoria(uOcean,
             "https://images.unsplash.com/photo-1559825481-12a05cc00344?w=800&q=80",
             Historia.MediaType.FOTO,
@@ -405,7 +387,6 @@ public class DataInitializer implements CommandLineRunner {
             "Formación con @oceandive, aprendiendo Divemaster",
             6);
 
-        // ── SEGUIDORES ────────────────────────────────────────────────────────
         seguir(carlos, javier);
         seguir(carlos, marina);
         seguir(carlos, uOcean);
@@ -422,13 +403,11 @@ public class DataInitializer implements CommandLineRunner {
         seguir(lucia, marina);
         seguir(lucia, uIsland);
 
-        // ── SOLICITUDES DE SEGUIMIENTO PENDIENTES (demo) ──────────────────────
         // pablo quiere seguir a sofia (usuario común → necesita aprobación)
         crearSolicitudPendiente(pablo, sofia);
         // lucia quiere seguir a javier (usuario común → necesita aprobación)
         crearSolicitudPendiente(lucia, javier);
 
-        // ── NOTIFICACIONES DEMO ───────────────────────────────────────────────
         // Notificaciones"nuevo seguidor" (no accionables, informativas)
         crearNotificacion(javier, carlos, TipoNotificacion.NUEVO_SEGUIDOR, carlos.getId(),
                 "@" + carlos.getUsername() +" ha comenzado a seguirte", false, false);
@@ -455,8 +434,6 @@ public class DataInitializer implements CommandLineRunner {
         crearNotificacion(carlos, null, TipoNotificacion.RESERVA_CONFIRMADA, 1L,
                 "Tu reserva ha sido confirmada", false, true);
     }
-
-    // ─── Helpers ───────────────────────────────────────────────────────────────
 
     private Usuario crearAdmin(String username, String email, String bio, String pass) {
         Usuario u = new Usuario();
@@ -540,9 +517,6 @@ public class DataInitializer implements CommandLineRunner {
         r.setNumeroPersonas(personas);
         r.setPrecioTotal(inmersion.getPrecio() * personas);
         r.setEstado(estado);
-        // Mantener consistencia con la pasarela: las reservas CONFIRMADA/COMPLETADA
-        // ya han pasado por la pasarela, así que están PAID. Las PENDIENTE están
-        // a la espera de pago (UNPAID). Las CANCELADA no se cobraron.
         switch (estado) {
             case CONFIRMADA, COMPLETADA -> r.setPaymentStatus("PAID");
             case PENDIENTE -> r.setPaymentStatus("UNPAID");
@@ -559,9 +533,6 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void seguir(Usuario seguidor, Usuario seguido) {
-        // Inserta directamente en la tabla seguidores para evitar el bug clásico
-        // de @ManyToMany + entidades detached que reinsertaba todas las filas
-        // previas de la colección (causando Duplicate Entry en seguidores.PRIMARY).
         usuarioRepository.addSeguidor(seguidor.getId(), seguido.getId());
     }
 
@@ -592,11 +563,6 @@ public class DataInitializer implements CommandLineRunner {
         notificacionRepository.save(n);
     }
 
-    /**
-     * Crea una historia con fecha de publicación personalizada (para evitar que
-     * las 7 historias tengan la misma timestamp) y expiración a 24h desde esa fecha.
-     * `horasAtras` es cuántas horas en el pasado se creó (debe ser < 24 para que siga activa).
-     */
     private void crearHistoria(Usuario usuario, String mediaUrl,
                                 Historia.MediaType mediaType, String texto, int horasAtras) {
         Historia h = new Historia();

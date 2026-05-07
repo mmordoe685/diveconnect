@@ -1,10 +1,8 @@
-/* ─────────────────────────────────────────────────────────────────
    ocean-theme.css — Capa de tema submarina sobre style.css.
    Añade fondo animado (gradiente + rayos de luz + burbujas), glass-
    morphism en tarjetas, micro-animaciones y refinos de tipografía.
    No redefine tokens — solo encadena reglas que sobreescriben con
    selectores específicos. Pensado para incluir DESPUÉS de style.css.
-   ───────────────────────────────────────────────────────────────── */
 
 :root {
   --ocean-deep:        #0B1A2B;
@@ -27,8 +25,6 @@
   --glass-shadow-h:    0 18px 48px rgba(11, 26, 43, .14),
                        inset 0 1px 0 rgba(255, 255, 255, .8);
 }
-
-/* ── 1. Fondo subacuático animado ────────────────────────────── */
 
 body {
   position: relative;
@@ -153,8 +149,6 @@ body > footer {
   body::before, body::after, .ocean-bubble { animation: none !important; }
 }
 
-/* ── 2. Glassmorphism para tarjetas y paneles ─────────────────── */
-
 .post-card,
 .reserva-card,
 .notif-item,
@@ -268,8 +262,6 @@ body > footer {
   50%      { opacity: 1;  transform: scale(1.05); }
 }
 
-/* ── 3. Botón primario "ola" — shimmer al hover ───────────────── */
-
 .btn-primary, .dv-btn-pay, .filter-tab.active, button.btn-primary {
   position: relative;
   overflow: hidden;
@@ -306,8 +298,6 @@ body > footer {
 .btn-primary:active, .dv-btn-pay:active {
   transform: translateY(0) scale(.97) !important;
 }
-
-/* ── 4. Headings — gradient animado en titulares grandes ──────── */
 
 h1, h2.dv-h2, .auth-title, .page-header h1, .hero-title {
   background: linear-gradient(135deg,
@@ -348,8 +338,6 @@ h1, h2.dv-h2, .auth-title, .page-header h1, .hero-title {
   to   { width: 64px; opacity: 1; }
 }
 
-/* ── 5. Reveal on scroll (data-reveal) ────────────────────────── */
-
 [data-reveal] {
   opacity: 0;
   transform: translateY(20px);
@@ -359,8 +347,6 @@ h1, h2.dv-h2, .auth-title, .page-header h1, .hero-title {
   opacity: 1;
   transform: translateY(0);
 }
-
-/* ── 6. Inputs con foco glow ─────────────────────────────────── */
 
 input.dv-input:focus,
 input.form-input:focus,
@@ -374,29 +360,21 @@ select.form-input:focus {
   outline: none;
 }
 
-/* ── 7. Estado badges ───────────────────────────────────────── */
-
 .estado-badge, .badge, .pay-mode-badge {
   -webkit-backdrop-filter: blur(8px);
           backdrop-filter: blur(8px);
 }
-
-/* ── 8. Spinner refinado ──────────────────────────────────────── */
 
 .spinner, .pay-spinner {
   border-top-color: var(--ocean-glow) !important;
   filter: drop-shadow(0 0 8px rgba(0, 212, 170, .35));
 }
 
-/* ── 9. Imágenes con borde aqua sutil ────────────────────────── */
-
 .post-avatar, .notif-avatar img, .profile-avatar, .topbar-avatar {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, .85),
               0 0 0 4px rgba(0, 212, 170, .18),
               0 4px 16px rgba(11, 26, 43, .12);
 }
-
-/* ── 10. Modal entrada con flotación ──────────────────────────── */
 
 .dv-modal-backdrop.open .dv-modal,
 .modal-overlay.active .modal-box,
@@ -415,8 +393,6 @@ select.form-input:focus {
           backdrop-filter: blur(8px);
 }
 
-/* ── 11. Like-btn corazón con animación ───────────────────────── */
-
 .post-action-btn.like-btn.liked svg {
   fill: var(--ocean-coral) !important;
   stroke: var(--ocean-coral) !important;
@@ -429,8 +405,6 @@ select.form-input:focus {
   70%  { transform: scale(.92); }
   100% { transform: scale(1); }
 }
-
-/* ── 12. Skeleton/loading ─────────────────────────────────────── */
 
 .loading::before {
   content: '';
@@ -447,8 +421,6 @@ select.form-input:focus {
   50%      { transform: scale(1.3); opacity: 1; }
 }
 
-/* ── 13. Scroll bar refinado ─────────────────────────────────── */
-
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, var(--ocean-glow), var(--ocean-shallow)) !important;
   border-radius: 4px;
@@ -457,8 +429,6 @@ select.form-input:focus {
 /* Modo claro forzado: la temática submarina ya tiene su propia paleta
    y el dark-mode automático rompía el contraste con el cream-background. */
 :root { color-scheme: light; }
-
-/* ── 15. Media uploader (galería/cámara) ─────────────────────── */
 
 .media-uploader {
   display: flex;
@@ -490,8 +460,6 @@ select.form-input:focus {
 
 .media-uploader-btn:active { transform: scale(.98); }
 .media-uploader-btn svg    { stroke: var(--ocean-glow); flex-shrink: 0; }
-
-/* ── 16. Responsive móvil ────────────────────────────────────── */
 
 @media (max-width: 720px) {
   body {

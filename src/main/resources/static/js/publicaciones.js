@@ -1,6 +1,3 @@
-// ============================================================
-// publicaciones.js — Módulo de publicaciones y comentarios
-// ============================================================
 
 async function getFeed(page = 0, size = 10) {
     // Feed global: todas las publicaciones de todos los usuarios (orden cronológico inverso)
@@ -38,8 +35,6 @@ async function createComentario(publicacionId, contenido) {
         body: JSON.stringify({ contenido })
     });
 }
-
-// ── Renderizado ───────────────────────────────────────────
 
 function renderPublicacion(p) {
     const me     = getCurrentUser();
@@ -114,8 +109,6 @@ function renderComentarios(publicacionId, lista) {
     ).join('');
 }
 
-// ── Handlers (sin dependencias de páginas concretas) ──────
-
 async function handleLike(publicacionId, yaLiked) {
     try {
         yaLiked ? await unlikePublicacion(publicacionId) : await likePublicacion(publicacionId);
@@ -147,7 +140,6 @@ async function handleDeletePublicacion(publicacionId) {
 async function toggleComentarios(publicacionId) {
     const section = document.getElementById(`comentarios-${publicacionId}`);
     if (!section) return;
-    // Soporta dos estilos: 'hidden' (páginas legacy) y 'open' (feed Instagram)
     const usaOpen = section.classList.contains('ig-comment-area');
     if (usaOpen) {
         section.classList.toggle('open');

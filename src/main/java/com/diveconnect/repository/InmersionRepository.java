@@ -49,11 +49,6 @@ public interface InmersionRepository extends JpaRepository<Inmersion, Long> {
                                    @Param("precioMax") Double precioMax,
                                    @Param("nivel")     String nivel);
 
-    /**
-     * Fórmula Haversine: devuelve id + distanciaKm para las inmersiones
-     * activas más cercanas al punto (lat, lon). 6371 km = radio medio
-     * de la Tierra. El servicio hidrata las entidades con findAllById.
-     */
     @Query(value = "SELECT i.id AS id, " +
                    "  (6371 * ACOS( " +
                    "     COS(RADIANS(:lat)) * COS(RADIANS(i.latitud)) * " +

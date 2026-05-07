@@ -71,17 +71,6 @@ public class PaymentController {
         }
     }
 
-    /**
-     * Verifica/confirma el pago de una reserva. Tres caminos:
-     *  1. Stripe configurado + sessionId presente: consulta el estado real en Stripe.
-     *  2. Stripe configurado pero sin sessionId: tratado como pago demo TFG (marca PAID).
-     *     Esto hace que el flujo "Pagar con tarjeta" del modal funcione aunque el centro
-     *     no haya activado Stripe completo. En producción real este caso debería rechazarse.
-     *  3. Stripe NO configurado: modo demo TFG — marca PAID + CONFIRMADA.
-     *
-     * Tras un pago confirmado se notifica al usuario y al centro (mismo comportamiento
-     * que el flujo PayPal).
-     */
     @PostMapping("/verify/{reservaId}")
     @Transactional
     public ResponseEntity<Map<String, Object>> verificar(@PathVariable Long reservaId) {

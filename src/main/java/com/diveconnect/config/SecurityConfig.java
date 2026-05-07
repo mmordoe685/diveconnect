@@ -38,7 +38,6 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
-            // ── Manejadores de error con cuerpo JSON ────────────────────
             .exceptionHandling(ex -> ex
                 .authenticationEntryPoint((request, response, authException) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -55,7 +54,6 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
 
-                // ── Recursos estáticos (frontend) ────────────────────────
                 .requestMatchers(
                     "/", "/index.html",
                     "/css/**", "/js/**",
@@ -64,52 +62,39 @@ public class SecurityConfig {
                     "/favicon.ico"
                 ).permitAll()
 
-                // ── Documentación de la API (Swagger) ───────────────────
                 .requestMatchers(
                     "/swagger-ui.html", "/swagger-ui/**",
                     "/v3/api-docs", "/v3/api-docs/**",
                     "/swagger-resources/**", "/webjars/**"
                 ).permitAll()
 
-                // ── Upload de archivos: requiere sesión ──────────────────
                 .requestMatchers(HttpMethod.POST, "/api/uploads").authenticated()
 
-                // ── Auth pública ─────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
 
-                // ── OAuth2 (Google) ──────────────────────────────────────
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
 
-                // ── Admin (sólo ADMINISTRADOR) ───────────────────────────
                 .requestMatchers("/api/admin/**").hasRole("ADMINISTRADOR")
 
-                // ── Endpoints públicos de catálogo ───────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/centros-buceo/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/inmersiones/disponibles").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/inmersiones/mis-inmersiones").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/inmersiones/**").permitAll()
 
-                // ── Mapa: lectura pública, escritura autenticada ─────────
                 .requestMatchers(HttpMethod.GET, "/api/puntos-mapa/**").permitAll()
 
-                // ── Tiempo atmosférico (consulta pública) ────────────────
                 .requestMatchers(HttpMethod.GET, "/api/weather").permitAll()
 
-                // ── Stripe config pública (publishable key) ──────────────
                 .requestMatchers(HttpMethod.GET, "/api/payments/config").permitAll()
 
-                // ── PayPal config pública (client-id) ────────────────────
                 .requestMatchers(HttpMethod.GET, "/api/paypal/config").permitAll()
                 .requestMatchers("/api/paypal/**").authenticated()
 
-                // ── Búsqueda universal (lectura pública) ─────────────────
                 .requestMatchers(HttpMethod.GET, "/api/search/**").permitAll()
 
-                // ── Notificaciones y seguimiento (autenticado) ───────────
                 .requestMatchers("/api/notificaciones/**").authenticated()
                 .requestMatchers("/api/seguimiento/**").authenticated()
 
-                // ── Endpoints de usuario ─────────────────────────────────
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/perfil").authenticated()
                 .requestMatchers(HttpMethod.PUT,  "/api/usuarios/perfil").authenticated()
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/buscar").authenticated()
@@ -117,7 +102,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/username/**").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/usuarios/{id}").permitAll()
 
-                // ── Todo lo demás requiere JWT válido ────────────────────
                 .anyRequest().authenticated()
             );
 

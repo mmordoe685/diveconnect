@@ -19,10 +19,6 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Tests del UploadController. Usan un directorio temporal real para
- * verificar que el archivo se escribe en disco con un nombre UUID.
- */
 class UploadControllerTest {
 
     private UploadController controller;

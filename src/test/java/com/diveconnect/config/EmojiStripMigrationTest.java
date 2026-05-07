@@ -5,12 +5,6 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-/**
- * Tests unitarios del helper estático stripEmojis() de EmojiStripMigration.
- *
- * Verifica que se eliminan emojis de varios rangos Unicode y se compactan
- * los espacios sobrantes sin tocar el resto del texto.
- */
 class EmojiStripMigrationTest {
 
     @Test

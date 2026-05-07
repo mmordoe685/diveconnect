@@ -8,11 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-/**
- * Notificación dirigida a un usuario concreto. Puede ser informativa
- * o accionable (el destinatario debe aceptar / rechazar algo, p.ej.
- * una solicitud de seguimiento).
- */
 @Entity
 @Table(name = "notificaciones", indexes = {
         @Index(name = "idx_notif_destinatario", columnList = "destinatario_id"),
@@ -41,10 +36,6 @@ public class Notificacion {
     @Column(nullable = false, length = 40)
     private TipoNotificacion tipo;
 
-    /**
-     * ID de la entidad relacionada (publicación, reserva, solicitud…).
-     * El consumidor lo interpreta según `tipo`.
-     */
     @Column(name = "entidad_relacionada_id")
     private Long entidadRelacionadaId;
 

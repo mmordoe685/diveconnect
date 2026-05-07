@@ -8,13 +8,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Tests del servicio de Stripe sin red.
- * Comprueba que sin secret-key:
- *   - isEnabled() es false
- *   - createCheckoutSession lanza IllegalStateException con mensaje informativo
- *   - getPublishableKey nunca es null (devuelve "" en vez de null)
- */
 class StripeServiceTest {
 
     private StripeService crearServicio(String secretKey, String publishableKey) {

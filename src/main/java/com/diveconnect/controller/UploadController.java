@@ -16,21 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Subida de archivos (imágenes y videos cortos) desde el móvil/galería.
- *
- *   POST /api/uploads      multipart/form-data, field "file"
- *
- *   Devuelve { "url": "/uploads/<uuid>.<ext>", "tipo": "FOTO"|"VIDEO" }
- *
- * Los archivos se guardan en {@code file.upload-dir} (por defecto "uploads/")
- * y se sirven públicamente vía {@link com.diveconnect.config.WebMvcConfig}.
- *
- * Limitaciones (configuradas en application.properties):
- *   - tamaño máximo por archivo: 10 MB
- *   - sólo image/* y video/* MIME types
- *   - extensión validada contra una lista blanca para evitar exploits
- */
 @RestController
 @RequestMapping("/api/uploads")
 @Slf4j

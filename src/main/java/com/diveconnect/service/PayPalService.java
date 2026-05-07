@@ -16,15 +16,6 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Locale;
 
-/**
- * Cliente ligero de la REST API v2 de PayPal — soporta sandbox y live.
- * No añade dependencias Maven: usa {@code java.net.http.HttpClient}.
- *
- * <p>Modo habilitado solo si {@code paypal.client-id} y
- * {@code paypal.client-secret} están definidos (no vacíos). Si no, el
- * frontend puede usar el flujo cliente-cliente con client-id público
- * "sb" como demo.
- */
 @Service
 @Slf4j
 public class PayPalService {

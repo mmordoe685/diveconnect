@@ -13,18 +13,6 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-/**
- * Configuración de Swagger / OpenAPI.
- *
- * <p>Disponible en runtime en:
- * <ul>
- *   <li><code>http://localhost:8080/swagger-ui.html</code> — UI interactiva.</li>
- *   <li><code>http://localhost:8080/v3/api-docs</code>     — JSON OpenAPI.</li>
- * </ul>
- *
- * <p>Para autenticarse desde la UI: pulsar el botón "Authorize" e introducir
- * el JWT en el formato <code>Bearer &lt;token&gt;</code>.
- */
 @Configuration
 public class OpenApiConfig {
 

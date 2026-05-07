@@ -30,8 +30,6 @@ public class AdminController {
     private final InmersionService inmersionService;
     private final ReservaService reservaService;
 
-    // ── Stats generales ─────────────────────────────────────────────────────
-
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getStats() {
         List<UsuarioResponse> usuarios = usuarioService.obtenerTodos();
@@ -50,8 +48,6 @@ public class AdminController {
                 .filter(r -> r.getEstado() != null && r.getEstado().name().equals("PENDIENTE")).count());
         return ResponseEntity.ok(stats);
     }
-
-    // ── Gestión de usuarios ──────────────────────────────────────────────────
 
     @GetMapping("/usuarios")
     public ResponseEntity<List<UsuarioResponse>> listarUsuarios() {
@@ -78,8 +74,6 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Gestión de centros ───────────────────────────────────────────────────
-
     @GetMapping("/centros")
     public ResponseEntity<List<CentroBuceoResponse>> listarCentros() {
         return ResponseEntity.ok(centroBuceoService.obtenerTodosAdmin());
@@ -91,8 +85,6 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── Gestión de inmersiones ───────────────────────────────────────────────
-
     @GetMapping("/inmersiones")
     public ResponseEntity<List<InmersionResponse>> listarInmersiones() {
         return ResponseEntity.ok(inmersionService.obtenerTodasLasInmersiones());
@@ -103,8 +95,6 @@ public class AdminController {
         inmersionService.eliminarInmersion(id, null);
         return ResponseEntity.noContent().build();
     }
-
-    // ── Gestión de reservas ──────────────────────────────────────────────────
 
     @GetMapping("/reservas")
     public ResponseEntity<List<ReservaResponse>> listarReservas() {

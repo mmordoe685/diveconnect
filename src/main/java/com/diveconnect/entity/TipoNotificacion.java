@@ -1,11 +1,5 @@
 package com.diveconnect.entity;
 
-/**
- * Tipos de notificación que el sistema puede emitir a un usuario.
- *
- * Las notificaciones "accionables" (requieren respuesta del usuario)
- * se distinguen en la entidad {@link Notificacion} con un flag aparte.
- */
 public enum TipoNotificacion {
 
     /** Alguien ha solicitado seguirte. Accionable: aceptar / rechazar. */

@@ -69,10 +69,6 @@ public class CentroBuceo {
     @Column(name = "fecha_registro", updatable = false)
     private LocalDateTime fechaRegistro;
 
-    // ==============================================
-    // RELACIONES
-    // ==============================================
-
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", unique = true)
     private Usuario usuario;

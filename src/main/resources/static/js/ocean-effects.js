@@ -1,22 +1,7 @@
-/**
- * ocean-effects.js — Efectos visuales submarinos.
- *
- *   1. Inyecta un contenedor de burbujas que ascienden con drift y delays
- *      aleatorios. Las burbujas usan CSS keyframes (no requestAnimationFrame)
- *      para no consumir CPU.
- *   2. Activa "reveal on scroll" con IntersectionObserver para todos los
- *      elementos con [data-reveal].
- *   3. Añade una pequeña corriente de bullrush al focus de inputs (clase
- *      .ocean-focus-ring que pulsa al enfocar).
- *
- * Respeta prefers-reduced-motion: si el usuario lo pide, todo se queda
- * estático (las burbujas no se inyectan y el reveal es inmediato).
- */
 
 (function () {
   const PREFERS_REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // ── 1. Burbujas ascendentes ──────────────────────────────────
   function injectBubbles() {
     if (PREFERS_REDUCED) return;
     if (document.getElementById('oceanBubbles')) return;
@@ -51,7 +36,6 @@
     document.body.appendChild(container);
   }
 
-  // ── 2. Reveal on scroll ──────────────────────────────────────
   let _revealObserver = null;
   function setupReveal() {
     if (PREFERS_REDUCED) {
@@ -80,8 +64,6 @@
     observeAllReveal();
   }
 
-  // Re-engancha el observer a cualquier [data-reveal] que aún no esté in-view.
-  // Idempotente — observar dos veces no causa nada.
   function observeAllReveal() {
     if (!_revealObserver) return;
     document.querySelectorAll('[data-reveal]:not(.in-view)').forEach(el => {
@@ -89,7 +71,6 @@
     });
   }
 
-  // ── 3. Auto-aplicar data-reveal a tarjetas comunes ───────────
   function autoTagCards() {
     const selectors = [
       '.post-card', '.reserva-card', '.notif-item',
@@ -106,7 +87,6 @@
     });
   }
 
-  // ── 4. Tilt 3D suave en hover sobre tarjetas grandes ─────────
   function setupTilt() {
     if (PREFERS_REDUCED) return;
     const targets = document.querySelectorAll('.inmersion-card, .empresa-card, .results-card, .dive-card');
@@ -133,7 +113,6 @@
     });
   }
 
-  // ── Init ─────────────────────────────────────────────────────
   function init() {
     // Skip auth pages (login / register) — son hero pages enteras
     if (document.body.classList.contains('auth-page-body')) return;
@@ -144,10 +123,6 @@
     setupReveal();
     setupTilt();
 
-    // Cuando llegan tarjetas nuevas tras un fetch:
-    //   1. autoTagCards les pone data-reveal
-    //   2. observeAllReveal las engancha al IntersectionObserver
-    //   3. setupTilt aplica el tilt 3D
     let debounceId;
     new MutationObserver(() => {
       clearTimeout(debounceId);

@@ -6,11 +6,6 @@ import com.diveconnect.repository.PublicacionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/**
- * Convierte {@link Usuario} a {@link UsuarioResponse}. Extraído para que
- * Search, Seguimiento y otros servicios reutilicen la misma forma de
- * respuesta sin duplicar lógica.
- */
 @Component
 @RequiredArgsConstructor
 public class UsuarioMapper {

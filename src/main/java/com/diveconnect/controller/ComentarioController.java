@@ -14,11 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Controller para comentarios.
- * Los endpoints están bajo /api/publicaciones/{publicacionId}/comentarios
- * para seguir las convenciones REST de recursos anidados.
- */
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
@@ -27,11 +22,6 @@ public class ComentarioController {
     private final ComentarioService comentarioService;
     private final UsuarioService usuarioService;
 
-    /**
-     * GET /api/publicaciones/{publicacionId}/comentarios
-     * Devuelve todos los comentarios de una publicación, ordenados por fecha ascendente.
-     * Endpoint público — cualquier usuario autenticado puede ver comentarios.
-     */
     @GetMapping("/api/publicaciones/{publicacionId}/comentarios")
     public ResponseEntity<List<ComentarioResponse>> obtenerComentarios(
             @PathVariable Long publicacionId) {
@@ -40,11 +30,6 @@ public class ComentarioController {
         );
     }
 
-    /**
-     * POST /api/publicaciones/{publicacionId}/comentarios
-     * Crea un comentario en una publicación.
-     * Requiere autenticación.
-     */
     @PostMapping("/api/publicaciones/{publicacionId}/comentarios")
     public ResponseEntity<ComentarioResponse> crearComentario(
             @PathVariable Long publicacionId,
@@ -58,10 +43,6 @@ public class ComentarioController {
         return new ResponseEntity<>(comentario, HttpStatus.CREATED);
     }
 
-    /**
-     * DELETE /api/comentarios/{id}
-     * Elimina un comentario. Solo puede eliminarlo su autor.
-     */
     @DeleteMapping("/api/comentarios/{id}")
     public ResponseEntity<Void> eliminarComentario(
             @PathVariable Long id,

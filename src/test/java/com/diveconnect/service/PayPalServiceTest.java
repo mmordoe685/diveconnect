@@ -7,14 +7,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-/**
- * Tests del servicio de PayPal centrados en su comportamiento sin red:
- *
- *   1. isConfigured() devuelve false sin client-id / secret.
- *   2. isConfigured() devuelve true cuando ambos están definidos.
- *   3. fetchAccessToken() lanza PayPalException si no está configurado.
- *   4. getBaseUrl() escoge sandbox o live según el modo.
- */
 class PayPalServiceTest {
 
     private PayPalService crearServicio(String clientId, String clientSecret, String mode) {

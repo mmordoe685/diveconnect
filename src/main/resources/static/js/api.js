@@ -1,18 +1,6 @@
-// ============================================================
-// api.js — Cliente HTTP + utilidades globales de DiveConnect
-// ============================================================
 
 const API_BASE_URL = '/api';
 
-/**
- * Realiza una petición autenticada a la API.
- * Gestiona:
- *   - Token JWT en cabecera Authorization
- *   - 401 → limpia sesión y redirige a login
- *   - 403 → limpia sesión y redirige a login (token expirado / sin permisos)
- *   - 204 → devuelve null (sin cuerpo)
- *   - Cuerpos vacíos o no-JSON → no explota, lanza Error descriptivo
- */
 async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('token');
 
@@ -73,7 +61,6 @@ async function fetchAPI(endpoint, options = {}) {
     return data;
 }
 
-// ── Sesión ────────────────────────────────────────────────────
 function _limpiarSesionYRedirigir() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -101,7 +88,6 @@ function redirectIfAuthenticated() {
     if (isAuthenticated()) window.location.href = '/pages/feed.html';
 }
 
-// ── Alertas flotantes ─────────────────────────────────────────
 function showAlert(message, type) {
     type = type || 'info';
 
@@ -139,7 +125,6 @@ function showAlert(message, type) {
     setTimeout(() => { if (div.parentNode) div.remove(); }, 4500);
 }
 
-// ── Formato de fechas ─────────────────────────────────────────
 function formatFecha(fechaStr) {
     if (!fechaStr) return '';
     const d    = new Date(fechaStr);
@@ -155,7 +140,6 @@ function formatFecha(fechaStr) {
     return 'Ahora mismo';
 }
 
-// ── Escape HTML (anti-XSS) ────────────────────────────────────
 function escapeHtml(text) {
     if (text === null || text === undefined) return '';
     return String(text)

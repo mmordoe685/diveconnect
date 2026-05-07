@@ -1,6 +1,3 @@
-// animations.js - DiveConnect Oceano
-// Scroll reveals, counters, parallax, smooth interactions
-// ASCII-only to avoid Spring Boot encoding issues
 
 (function () {
   'use strict';

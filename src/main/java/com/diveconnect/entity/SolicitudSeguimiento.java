@@ -8,15 +8,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
-/**
- * Solicitud de seguimiento entre dos usuarios. Cuando alguien pulsa
- * "Seguir" sobre otro usuario con perfil privado se crea una en estado
- * PENDIENTE; el destinatario puede aceptarla (crea la relación en la
- * tabla seguidores) o rechazarla.
- *
- * Unicidad por pareja (solicitante, destinatario) en estado PENDIENTE
- * se garantiza a nivel de servicio (query findPendienteEntre).
- */
 @Entity
 @Table(name = "solicitudes_seguimiento", indexes = {
         @Index(name = "idx_sol_dest",  columnList = "destinatario_id"),

@@ -1,38 +1,5 @@
-/**
- * payment.js — Modal de pago multi-pasarela.
- *
- * Expone:
- *   abrirModalPago({ reservaId, total, concepto, onSuccess })
- *
- * Soporta cuatro escenarios determinados por la configuración del backend:
- *
- *   ┌───────────────────┬───────────────────────────────────────────────────┐
- *   │ Estado backend    │ Comportamiento del modal                          │
- *   ├───────────────────┼───────────────────────────────────────────────────┤
- *   │ Stripe ON         │ Pestaña Tarjeta → POST /payments/checkout/{id}    │
- *   │                   │ → redirección a Stripe Checkout (página oficial). │
- *   │                   │ Al volver, /pages/reservas.html confirma.         │
- *   ├───────────────────┼───────────────────────────────────────────────────┤
- *   │ Stripe OFF        │ Pestaña Tarjeta → formulario propio con Luhn,     │
- *   │                   │ formato MM/AA y CVC 3-4 dígitos. Tras validar     │
- *   │                   │ llama a /payments/verify/{id} (modo demo TFG).    │
- *   ├───────────────────┼───────────────────────────────────────────────────┤
- *   │ PayPal ON         │ Pestaña PayPal → SDK oficial + create-order /     │
- *   │                   │ capture-order contra PayPal sandbox o live.       │
- *   ├───────────────────┼───────────────────────────────────────────────────┤
- *   │ PayPal OFF        │ Pestaña PayPal deshabilitada con tooltip amable.  │
- *   └───────────────────┴───────────────────────────────────────────────────┘
- *
- * Cuando el total es 0 (reservas gratis) se omite el modal por completo y la
- * reserva se confirma directamente.
- *
- * El modal nunca envía datos reales de tarjeta al servidor: en modo demo se
- * validan localmente y sólo se confirma la reserva. En modo Stripe ON la
- * captura ocurre íntegramente en el dominio de Stripe.
- */
 
 (function () {
-  // ── Estilos del modal ────────────────────────────────────────
   const STYLES = `
     .pay-row{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
     .pay-row.triple{grid-template-columns:2fr 1fr 1fr}
@@ -95,7 +62,6 @@
     }
   `;
 
-  // ── Estado interno ───────────────────────────────────────────
   let _modalEl          = null;
   let _paypalCfg        = null;   // { enabled, clientId, mode, currency }
   let _stripeCfg        = null;   // { enabled, publishableKey }
@@ -103,7 +69,6 @@
   let _paypalRendered   = false;
   let _currentReserva   = {};
 
-  // ── Helpers de fetch de configuración ────────────────────────
   async function fetchPaypalConfig() {
     try {
       const r = await fetch('/api/paypal/config', { headers: { 'Content-Type': 'application/json' } });
@@ -151,7 +116,6 @@
     return wrap;
   }
 
-  // ── Etiqueta de modo (Demo / Sandbox / Live) ─────────────────
   function modeBadge() {
     const stripe = _stripeCfg && _stripeCfg.enabled;
     const paypal = _paypalCfg && _paypalCfg.enabled;
@@ -166,7 +130,6 @@
       : '<span class="pay-mode-badge" title="Pasarela en modo sandbox (sin cargo real).">Sandbox</span>';
   }
 
-  // ── Render principal del modal según el escenario ────────────
   function renderForm({ total, concepto }) {
     const totalFmt   = Number(total || 0).toFixed(2);
     const stripeOn   = !!(_stripeCfg && _stripeCfg.enabled);
@@ -313,7 +276,6 @@
     `;
   }
 
-  // ── Validaciones de tarjeta (modo demo) ──────────────────────
   function luhn(num) {
     const digits = (num || '').replace(/\D/g, '');
     if (digits.length < 12) return false;
@@ -362,7 +324,6 @@
     if (el) el.classList.toggle('show', show);
   }
 
-  // ── Wiring del formulario ────────────────────────────────────
   function wireForm(total) {
     // Listener de tabs
     document.querySelectorAll('.pay-method-pill').forEach(pill => {
@@ -416,7 +377,6 @@
     }
   }
 
-  // ── Modo Stripe: redirección a Checkout oficial ──────────────
   async function irAStripeCheckout(btn) {
     btn.disabled = true;
     const body = document.getElementById('payBody');
@@ -435,7 +395,6 @@
     }
   }
 
-  // ── Modo demo: validar y llamar /verify ──────────────────────
   async function procesarPagoDemo(total) {
     const numero = document.getElementById('payCardNumber').value;
     const exp    = document.getElementById('payExpiry').value;
@@ -483,7 +442,6 @@
     wireForm(total);
   }
 
-  // ── PayPal SDK ───────────────────────────────────────────────
   function cargarSdkPayPal(clientId, currency) {
     if (_paypalSdkLoaded && window.paypal) return Promise.resolve(window.paypal);
     return new Promise((resolve, reject) => {
@@ -547,7 +505,6 @@
     }
   }
 
-  // ── Reservas gratuitas: confirmar sin abrir el modal ─────────
   async function autoConfirmarGratis(reservaId, onSuccess) {
     try {
       const resp = await fetchAPI(`/payments/verify/${reservaId}`, { method: 'POST' });
@@ -562,7 +519,6 @@
     }
   }
 
-  // ── API pública ──────────────────────────────────────────────
   window.abrirModalPago = async function ({ reservaId, total, concepto, onSuccess }) {
     _currentReserva = { reservaId, total, concepto, onSuccess };
     _paypalRendered = false;

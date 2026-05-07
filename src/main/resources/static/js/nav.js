@@ -1,18 +1,4 @@
-/**
- * nav.js — DiveConnect role-aware navigation (Instagram-style)
- *
- * Renderiza:
- *  - Topbar minimalista con logo y menú de usuario (y campanita de notis)
- *  - Dock inferior fijo tipo app: Feed / Buscar / Crear / Mapa / Perfil
- *
- * Inclúyelo tras api.js y llama a initNav() en DOMContentLoaded.
- */
 
-/**
- * Pestañas del dock inferior según tipo de usuario.
- * Cada entrada: { href, label, icon (SVG path), role? }
- * El botón "Crear" abre un modal (no navega).
- */
 const DOCK_TABS_COMUN = [
   { key: 'feed',    href: '/pages/feed.html',     label: 'Inicio' },
   { key: 'search',  href: '/pages/buscar.html',   label: 'Explorar' },
@@ -138,7 +124,6 @@ function initNav() {
   _startNotificationsPolling();
 }
 
-// ─── Badge de notificaciones ─────────────────────────────────────
 let _notifPollingTimer = null;
 async function _pollNotificationsBadge() {
   try {

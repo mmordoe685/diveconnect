@@ -68,10 +68,6 @@ public class Usuario {
     @Column(name = "ultima_actualizacion")
     private LocalDateTime ultimaActualizacion;
 
-    // ==============================================
-    // RELACIONES
-    // ==============================================
-
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Publicacion> publicaciones = new ArrayList<>();
 
@@ -93,10 +89,6 @@ public class Usuario {
     // Usuarios que siguen a este usuario
     @ManyToMany(mappedBy = "siguiendo")
     private Set<Usuario> seguidores = new HashSet<>();
-
-    // ==============================================
-    // CAMPOS ADICIONALES PARA EMPRESAS
-    // ==============================================
 
     @Column(name = "nombre_empresa", length = 100)
     private String nombreEmpresa;

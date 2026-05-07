@@ -36,11 +36,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query(value = "DELETE FROM seguidores", nativeQuery = true)
     void clearSeguidores();
 
-    /**
-     * Inserta una relación de seguidor usando INSERT IGNORE para evitar duplicados.
-     * Se usa en DataInitializer y SeguimientoService — esquiva el bug de equals/hashCode
-     * generado por Lombok @Data en entidad JPA, que rompe Set.contains/remove.
-     */
     @Modifying
     @Transactional
     @Query(value = "INSERT IGNORE INTO seguidores (seguidor_id, seguido_id) VALUES (:seguidorId, :seguidoId)",
@@ -48,7 +43,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     void addSeguidor(@Param("seguidorId") Long seguidorId,
                      @Param("seguidoId")  Long seguidoId);
 
-    /** Elimina la relación de seguimiento (idempotente). */
     @Modifying
     @Transactional
     @Query(value = "DELETE FROM seguidores WHERE seguidor_id = :seguidorId AND seguido_id = :seguidoId",

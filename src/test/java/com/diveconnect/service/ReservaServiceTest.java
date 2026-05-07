@@ -23,16 +23,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-/**
- * Tests unitarios de ReservaService.
- *
- * Cubren los caminos críticos de la creación de reserva:
- *   1. Camino feliz: descuenta plazas y deja la reserva PENDIENTE/UNPAID.
- *   2. Plazas insuficientes: lanza BadRequestException sin tocar BD.
- *   3. Inmersión inexistente: ResourceNotFoundException.
- *   4. Usuario inexistente: ResourceNotFoundException.
- *   5. marcarComoPagada cambia estado a PAID + CONFIRMADA.
- */
 @ExtendWith(MockitoExtension.class)
 class ReservaServiceTest {
 

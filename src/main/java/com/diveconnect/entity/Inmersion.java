@@ -74,10 +74,6 @@ public class Inmersion {
     @Column(name = "fecha_creacion", updatable = false)
     private LocalDateTime fechaCreacion;
 
-    // ==============================================
-    // RELACIONES
-    // ==============================================
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "centro_buceo_id", nullable = false)
     private CentroBuceo centroBuceo;

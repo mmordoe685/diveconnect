@@ -14,13 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Motor de búsqueda unificado. Permite filtrar por tipo (todo, usuarios,
- * empresas, inmersiones), por texto libre y por filtros numéricos en
- * inmersiones. Cuando hay coordenadas y no hay resultados textuales
- * para inmersiones, cae en proximidad (Haversine) y devuelve las 5 más
- * cercanas al punto.
- */
 @Service
 @RequiredArgsConstructor
 public class SearchService {

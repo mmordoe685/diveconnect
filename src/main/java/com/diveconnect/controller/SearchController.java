@@ -14,17 +14,6 @@ public class SearchController {
 
     private final SearchService searchService;
 
-    /**
-     * Búsqueda universal. Todos los parámetros son opcionales.
-     *
-     * @param q         palabras clave (aplica a username/empresa/título/descripción/ubicación)
-     * @param tipo      "todo" | "usuarios" | "empresas" | "inmersiones" (default "todo")
-     * @param lat,lon   coordenadas para distancia y fallback de proximidad
-     * @param profMin   profundidad mínima (m) para inmersiones
-     * @param profMax   profundidad máxima (m)
-     * @param precioMax precio máximo (€)
-     * @param nivel     filtro por nivel requerido (ej. "Open Water")
-     */
     @GetMapping
     public ResponseEntity<SearchResponse> buscar(
             @RequestParam(value = "q",         required = false) String q,

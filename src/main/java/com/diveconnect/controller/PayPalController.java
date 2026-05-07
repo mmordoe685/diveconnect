@@ -75,10 +75,6 @@ public class PayPalController {
         }
     }
 
-    /**
-     * Captura los fondos de la orden aprobada por el usuario. Marca la reserva
-     * como PAID + CONFIRMADA y notifica al centro (empresa).
-     */
     @PostMapping("/capture-order/{reservaId}")
     @Transactional
     public ResponseEntity<Map<String, Object>> capturarOrden(

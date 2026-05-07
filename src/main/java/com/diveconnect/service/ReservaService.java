@@ -62,11 +62,6 @@ public class ReservaService {
         return convertirAResponse(savedReserva);
     }
 
-    /**
-     * Marca la reserva como PAGADA y la confirma automáticamente.
-     * Si no hay plazas (cosa que no debería pasar porque ya se descontaron
-     * al crear), se rechaza y se marca como fallo.
-     */
     @Transactional
     public ReservaResponse marcarComoPagada(Long reservaId, String paymentIntentId) {
         Reserva reserva = reservaRepository.findById(reservaId)

@@ -21,11 +21,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
-/**
- * Recibe el usuario autenticado por Google OAuth2, crea/actualiza el
- * Usuario en la base de datos si es necesario y redirige al frontend con
- * un JWT firmado como query parameter.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -75,10 +70,6 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
-    /**
-     * Busca el usuario por email; si no existe crea uno nuevo con rol
-     * USUARIO_COMUN y sin contraseña real (se marca como OAuth2 con un hash).
-     */
     private Usuario upsertUsuario(String email, String name, String picture) {
         Optional<Usuario> existente = usuarioRepository.findByEmail(email);
 
@@ -109,10 +100,6 @@ public class GoogleOAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHa
         return guardado;
     }
 
-    /**
-     * Genera un username único a partir del email o nombre.
-     * Ej: "juan.perez@gmail.com" → "juan.perez", y si ya existe añade número.
-     */
     private String generarUsername(String email, String name) {
         String base;
         if (name != null && !name.isBlank()) {

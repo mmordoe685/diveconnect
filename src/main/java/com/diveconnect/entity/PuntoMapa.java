@@ -13,10 +13,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Punto del mapa asociado a una inmersión. Solo usuarios empresa pueden
- * crear puntos; los usuarios comunes pueden leer todos los puntos.
- */
 @Entity
 @Table(name = "puntos_mapa")
 @Data
@@ -75,10 +71,6 @@ public class PuntoMapa {
     @UpdateTimestamp
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
-
-    // ==============================================
-    // RELACIONES
-    // ==============================================
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "autor_id", nullable = false)

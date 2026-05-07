@@ -33,7 +33,6 @@ public class Reserva {
     @Column(length = 500)
     private String observaciones;
 
-    // ── Campos de pago (Stripe) ─────────────────────────
     @Column(name = "stripe_session_id", length = 200)
     private String stripeSessionId;
 
@@ -43,7 +42,6 @@ public class Reserva {
     @Column(name = "payment_status", length = 30)
     private String paymentStatus; // UNPAID, PAID, FAILED
 
-    // ── Campos de pago PayPal ───────────────────────────
     @Column(name = "paypal_order_id", length = 100)
     private String paypalOrderId;
 
@@ -57,10 +55,6 @@ public class Reserva {
     @UpdateTimestamp
     @Column(name = "ultima_modificacion")
     private LocalDateTime ultimaModificacion;
-
-    // ==============================================
-    // RELACIONES
-    // ==============================================
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)

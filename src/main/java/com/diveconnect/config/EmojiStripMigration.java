@@ -10,19 +10,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Migración única que elimina emojis de campos de texto persistidos en BD.
- *
- * Motivo: el seed original incluía emojis en publicaciones, biografías,
- * comentarios e historias. Tras decidir que la app se vea más profesional
- * (sin emojis), esta migración recorre las filas existentes y los elimina
- * sin tocar ninguna otra parte del contenido. Es idempotente — al pasar dos
- * veces la segunda vez no encuentra nada que cambiar.
- *
- * Se ejecuta DESPUÉS de DataInitializer (orden 100) por si éste acaba de
- * crear filas con emojis (en futuras versiones del seed habría que mantener
- * el código limpio, pero la red de seguridad evita inconsistencias).
- */
 @Component
 @Order(100)
 @RequiredArgsConstructor
@@ -89,10 +76,6 @@ public class EmojiStripMigration implements CommandLineRunner {
         }
     }
 
-    /**
-     * Quita emojis y compacta espacios sobrantes que puedan quedar tras
-     * eliminarlos en mitad de una frase (sin tocar saltos de línea).
-     */
     static String stripEmojis(String text) {
         String s = EMOJI.matcher(text).replaceAll("");
         // Espacios huérfanos antes de signos de puntuación

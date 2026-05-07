@@ -9,11 +9,6 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-/**
- * Encapsula la creación de Stripe Checkout Sessions. Si la secret-key no está
- * configurada, lanza una excepción con mensaje claro para que el frontend
- * muestre un aviso.
- */
 @Service
 public class StripeService {
 

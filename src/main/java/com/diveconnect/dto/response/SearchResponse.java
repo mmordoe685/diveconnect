@@ -10,11 +10,6 @@ public class SearchResponse {
     private List<UsuarioResponse>   usuarios;
     private List<UsuarioResponse>   empresas;
     private List<InmersionBreve>    inmersiones;
-    /**
-     * Cuando la búsqueda por "sitio" no devuelve coincidencias textuales y
-     * se dispone de coordenadas, el backend completa con las 5 inmersiones
-     * más cercanas a ese punto. Se avisa al cliente con este flag.
-     */
     private Boolean inmersionesPorProximidad = false;
 
     @Data

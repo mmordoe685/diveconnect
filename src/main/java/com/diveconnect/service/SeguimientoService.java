@@ -18,12 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-/**
- * Gestiona seguidores con flujo de solicitud:
- *   - Si el destinatario es EMPRESA → follow directo (perfil público comercial).
- *   - Si el destinatario es USUARIO_COMUN → se crea SolicitudSeguimiento PENDIENTE
- *     + Notificación accionable. El destinatario decide aceptar/rechazar.
- */
 @Service
 @RequiredArgsConstructor
 public class SeguimientoService {
@@ -32,13 +26,6 @@ public class SeguimientoService {
     private final SolicitudSeguimientoRepository solicitudRepository;
     private final NotificacionService notificacionService;
 
-    // ─── Acciones ──────────────────────────────────────────────────────────────
-
-    /**
-     * Solicitar seguir a un usuario. Devuelve el estado resultante.
-     * Si el destinatario es empresa → queda SIGUIENDO inmediatamente.
-     * Si es usuario común → queda SOLICITADO hasta que el otro acepte.
-     */
     @Transactional
     public SeguimientoEstadoResponse solicitar(String usernameSolicitante, Long destinatarioId) {
         Usuario solicitante = cargarPorUsername(usernameSolicitante);
@@ -161,8 +148,6 @@ public class SeguimientoService {
         }
         return estadoResponse("NO_SIGUE", null);
     }
-
-    // ─── Helpers ──────────────────────────────────────────────────────────────
 
     private void marcarNotificacionResuelta(Usuario destinatarioNotif, Usuario emisor,
                                              TipoNotificacion tipo) {
