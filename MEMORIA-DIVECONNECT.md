@@ -2,7 +2,7 @@
 
 > Trabajo Fin de Grado · CFGS Desarrollo de Aplicaciones Web · 2o curso
 > Autor: Marcos Mordonez Estevez · Optativa: Programacion en Python y Analisis de Datos
-> Curso 2025/2026 · Repositorio: rama `claude/peaceful-hellman`
+> Curso 2025/2026
 
 ## 1. Resumen
 
@@ -294,11 +294,10 @@ Iterativa-incremental con sprints semanales. Cronograma completo en `docs/diagra
 
 Flujo simplificado tipo GitHub Flow:
 
-- `master`: rama estable. Auto-deploy a Render.
-- `claude/peaceful-hellman`: rama de trabajo intensiva del TFG (50+ commits).
-- `feature/*`: ramas cortas para cambios puntuales que se mergean a master via PR.
+- `master`: rama estable, recibe el codigo terminado y dispara el auto-deploy a Render.
+- `feature/*`: ramas cortas para cambios puntuales que se mergean a master via Pull Request.
 
-Convencion de commits: Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `test`, `chore`).
+Convencion de commits: estilo Conventional Commits (`feat`, `fix`, `refactor`, `docs`, `test`, `chore`).
 
 ### 15.3 Hitos cumplidos
 

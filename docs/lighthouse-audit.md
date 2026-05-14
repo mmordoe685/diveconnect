@@ -105,7 +105,7 @@ Auditoría manual basada en los criterios de Google Lighthouse, ejecutada sobre 
 
 ## 3. Verificación runtime
 
-Ejecutado en Chrome 130 + Claude Preview en `http://localhost:8080/pages/feed.html`:
+Ejecutado en Chrome 130 sobre `http://localhost:8080/pages/feed.html`:
 
 ```javascript
 {

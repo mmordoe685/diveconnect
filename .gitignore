@@ -45,3 +45,11 @@ uploads/*
 
 
 node_modules
+
+### Carpetas locales y temporales ###
+.cache/
+.tmp/
+tmp/
+tasks/
+.claude/
+

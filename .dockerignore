@@ -32,8 +32,9 @@ tasks/
 .env.local
 .env.*.local
 
-# Workspaces de Claude (no aplica en CI)
-.claude/
+# Carpetas locales de IDE y entorno
+.idea/
+.vscode/
 
 # Node (si en el futuro hay frontend buildable)
 node_modules/
