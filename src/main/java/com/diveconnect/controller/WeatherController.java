@@ -10,7 +10,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/weather")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class WeatherController {
 
     private final WeatherService weatherService;

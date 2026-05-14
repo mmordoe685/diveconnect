@@ -57,19 +57,19 @@ gantt
     Avatar de perfil            :done, s7c, after s7b, 1d
 
     section Sprint 8 · Calidad
-    Tests JUnit + Mockito       :active, s8a, 2026-04-20, 5d
-    Swagger / OpenAPI           :active, s8b, after s8a, 2d
-    Lighthouse audit            :s8c, after s8b, 2d
-    Refactor y limpieza         :s8d, after s8c, 3d
+    Tests JUnit + Mockito       :done, s8a, 2026-04-20, 5d
+    Swagger / OpenAPI           :done, s8b, after s8a, 2d
+    Lighthouse audit            :done, s8c, after s8b, 2d
+    Refactor y limpieza         :active, s8d, after s8c, 3d
 
     section Sprint 9 · Despliegue
-    Dockerfile + compose        :s9a, 2026-05-04, 2d
-    GitHub Actions CI           :s9b, after s9a, 1d
-    Deploy en Render            :s9c, after s9b, 1d
-    Monitorización              :s9d, after s9c, 2d
+    Dockerfile + compose        :done, s9a, 2026-05-04, 2d
+    GitHub Actions CI           :done, s9b, after s9a, 1d
+    Deploy en Render            :done, s9c, after s9b, 1d
+    Monitorización              :done, s9d, after s9c, 2d
 
     section Sprint 10 · Documentación final
-    Memoria técnica             :s10a, 2026-05-11, 4d
+    Memoria técnica             :active, s10a, 2026-05-11, 4d
     Slides defensa              :s10b, after s10a, 2d
     Ensayo defensa              :milestone, s10c, after s10b, 0d
 
@@ -93,8 +93,8 @@ gantt
 | 6 | UX | Tema submarino, responsive | ✓ |
 | 7 | Subida | UploadController, file picker | ✓ |
 | 8 | Calidad | Tests, Swagger, Lighthouse | en curso |
-| 9 | Despliegue | Docker, Render, CI/CD | pendiente |
-| 10 | Defensa | Memoria final, slides | pendiente |
+| 9 | Despliegue | Docker, Render, CI/CD | ✓ |
+| 10 | Defensa | Memoria final, slides | en curso |
 
 ## Hitos cumplidos
 

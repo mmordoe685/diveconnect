@@ -15,7 +15,7 @@ Red social y plataforma de reservas para la comunidad submarinista. Une el descu
 ## Índice
 
 - [Resumen](#resumen)
-- [Capturas](#capturas)
+- [Evidencias visuales](#evidencias-visuales)
 - [Stack tecnológico](#stack-tecnológico)
 - [Estructura del repositorio](#estructura-del-repositorio)
 - [Arranque rápido (local)](#arranque-rápido-local)
@@ -59,17 +59,16 @@ DiveConnect es una aplicación web full-stack que combina dos productos:
 
 ---
 
-## Capturas
+## Evidencias visuales
 
-> Las capturas en alta resolución están en [`docs/screenshots/`](docs/screenshots/).
+| Evidencia | Ubicación |
+|---|---|
+| Wireframes principales | [`docs/wireframes/`](docs/wireframes/) |
+| Guía visual | [`docs/style-guide.md`](docs/style-guide.md) |
+| Auditoría accesibilidad/SEO | [`docs/lighthouse-audit.md`](docs/lighthouse-audit.md) |
+| Imagen Open Graph | [`src/main/resources/static/images/og-cover.png`](src/main/resources/static/images/og-cover.png) |
 
-| Login | Feed móvil | Modal de pago |
-|---|---|---|
-| `docs/screenshots/login.png` | `docs/screenshots/feed-mobile.png` | `docs/screenshots/pay-modal.png` |
-
-| Inmersiones | Mapa | Perfil |
-|---|---|---|
-| `docs/screenshots/inmersiones.png` | `docs/screenshots/mapa.png` | `docs/screenshots/perfil.png` |
+Las capturas finales de la defensa deben generarse en `docs/screenshots/` cuando la app esté arrancada o desplegada.
 
 ---
 
@@ -82,7 +81,7 @@ DiveConnect es una aplicación web full-stack que combina dos productos:
 - **Spring Data JPA** + **Hibernate** — repositorios derivados y queries nativas.
 - **MySQL 8** (InnoDB) con `ddl-auto=update`.
 - **Lombok 1.18** — reducción de boilerplate.
-- **jjwt 0.12** — generación y validación de tokens.
+- **jjwt 0.11.5** — generación y validación de tokens.
 - **BCryptPasswordEncoder** — hash de contraseñas.
 - **Stripe Java SDK** + **PayPal REST v2** (cliente HTTP nativo, sin SDK añadido).
 - **springdoc-openapi** — Swagger UI en `/swagger-ui.html`.
@@ -116,8 +115,9 @@ diveconnect/
 │   ├── schema.sql
 │   ├── views.sql
 │   └── procedures.sql
-├── docs/                      # Memoria, diagramas, capturas, slides
-│   ├── DiveConnect-Documentacion-Tecnica.pdf
+├── docs/                      # Diagramas, pruebas, estilo y anexos
+│   ├── test-plan.md
+│   ├── memoria-extra.md
 │   ├── diagrams/
 │   │   ├── er-diagram.md      # Diagrama Entidad-Relación (Mermaid)
 │   │   ├── class-diagram.md   # Diagrama de clases UML
@@ -125,7 +125,7 @@ diveconnect/
 │   │   └── architecture.md    # Diagrama de arquitectura
 │   ├── wireframes/            # Wireframes SVG
 │   ├── style-guide.md         # Paleta, tipografías, componentes
-│   └── screenshots/
+│   └── screenshots/           # Capturas finales de la defensa
 ├── scripts/
 │   └── analytics/             # ETL Python + dashboard
 ├── src/
@@ -154,6 +154,10 @@ diveconnect/
 ├── render.yaml                # Configuración de despliegue Render
 ├── pom.xml
 ├── README.md                  # Este fichero
+├── MEMORIA-DIVECONNECT.md     # Memoria tecnica
+├── COBERTURA-RUBRICA.md       # Matriz de criterios PIDAWE
+├── GUIA-MANUAL.md             # Manual de uso y despliegue
+├── GUION-DEFENSA.md           # Guion para la exposicion
 ├── CHANGELOG.md
 ├── INSTALL.md                 # Manual paso a paso
 ├── ISSUES.md                  # Backlog para GitHub Issues
@@ -223,6 +227,7 @@ Todas son **opcionales** salvo `DB_USERNAME` / `DB_PASSWORD`. Sin las de Stripe/
 
 | Variable | Default | Uso |
 |---|---|---|
+| `SPRING_DATASOURCE_URL` | `jdbc:mysql://localhost:3306/diveconnect_db...` | URL JDBC de MySQL |
 | `DB_USERNAME` | `diveconnect_user` | Usuario MySQL |
 | `DB_PASSWORD` | `DiveConnect2025!` | Contraseña MySQL |
 | `JWT_SECRET` | (32+ caracteres por defecto) | Firma de tokens — cambiar en producción |
@@ -236,6 +241,11 @@ Todas son **opcionales** salvo `DB_USERNAME` / `DB_PASSWORD`. Sin las de Stripe/
 | `GOOGLE_OAUTH_ENABLED` | `false` | `true` para activar el botón Google |
 | `OPENWEATHER_API_KEY` | (vacío) | Si falta, `/api/weather` devuelve mock |
 | `FRONTEND_URL` | `http://localhost:8080` | Para los `success_url` de Stripe |
+| `CORS_ALLOWED_ORIGINS` | `*` | Orígenes permitidos para `/api/**` |
+| `JPA_DDL_AUTO` | `update` | Estrategia Hibernate (`update`, `validate`, etc.) |
+| `JPA_SHOW_SQL` | `false` | Mostrar SQL en logs |
+| `APP_LOG_LEVEL` | `INFO` | Nivel de logs de `com.diveconnect` |
+| `HIBERNATE_SQL_LOG_LEVEL` | `WARN` | Nivel de logs SQL de Hibernate |
 
 Plantilla en [`.env.example`](.env.example).
 
@@ -246,8 +256,8 @@ Plantilla en [`.env.example`](.env.example).
 ### Render.com (gratuito con SSL)
 1. Forkear este repo.
 2. En [render.com](https://render.com) → "New +" → "Blueprint" → conectar repositorio.
-3. Render detecta `render.yaml` y crea automáticamente el servicio web + la base de datos.
-4. Definir las variables de entorno del paso anterior en el dashboard de Render.
+3. Render detecta `render.yaml` y crea el servicio web Docker.
+4. Definir las variables de entorno del paso anterior en el dashboard de Render, incluida una base MySQL externa (`SPRING_DATASOURCE_URL`, `DB_USERNAME`, `DB_PASSWORD`).
 5. La app queda en `https://<tu-servicio>.onrender.com` con SSL activo.
 
 ### Docker (cualquier proveedor)
@@ -268,7 +278,11 @@ Detalles paso a paso en [`INSTALL.md`](INSTALL.md).
 
 | Documento | Contenido |
 |---|---|
-| [`docs/DiveConnect-Documentacion-Tecnica.pdf`](docs/DiveConnect-Documentacion-Tecnica.pdf) | Memoria técnica integral (87 páginas, 20 capítulos) |
+| [`MEMORIA-DIVECONNECT.md`](MEMORIA-DIVECONNECT.md) | Memoria técnica integral del proyecto |
+| [`COBERTURA-RUBRICA.md`](COBERTURA-RUBRICA.md) | Trazabilidad directa con los criterios PIDAWE |
+| [`GUIA-MANUAL.md`](GUIA-MANUAL.md) | Manual de instalación, uso y despliegue |
+| [`GUION-DEFENSA.md`](GUION-DEFENSA.md) | Guion de exposición y demo ante tribunal |
+| [`docs/test-plan.md`](docs/test-plan.md) | Plan de pruebas automático y manual |
 | [`docs/diagrams/er-diagram.md`](docs/diagrams/er-diagram.md) | Diagrama E/R en Mermaid + DSL para dbdiagram.io |
 | [`docs/diagrams/class-diagram.md`](docs/diagrams/class-diagram.md) | Diagrama de clases UML |
 | [`docs/diagrams/architecture.md`](docs/diagrams/architecture.md) | Vista de arquitectura por capas |
@@ -304,7 +318,7 @@ Los siguientes diagramas se renderizan automáticamente en GitHub gracias a Merm
 
 ## Decisiones técnicas
 
-Las más relevantes están razonadas en el capítulo 18 del PDF de la memoria. En resumen:
+Las más relevantes están razonadas en [`MEMORIA-DIVECONNECT.md`](MEMORIA-DIVECONNECT.md), [`APUNTES-PROYECTO.md`](APUNTES-PROYECTO.md) y [`COBERTURA-RUBRICA.md`](COBERTURA-RUBRICA.md). En resumen:
 
 - **Lombok `@Data` + `Set<Entity>` en JPA**: rompe `equals/hashCode`. Solución: queries nativas en `UsuarioRepository.existsSeguimiento`.
 - **Pasarela demo + sandbox + live en un solo flujo**: el frontend detecta automáticamente la configuración del backend.

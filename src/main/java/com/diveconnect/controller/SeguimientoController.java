@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/seguimiento")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class SeguimientoController {
 
     private final SeguimientoService seguimientoService;

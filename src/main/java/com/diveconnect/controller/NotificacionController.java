@@ -13,7 +13,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/notificaciones")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class NotificacionController {
 
     private final NotificacionService notificacionService;

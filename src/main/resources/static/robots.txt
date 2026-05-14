@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /pages/login.html
+Allow: /pages/register.html
+Allow: /pages/feed.html
+Allow: /pages/centros.html
+Allow: /pages/Inmersiones.html
+Allow: /pages/mapa.html
+Allow: /pages/buscar.html
+
+Disallow: /pages/admin/
+Disallow: /pages/empresa/
+Disallow: /pages/oauth-callback.html
+Disallow: /api/
+Disallow: /actuator/
+Disallow: /swagger-ui/
+Disallow: /v3/api-docs
+
+Sitemap: /sitemap.xml

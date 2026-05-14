@@ -19,7 +19,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/api/uploads")
 @Slf4j
-@CrossOrigin(origins = "*")
 public class UploadController {
 
     private static final List<String> ALLOWED_EXT = List.of(

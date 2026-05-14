@@ -21,7 +21,6 @@ import java.util.Map;
 @RequestMapping("/api/payments")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class PaymentController {
 
     private final StripeService stripeService;
@@ -66,7 +65,7 @@ public class PaymentController {
             log.error("Stripe createCheckout falló", e);
             return ResponseEntity.internalServerError().body(Map.of(
                     "enabled", true,
-                    "error", e.getMessage()
+                    "error", "No se pudo iniciar el pago con Stripe"
             ));
         }
     }
@@ -104,7 +103,9 @@ public class PaymentController {
                 ));
             } catch (StripeException e) {
                 log.error("Stripe retrieveSession falló", e);
-                return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+                return ResponseEntity.internalServerError().body(Map.of(
+                        "error", "No se pudo verificar el pago con Stripe"
+                ));
             }
         }
 

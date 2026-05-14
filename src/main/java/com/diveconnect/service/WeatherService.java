@@ -1,5 +1,6 @@
 package com.diveconnect.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -8,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class WeatherService {
 
     private final WebClient webClient;
@@ -69,8 +71,9 @@ public class WeatherService {
             out.put("ciudad", raw.get("name"));
             return out;
         } catch (Exception e) {
+            log.warn("No se pudo obtener el tiempo desde OpenWeatherMap", e);
             Map<String, Object> err = mockResponse(lat, lon);
-            err.put("error", e.getMessage());
+            err.put("error", "No se pudo obtener el tiempo real; usando datos de demo");
             return err;
         }
     }

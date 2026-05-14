@@ -57,6 +57,11 @@ services:
 
       # JWT — cambiar en producción
       JWT_SECRET: DiveConnect2025SecretKeyForJWTTokenGenerationMustBeLongEnoughToBeSecure
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8080}
+      JPA_DDL_AUTO: ${JPA_DDL_AUTO:-update}
+      JPA_SHOW_SQL: ${JPA_SHOW_SQL:-false}
+      APP_LOG_LEVEL: ${APP_LOG_LEVEL:-INFO}
+      HIBERNATE_SQL_LOG_LEVEL: ${HIBERNATE_SQL_LOG_LEVEL:-WARN}
 
       # Variables opcionales (vacías = modo demo)
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}

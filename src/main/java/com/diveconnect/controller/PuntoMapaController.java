@@ -17,7 +17,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/puntos-mapa")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class PuntoMapaController {
 
     private final PuntoMapaService puntoMapaService;

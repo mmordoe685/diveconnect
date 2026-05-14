@@ -108,13 +108,13 @@ Este es el camino más cercano a producción real, con SSL gratuito y dominio p�
 1. Forkea o sube este repositorio a tu cuenta de GitHub.
 2. Crea cuenta gratuita en [render.com](https://render.com).
 3. Dashboard → "New +" → "Blueprint" → conectar el repositorio.
-4. Render detecta el `render.yaml` y crea automáticamente:
-   - **Servicio web "diveconnect"**: la app Spring Boot.
-   - **Base de datos "diveconnect-db"**: MySQL gestionado.
-5. Define las variables de entorno opcionales en el dashboard de Render:
-   `STRIPE_SECRET_KEY`, `PAYPAL_CLIENT_ID`, `GOOGLE_CLIENT_ID`, etc.
-6. Render construye la imagen Docker y despliega. Tarda 5-8 min la primera vez.
-7. La app queda en `https://diveconnect.onrender.com` con SSL automático.
+4. Render detecta el `render.yaml` y crea el **servicio web "diveconnect"**.
+5. Conecta una base MySQL externa y define en el dashboard de Render:
+   `SPRING_DATASOURCE_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`.
+6. Define las variables opcionales:
+   `STRIPE_SECRET_KEY`, `PAYPAL_CLIENT_ID`, `GOOGLE_CLIENT_ID`, `OPENWEATHER_API_KEY`, etc.
+7. Render construye la imagen Docker y despliega. Tarda 5-8 min la primera vez.
+8. La app queda en `https://diveconnect.onrender.com` con SSL automático.
 
 ### Plan gratuito de Render
 - 0,5 CPU / 512 MB RAM.
@@ -154,16 +154,16 @@ Cada `git push` a `master` dispara una build nueva en Render automáticamente.
 | `http://localhost:8080/pages/login.html` | Login |
 | `http://localhost:8080/swagger-ui.html` | API REST interactiva (Swagger) |
 | `http://localhost:8080/v3/api-docs` | Especificación OpenAPI 3.0 (JSON) |
-| `http://localhost:8080/api/paypal/config` | Endpoint público sin auth, sirve para health-check |
+| `http://localhost:8080/actuator/health` | Health-check público de Actuator |
 
 ---
 
 ## Resolución de problemas
 
 ### "Address already in use: bind"
-Otro proceso está usando el puerto 8080. Cambia el puerto en `application.properties`:
-```properties
-server.port=8081
+Otro proceso está usando el puerto 8080. Cambia el puerto con variable de entorno o en `application.properties`:
+```bash
+PORT=8081
 ```
 
 ### "Access denied for user 'diveconnect_user'@'localhost'"

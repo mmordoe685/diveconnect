@@ -42,9 +42,9 @@ RUN chown diveconnect:diveconnect /app/app.jar
 USER diveconnect
 EXPOSE 8080
 
-# Healthcheck contra el endpoint público de configuración
+# Healthcheck contra Actuator. Usa PORT si la plataforma lo inyecta.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:8080/api/paypal/config || exit 1
+    CMD wget --quiet --tries=1 --spider http://localhost:${PORT:-8080}/actuator/health || exit 1
 
 # Permitir override del Xmx vía env (Render limita la RAM gratuita a 512 MB)
 ENV JAVA_OPTS="-Xms256m -Xmx450m -XX:+UseG1GC"

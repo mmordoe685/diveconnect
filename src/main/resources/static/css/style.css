@@ -94,6 +94,13 @@ body{
 img{display:block;max-width:100%}
 a{color:var(--seafoam);text-decoration:none;transition:color var(--dur) var(--ease)}
 a:hover{color:var(--turq-dark)}
+.skip-link{
+  position:fixed;left:1rem;top:1rem;z-index:3000;
+  transform:translateY(-160%);padding:.65rem 1rem;border-radius:var(--r-sm);
+  background:var(--navy);color:#fff;font-weight:800;box-shadow:var(--sh-lg);
+  transition:transform var(--dur) var(--ease);
+}
+.skip-link:focus{transform:translateY(0);outline:3px solid var(--seafoam);outline-offset:3px}
 ::selection{background:rgba(0,212,170,.2);color:var(--t1)}
 ::-webkit-scrollbar{width:6px}
 ::-webkit-scrollbar-track{background:var(--alt)}

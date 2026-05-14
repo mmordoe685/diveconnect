@@ -122,12 +122,16 @@ BEGIN
 END//
 
 -- ------------------------------------------------------------
--- TRIGGER: actualiza valoracion_promedio del centro al insertar
--- una reserva COMPLETADA con una valoración (extensión futura).
--- Lo dejamos preparado aunque el campo de valoración por reserva
--- aún no se exponga en la API.
+-- TRIGGER: mantiene ultima_modificacion coherente aunque una
+-- reserva se actualice fuera de Hibernate.
 -- ------------------------------------------------------------
-DROP TRIGGER IF EXISTS trg_recalcular_valoracion_centro//
+DROP TRIGGER IF EXISTS trg_reservas_ultima_modificacion//
+CREATE TRIGGER trg_reservas_ultima_modificacion
+BEFORE UPDATE ON reservas
+FOR EACH ROW
+BEGIN
+    SET NEW.ultima_modificacion = NOW();
+END//
 
 DELIMITER ;
 

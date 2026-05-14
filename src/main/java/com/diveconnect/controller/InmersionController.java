@@ -20,7 +20,6 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/inmersiones")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class InmersionController {
 
     private final InmersionService inmersionService;

@@ -53,8 +53,7 @@ Auditoría manual basada en los criterios de Google Lighthouse, ejecutada sobre 
 #### ⚠️ Mejorable
 - **Inputs en modales**: 12 inputs detectados en feed (correspondientes a los modales de publicación, historia y pago) tienen `<label>` visual pero no siempre `for="..."` apuntando al `id`. Para lectores de pantalla la asociación se hace por proximidad pero no es óptima.
   - **Acción**: añadir `for` y `id` consistentes en los modales. Pendiente para v1.0.1.
-- **Skip-to-content link**: no implementado. En una app con un dock fijo + topbar, un enlace "Saltar al contenido" facilitaría la navegación con teclado.
-  - **Acción**: añadir `<a class="skip-link" href="#main">Saltar al contenido</a>` al inicio del `<body>`. Pendiente para v1.0.1.
+- **Skip-to-content link**: implementado desde `nav.js` para las pantallas autenticadas con topbar/dock. Permite saltar directamente al contenido principal usando teclado.
 
 #### ❌ No aplica
 - Subtítulos en vídeo: no hay vídeos hospedados como contenido formativo.
@@ -72,8 +71,7 @@ Auditoría manual basada en los criterios de Google Lighthouse, ejecutada sobre 
 - Robots NO bloqueado (no hay `robots.txt` que prohíba; valor por defecto = permitido).
 
 #### ⚠️ Mejorable
-- **`og:image` apunta a `/images/og-cover.png` que aún no existe**.
-  - **Acción**: añadir una imagen 1200x630 con el branding. Si no se añade, la previsualización en redes sociales mostrará la URL sin imagen.
+- **`og:image`** apunta a `/images/og-cover.png`, asset 1200x630 incluido en `src/main/resources/static/images/`.
 
 #### ❌ No aplica
 - Sitemap.xml: la app tiene poca presencia pública (sólo landing). Si se promociona en producción real, generar uno con páginas estáticas.

@@ -6,7 +6,6 @@
 flowchart TB
     subgraph Cliente["Cliente (navegador)"]
         UI[HTML / CSS / JS]
-        UI --> SW[Service Worker]
     end
 
     subgraph Servidor["Servidor Spring Boot"]
@@ -110,7 +109,7 @@ sequenceDiagram
     end
 ```
 
-## Despliegue (Render.com)
+## Despliegue (Render.com + MySQL externo)
 
 ```mermaid
 flowchart LR
@@ -119,7 +118,7 @@ flowchart LR
     Render -->|docker build| Image[Imagen Docker]
     Image -->|deploy| App[Container web]
     App -->|TLS| Internet
-    Render -->|gestionada| MySQL[(MySQL Render)]
+    MySQLHost[Proveedor MySQL externo] --> MySQL[(MySQL 8)]
     App <--> MySQL
 
     GitHub -->|GitHub Actions| CI[Build + Test]

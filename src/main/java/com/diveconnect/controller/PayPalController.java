@@ -21,7 +21,6 @@ import java.util.Map;
 @RequestMapping("/api/paypal")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "*")
 public class PayPalController {
 
     private final PayPalService       paypal;
@@ -70,7 +69,7 @@ public class PayPalController {
             log.error("PayPal createOrder falló", e);
             return ResponseEntity.internalServerError().body(Map.of(
                     "enabled", true,
-                    "error",   e.getMessage()
+                    "error",   "No se pudo crear la orden de PayPal"
             ));
         }
     }
@@ -133,7 +132,9 @@ public class PayPalController {
             ));
         } catch (PayPalService.PayPalException e) {
             log.error("PayPal captureOrder falló", e);
-            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.internalServerError().body(Map.of(
+                    "error", "No se pudo capturar la orden de PayPal"
+            ));
         }
     }
 }

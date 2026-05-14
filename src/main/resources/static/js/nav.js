@@ -50,6 +50,8 @@ function getDockTabs(role) {
 }
 
 function initNav() {
+  _ensureSkipLink();
+
   const topbar = document.getElementById('mainNavbar');
   if (!topbar) return;
 
@@ -122,6 +124,24 @@ function initNav() {
 
   // Arrancar el polling de notificaciones no leídas
   _startNotificationsPolling();
+}
+
+function _ensureSkipLink() {
+  if (document.getElementById('skipToContent')) return;
+
+  const target = document.querySelector('main, [role="main"], .container, .container-wide, .feed-wrap, .page, .admin-wrap, .empresa-wrap');
+  if (!target) return;
+
+  if (!target.id) {
+    target.id = 'main-content';
+  }
+
+  const link = document.createElement('a');
+  link.id = 'skipToContent';
+  link.className = 'skip-link';
+  link.href = `#${target.id}`;
+  link.textContent = 'Saltar al contenido';
+  document.body.prepend(link);
 }
 
 let _notifPollingTimer = null;

@@ -1,50 +1,48 @@
-# ──────────────────────────────────────────────────────────────
-# render.yaml — Blueprint de despliegue para Render.com
+# render.yaml - Blueprint de despliegue para Render.com
 #
-# Cómo desplegar:
+# Como desplegar:
 #   1. Forkear el repo en GitHub.
-#   2. En render.com → "New +" → "Blueprint" → conectar este repo.
-#   3. Render detecta este fichero y crea automáticamente:
-#         - un servicio web (la app Spring Boot)
-#         - una base de datos MySQL gestionada
-#   4. Definir las variables de entorno marcadas con sync:false en
-#      el dashboard de Render (claves de Stripe / PayPal / Google).
-#   5. La app queda en https://diveconnect.onrender.com con SSL.
+#   2. En render.com -> "New +" -> "Blueprint" -> conectar este repo.
+#   3. Render crea el servicio web Docker de Spring Boot.
+#   4. Configurar manualmente las variables marcadas con sync:false:
+#      MySQL externo, Stripe, PayPal, Google y OpenWeatherMap.
+#   5. La app queda en https://diveconnect.onrender.com con SSL gestionado.
 #
-# Plan gratuito (Free):
-#   - 0,5 CPU + 512 MB RAM
-#   - el servicio "duerme" tras 15 min sin tráfico (cold start ~30 s)
-# ──────────────────────────────────────────────────────────────
+# Nota: este blueprint no provisiona base de datos. DiveConnect usa MySQL,
+# por lo que SPRING_DATASOURCE_URL debe apuntar a una instancia MySQL externa.
 
 services:
   - type: web
     name: diveconnect
     runtime: docker
     plan: free
-    region: frankfurt              # más cercano a España
+    region: frankfurt
     branch: master
     rootDir: .
     dockerfilePath: ./Dockerfile
-    healthCheckPath: /api/paypal/config
-    autoDeploy: true               # redeploy en cada push a master
+    healthCheckPath: /actuator/health
+    autoDeploy: true
     envVars:
       - key: SPRING_DATASOURCE_URL
-        fromDatabase:
-          name: diveconnect-db
-          property: connectionString
+        sync: false
       - key: DB_USERNAME
-        fromDatabase:
-          name: diveconnect-db
-          property: user
+        sync: false
       - key: DB_PASSWORD
-        fromDatabase:
-          name: diveconnect-db
-          property: password
+        sync: false
       - key: JWT_SECRET
-        generateValue: true        # Render genera uno aleatorio seguro
+        generateValue: true
       - key: FRONTEND_URL
         value: https://diveconnect.onrender.com
-      # Las siguientes deben definirse manualmente en el dashboard.
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://diveconnect.onrender.com
+      - key: JPA_DDL_AUTO
+        value: update
+      - key: JPA_SHOW_SQL
+        value: "false"
+      - key: APP_LOG_LEVEL
+        value: INFO
+      - key: HIBERNATE_SQL_LOG_LEVEL
+        value: WARN
       - key: STRIPE_SECRET_KEY
         sync: false
       - key: STRIPE_PUBLISHABLE_KEY
@@ -65,11 +63,3 @@ services:
         sync: false
       - key: JAVA_OPTS
         value: "-Xms256m -Xmx450m -XX:+UseG1GC"
-
-databases:
-  - name: diveconnect-db
-    plan: free
-    databaseName: diveconnect_db
-    user: diveconnect_user
-    region: frankfurt
-    ipAllowList: []                # sólo accesible desde la red interna de Render
